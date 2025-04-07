@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
@@ -18,15 +19,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.navigation.NavController
 import com.example.billbuddy.ui.MainViewModel
 
 @Composable
 fun EventDetailScreen(
     eventId: String,
     viewModel: MainViewModel,
-    onAddBuddyClick: () -> Unit = {}
+    navController: NavController
 ) {
     // Ambil data dari ViewModel
     val eventData by viewModel.eventData.observeAsState()
@@ -37,11 +41,161 @@ fun EventDetailScreen(
         viewModel.getEventDetails(eventId)
     }
 
+    // State untuk dialog Add Buddy
+    val showAddBuddyDialog = remember { mutableStateOf(false) }
+    val newBuddyName = remember { mutableStateOf("") }
+
+    // State untuk dialog konfirmasi hapus
+    val showDeleteDialog = remember { mutableStateOf(false) }
+
     // Warna sesuai desain
     val backgroundColor = Color(0xFFFFE6E6) // Latar pink
     val buttonColor = Color(0xFFFFB6C1) // Warna tombol pink
     val textColor = Color(0xFF4A4A4A) // Warna teks abu-abu tua
     val paidButtonColor = Color(0xFF6A5ACD) // Warna tombol Mark Unpaid (ungu)
+    val deleteButtonColor = Color(0xFFFF4444) // Warna tombol hapus (merah)
+
+    // Dialog untuk Add Buddy
+    if (showAddBuddyDialog.value) {
+        Dialog(onDismissRequest = { showAddBuddyDialog.value = false }) {
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                color = Color.White,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Tambah Buddy",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = textColor
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    OutlinedTextField(
+                        value = newBuddyName.value,
+                        onValueChange = { newBuddyName.value = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        label = { Text("Nama Buddy") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White,
+                            focusedIndicatorColor = buttonColor,
+                            unfocusedIndicatorColor = textColor
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        TextButton(
+                            onClick = { showAddBuddyDialog.value = false }
+                        ) {
+                            Text(
+                                text = "Batal",
+                                color = buttonColor,
+                                fontSize = 16.sp
+                            )
+                        }
+                        TextButton(
+                            onClick = {
+                                if (newBuddyName.value.isNotBlank()) {
+                                    viewModel.addParticipant(eventId, newBuddyName.value)
+                                    newBuddyName.value = "" // Reset input
+                                    showAddBuddyDialog.value = false
+                                }
+                            },
+                            enabled = newBuddyName.value.isNotBlank()
+                        ) {
+                            Text(
+                                text = "Tambah",
+                                color = if (newBuddyName.value.isNotBlank()) buttonColor else Color.Gray,
+                                fontSize = 16.sp
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Dialog untuk konfirmasi hapus
+    if (showDeleteDialog.value) {
+        Dialog(onDismissRequest = { showDeleteDialog.value = false }) {
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                color = Color.White,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Hapus Event",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = textColor
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = "Apakah Anda yakin ingin menghapus event ini?",
+                        fontSize = 16.sp,
+                        color = textColor,
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        TextButton(
+                            onClick = { showDeleteDialog.value = false }
+                        ) {
+                            Text(
+                                text = "Batal",
+                                color = buttonColor,
+                                fontSize = 16.sp
+                            )
+                        }
+                        TextButton(
+                            onClick = {
+                                viewModel.deleteEvent(eventId) {
+                                    showDeleteDialog.value = false
+                                    navController.popBackStack() // Kembali ke halaman sebelumnya
+                                }
+                            }
+                        ) {
+                            Text(
+                                text = "Hapus",
+                                color = deleteButtonColor,
+                                fontSize = 16.sp
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -62,7 +216,9 @@ fun EventDetailScreen(
                 color = textColor
             )
             Spacer(modifier = Modifier.weight(1f))
-            IconButton(onClick = { /* TODO: Tambahkan aksi untuk menutup layar */ }) {
+            IconButton(onClick = {
+                navController.popBackStack() // Kembali ke halaman sebelumnya
+            }) {
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = "Close",
@@ -237,7 +393,9 @@ fun EventDetailScreen(
 
         // Tombol Add Buddy
         Button(
-            onClick = onAddBuddyClick,
+            onClick = {
+                showAddBuddyDialog.value = true // Tampilkan dialog saat tombol diklik
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
@@ -259,6 +417,26 @@ fun EventDetailScreen(
                     fontSize = 18.sp
                 )
             }
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Tombol Hapus Event
+        Button(
+            onClick = {
+                showDeleteDialog.value = true // Tampilkan dialog konfirmasi hapus
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = deleteButtonColor)
+        ) {
+            Text(
+                text = "Hapus Event",
+                color = Color.White,
+                fontSize = 18.sp
+            )
         }
 
         Spacer(modifier = Modifier.height(16.dp))

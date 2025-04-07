@@ -5,6 +5,8 @@ import com.example.billbuddy.model.EventData
 import com.example.billbuddy.model.Item
 import com.example.billbuddy.model.Participant
 import android.util.Log
+import com.google.android.gms.tasks.Tasks
+//import com.google.firebase.auth.FirebaseAuth
 
 class SplitBillRepository {
     private val db = FirebaseFirestore.getInstance()
@@ -190,6 +192,366 @@ class SplitBillRepository {
                 onFailure(e)
             }
     }
+
+    fun getAllEvents(
+        onSuccess: (List<EventData>) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        Log.d("SplitBillRepository", "Mengambil semua event dari Firestore")
+        db.collection("split_events")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                Log.d("SplitBillRepository", "Jumlah dokumen ditemukan: ${snapshot.documents.size}")
+                val eventTasks = snapshot.documents.map { doc ->
+                    Log.d("SplitBillRepository", "Mengambil subkoleksi untuk event: ${doc.id}")
+                    val itemsTask = doc.reference.collection("items").get()
+                    val participantsTask = doc.reference.collection("participants").get()
+
+                    Tasks.whenAllSuccess<Any>(itemsTask, participantsTask).continueWith { task ->
+                        try {
+                            val itemsSnapshot = itemsTask.result
+                            val participantsSnapshot = participantsTask.result
+                            Log.d("SplitBillRepository", "Items: ${itemsSnapshot?.documents?.size}, Participants: ${participantsSnapshot?.documents?.size}")
+
+                            val items = itemsSnapshot?.documents?.mapNotNull { itemDoc ->
+                                Item(
+                                    itemId = itemDoc.id,
+                                    name = itemDoc.getString("name") ?: "",
+                                    quantity = itemDoc.getLong("quantity")?.toInt() ?: 0,
+                                    price = itemDoc.getLong("price") ?: 0
+                                )
+                            } ?: emptyList()
+
+                            val participants = participantsSnapshot?.documents?.mapNotNull { participantDoc ->
+                                Participant(
+                                    id = participantDoc.id,
+                                    name = participantDoc.getString("name") ?: "",
+                                    userId = participantDoc.getString("userId"),
+                                    amount = participantDoc.getLong("amount") ?: 0,
+                                    paid = participantDoc.getBoolean("paid") ?: false,
+                                    itemsAssigned = participantDoc.get("itemsAssigned") as? List<String>,
+                                    isCreator = participantDoc.id == doc.getString("creator_id")
+                                )
+                            } ?: emptyList()
+
+                            EventData(
+                                eventId = doc.id,
+                                creatorId = doc.getString("creator_id") ?: "",
+                                creatorName = doc.getString("creator_name") ?: "",
+                                eventName = doc.getString("event_name") ?: "",
+                                totalAmount = doc.getLong("total_amount") ?: 0,
+                                taxAmount = doc.getLong("tax_amount") ?: 0,
+                                serviceFee = doc.getLong("service_fee") ?: 0,
+                                status = doc.getString("status") ?: "ongoing",
+                                timestamp = doc.getLong("timestamp") ?: 0,
+                                shareLink = doc.getString("share_link"),
+                                items = items,
+                                participants = participants
+                            )
+                        } catch (e: Exception) {
+                            Log.e("SplitBillRepository", "Error memproses event ${doc.id}: ${e.message}")
+                            null
+                        }
+                    }
+                }
+
+                Tasks.whenAllSuccess<EventData?>(eventTasks).addOnSuccessListener { events ->
+                    Log.d("SplitBillRepository", "Berhasil mengambil ${events.size} event")
+                    onSuccess(events.filterNotNull())
+                }.addOnFailureListener { e ->
+                    Log.e("SplitBillRepository", "Gagal mengambil event: ${e.message}")
+                    onFailure(e)
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.e("SplitBillRepository", "Gagal mengambil dokumen: ${e.message}")
+                onFailure(e)
+            }
+    }
+
+    fun searchEvents(
+        query: String,
+        onSuccess: (List<EventData>) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        db.collection("split_events")
+            .whereGreaterThanOrEqualTo("event_name", query)
+            .whereLessThanOrEqualTo("event_name", query + "\uf8ff")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val eventTasks = snapshot.documents.map { doc ->
+                    val itemsTask = doc.reference.collection("items").get()
+                    val participantsTask = doc.reference.collection("participants").get()
+
+                    Tasks.whenAllSuccess<Any>(itemsTask, participantsTask).continueWith { task ->
+                        try {
+                            val itemsSnapshot = itemsTask.result
+                            val participantsSnapshot = participantsTask.result
+
+                            val items = itemsSnapshot?.documents?.mapNotNull { itemDoc ->
+                                Item(
+                                    itemId = itemDoc.id,
+                                    name = itemDoc.getString("name") ?: "",
+                                    quantity = itemDoc.getLong("quantity")?.toInt() ?: 0,
+                                    price = itemDoc.getLong("price") ?: 0
+                                )
+                            } ?: emptyList()
+
+                            val participants = participantsSnapshot?.documents?.mapNotNull { participantDoc ->
+                                Participant(
+                                    id = participantDoc.id,
+                                    name = participantDoc.getString("name") ?: "",
+                                    userId = participantDoc.getString("userId"),
+                                    amount = participantDoc.getLong("amount") ?: 0,
+                                    paid = participantDoc.getBoolean("paid") ?: false,
+                                    itemsAssigned = participantDoc.get("itemsAssigned") as? List<String>,
+                                    isCreator = participantDoc.id == doc.getString("creator_id")
+                                )
+                            } ?: emptyList()
+
+                            EventData(
+                                eventId = doc.id,
+                                creatorId = doc.getString("creator_id") ?: "",
+                                creatorName = doc.getString("creator_name") ?: "",
+                                eventName = doc.getString("event_name") ?: "",
+                                totalAmount = doc.getLong("total_amount") ?: 0,
+                                taxAmount = doc.getLong("tax_amount") ?: 0,
+                                serviceFee = doc.getLong("service_fee") ?: 0,
+                                status = doc.getString("status") ?: "ongoing",
+                                timestamp = doc.getLong("timestamp") ?: 0,
+                                shareLink = doc.getString("share_link"),
+                                items = items,
+                                participants = participants
+                            )
+                        } catch (e: Exception) {
+                            null
+                        }
+                    }
+                }
+
+                Tasks.whenAllSuccess<EventData?>(eventTasks).addOnSuccessListener { events ->
+                    onSuccess(events.filterNotNull())
+                }.addOnFailureListener { e ->
+                    onFailure(e)
+                }
+            }
+            .addOnFailureListener { e ->
+                onFailure(e)
+            }
+    }
+
+    fun getActiveEvents(
+        onSuccess: (List<EventData>) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        db.collection("split_events")
+            .whereEqualTo("status", "ongoing")
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val eventTasks = snapshot.documents.map { doc ->
+                    val itemsTask = doc.reference.collection("items").get()
+                    val participantsTask = doc.reference.collection("participants").get()
+
+                    Tasks.whenAllSuccess<Any>(itemsTask, participantsTask).continueWith { task ->
+                        try {
+                            val itemsSnapshot = itemsTask.result
+                            val participantsSnapshot = participantsTask.result
+
+                            val items = itemsSnapshot?.documents?.mapNotNull { itemDoc ->
+                                Item(
+                                    itemId = itemDoc.id,
+                                    name = itemDoc.getString("name") ?: "",
+                                    quantity = itemDoc.getLong("quantity")?.toInt() ?: 0,
+                                    price = itemDoc.getLong("price") ?: 0
+                                )
+                            } ?: emptyList()
+
+                            val participants = participantsSnapshot?.documents?.mapNotNull { participantDoc ->
+                                Participant(
+                                    id = participantDoc.id,
+                                    name = participantDoc.getString("name") ?: "",
+                                    userId = participantDoc.getString("userId"),
+                                    amount = participantDoc.getLong("amount") ?: 0,
+                                    paid = participantDoc.getBoolean("paid") ?: false,
+                                    itemsAssigned = participantDoc.get("itemsAssigned") as? List<String>,
+                                    isCreator = participantDoc.id == doc.getString("creator_id")
+                                )
+                            } ?: emptyList()
+
+                            EventData(
+                                eventId = doc.id,
+                                creatorId = doc.getString("creator_id") ?: "",
+                                creatorName = doc.getString("creator_name") ?: "",
+                                eventName = doc.getString("event_name") ?: "",
+                                totalAmount = doc.getLong("total_amount") ?: 0,
+                                taxAmount = doc.getLong("tax_amount") ?: 0,
+                                serviceFee = doc.getLong("service_fee") ?: 0,
+                                status = doc.getString("status") ?: "ongoing",
+                                timestamp = doc.getLong("timestamp") ?: 0,
+                                shareLink = doc.getString("share_link"),
+                                items = items,
+                                participants = participants
+                            )
+                        } catch (e: Exception) {
+                            null
+                        }
+                    }
+                }
+
+                Tasks.whenAllSuccess<EventData?>(eventTasks).addOnSuccessListener { events ->
+                    onSuccess(events.filterNotNull())
+                }.addOnFailureListener { e ->
+                    onFailure(e)
+                }
+            }
+            .addOnFailureListener { e ->
+                onFailure(e)
+            }
+    }
+    fun addParticipant(
+        eventId: String,
+        participantName: String,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        val participantData = hashMapOf(
+            "name" to participantName,
+            "userId" to null, // Bisa diisi dengan userId jika ada autentikasi
+            "amount" to 0L, // Awalnya 0, bisa dihitung ulang nanti
+            "paid" to false,
+            "itemsAssigned" to emptyList<String>()
+        )
+
+        db.collection("split_events")
+            .document(eventId)
+            .collection("participants")
+            .add(participantData)
+            .addOnSuccessListener {
+                // Perbarui total amount event jika diperlukan
+                recalculateEventTotal(eventId, onSuccess, onFailure)
+            }
+            .addOnFailureListener { e ->
+                onFailure(e)
+            }
+    }
+
+    private fun recalculateEventTotal(
+        eventId: String,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        db.collection("split_events")
+            .document(eventId)
+            .get()
+            .addOnSuccessListener { doc ->
+                val totalAmount = doc.getLong("total_amount") ?: 0L
+                val participantsTask = doc.reference.collection("participants").get()
+
+                participantsTask.addOnSuccessListener { participantsSnapshot ->
+                    val participantCount = participantsSnapshot.documents.size
+                    if (participantCount > 0) {
+                        val amountPerPerson = totalAmount / participantCount
+                        val batch = db.batch()
+
+                        participantsSnapshot.documents.forEach { participantDoc ->
+                            val participantRef = doc.reference.collection("participants").document(participantDoc.id)
+                            batch.update(participantRef, "amount", amountPerPerson)
+                        }
+
+                        batch.commit()
+                            .addOnSuccessListener {
+                                onSuccess()
+                            }
+                            .addOnFailureListener { e ->
+                                onFailure(e)
+                            }
+                    } else {
+                        onSuccess()
+                    }
+                }.addOnFailureListener { e ->
+                    onFailure(e)
+                }
+            }
+            .addOnFailureListener { e ->
+                onFailure(e)
+            }
+    }
+
+    fun deleteEvent(
+        eventId: String,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        val eventRef = db.collection("split_events").document(eventId)
+
+        // Hapus subkoleksi items
+        eventRef.collection("items")
+            .get()
+            .addOnSuccessListener { itemsSnapshot ->
+                val batch = db.batch()
+                itemsSnapshot.documents.forEach { itemDoc ->
+                    batch.delete(itemDoc.reference)
+                }
+
+                // Hapus subkoleksi participants
+                eventRef.collection("participants")
+                    .get()
+                    .addOnSuccessListener { participantsSnapshot ->
+                        participantsSnapshot.documents.forEach { participantDoc ->
+                            batch.delete(participantDoc.reference)
+                        }
+
+                        // Commit batch untuk menghapus subkoleksi
+                        batch.commit()
+                            .addOnSuccessListener {
+                                // Hapus dokumen event utama
+                                eventRef.delete()
+                                    .addOnSuccessListener {
+                                        onSuccess()
+                                    }
+                                    .addOnFailureListener { e ->
+                                        onFailure(e)
+                                    }
+                            }
+                            .addOnFailureListener { e ->
+                                onFailure(e)
+                            }
+                    }
+                    .addOnFailureListener { e ->
+                        onFailure(e)
+                    }
+            }
+            .addOnFailureListener { e ->
+                onFailure(e)
+            }
+    }
+//    fun getUserProfile(
+//        onSuccess: (UserProfile) -> Unit,
+//        onFailure: (Exception) -> Unit
+//    ) {
+//        val user = FirebaseAuth.getInstance().currentUser
+//        if (user == null) {
+//            onFailure(Exception("Pengguna belum login"))
+//            return
+//        }
+//
+//        // Ambil data tambahan dari Firestore (misalnya status keanggotaan)
+//        db.collection("users").document(user.uid).get()
+//            .addOnSuccessListener { document ->
+//                if (document.exists()) {
+//                    val userProfile = UserProfile(
+//                        name = user.displayName ?: "Pengguna Aplikasi",
+//                        isPremium = document.getBoolean("isPremium") ?: false
+//                    )
+//                    onSuccess(userProfile)
+//                } else {
+//                    onFailure(Exception("Data pengguna tidak ditemukan"))
+//                }
+//            }
+//            .addOnFailureListener { e ->
+//                onFailure(e)
+//            }
+//    }
 }
 
 //package com.example.billbuddy.data

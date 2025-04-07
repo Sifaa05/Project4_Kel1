@@ -69,4 +69,7 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.firestore)
     implementation ("androidx.navigation:navigation-compose:2.7.7")
+    implementation ("com.google.firebase:firebase-firestore-ktx:24.10.0")
+    //implementation ("com.google.firebase:firebase-auth-ktx:23.3.1")
+    implementation ("androidx.compose.material:material-icons-extended:1.6.8")
 }

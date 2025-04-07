@@ -1,5 +1,6 @@
 package com.example.billbuddy.ui
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -7,6 +8,7 @@ import com.example.billbuddy.data.SplitBillRepository
 import com.example.billbuddy.model.EventData
 import com.example.billbuddy.model.Item
 import com.example.billbuddy.model.Participant
+//import com.example.billbuddy.model.UserProfile
 
 class MainViewModel : ViewModel() {
     private val repository = SplitBillRepository()
@@ -16,6 +18,9 @@ class MainViewModel : ViewModel() {
 
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> get() = _error
+
+    private val _allEvents = MutableLiveData<List<EventData>>(emptyList())
+    val allEvents: LiveData<List<EventData>> get() = _allEvents
 
     fun createEvent(
         creatorId: String,
@@ -66,4 +71,94 @@ class MainViewModel : ViewModel() {
             }
         )
     }
+
+    fun getAllEvents() {
+        Log.d("MainViewModel", "Memulai pengambilan semua event")
+        repository.getAllEvents(
+            onSuccess = { events ->
+                Log.d("MainViewModel", "Berhasil mengambil ${events.size} event")
+                _allEvents.value = events
+            },
+            onFailure = { e ->
+                Log.e("MainViewModel", "Gagal mengambil event: ${e.message}")
+                _error.value = e.message
+            }
+        )
+    }
+
+    private val _searchResults = MutableLiveData<List<EventData>>(emptyList())
+    val searchResults: LiveData<List<EventData>> get() = _searchResults
+
+    fun searchEvents(query: String) {
+        if (query.isEmpty()) {
+            _searchResults.value = emptyList()
+            return
+        }
+        repository.searchEvents(
+            query = query,
+            onSuccess = { events ->
+                _searchResults.value = events
+            },
+            onFailure = { e ->
+                _error.value = e.message
+            }
+        )
+    }
+
+    private val _activeEvents = MutableLiveData<List<EventData>>(emptyList())
+    val activeEvents: LiveData<List<EventData>> get() = _activeEvents
+    fun getActiveEvents() {
+        repository.getActiveEvents(
+            onSuccess = { events ->
+                _activeEvents.value = events
+            },
+            onFailure = { e ->
+                _error.value = e.message
+            }
+        )
+    }
+
+    fun addParticipant(
+        eventId: String,
+        participantName: String
+    ) {
+        repository.addParticipant(
+            eventId = eventId,
+            participantName = participantName,
+            onSuccess = {
+                getEventDetails(eventId) // Perbarui data event setelah participant ditambahkan
+            },
+            onFailure = { e ->
+                _error.value = e.message
+            }
+        )
+    }
+
+    fun deleteEvent(
+        eventId: String,
+        onSuccess: () -> Unit
+    ) {
+        repository.deleteEvent(
+            eventId = eventId,
+            onSuccess = {
+                onSuccess() // Panggil callback onSuccess untuk navigasi
+            },
+            onFailure = { e ->
+                _error.value = e.message
+            }
+        )
+    }
+//    private val _userProfile = MutableLiveData<UserProfile?>()
+//    val userProfile: LiveData<UserProfile?> get() = _userProfile
+//
+//    fun getUserProfile() {
+//        repository.getUserProfile(
+//            onSuccess = { profile ->
+//                _userProfile.value = profile
+//            },
+//            onFailure = { e ->
+//                _error.value = e.message
+//            }
+//        )
+//    }
 }
