@@ -33,7 +33,7 @@ class MainViewModel : ViewModel() {
             participants = participants,
             splitType = splitType,
             onSuccess = { eventId ->
-                getEventDetails(eventId)
+                getEventDetails(eventId) // Ambil detail event setelah dibuat
             },
             onFailure = { e ->
                 _error.value = e.message
@@ -58,8 +58,12 @@ class MainViewModel : ViewModel() {
             eventId = eventId,
             participantId = participantId,
             paid = paid,
-            onSuccess = { getEventDetails(eventId) },
-            onFailure = { e -> _error.value = e.message }
+            onSuccess = {
+                getEventDetails(eventId) // Perbarui data setelah status berubah
+            },
+            onFailure = { e ->
+                _error.value = e.message
+            }
         )
     }
 }

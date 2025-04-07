@@ -11,6 +11,7 @@ composeBom = "2024.04.01"
 lifecycle = "2.8.7"
 composeRuntime = "1.7.4"
 firebaseBom = "33.12.0"
+coreTelecom = "1.0.0-beta01"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -32,6 +33,7 @@ androidx-compose-runtime-livedata = { group = "androidx.compose.runtime", name =
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
+androidx-core-telecom = { group = "androidx.core", name = "core-telecom", version.ref = "coreTelecom" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
