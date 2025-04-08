@@ -525,6 +525,139 @@ class SplitBillRepository {
                 onFailure(e)
             }
     }
+
+    fun addParticipant(
+        eventId: String,
+        participantName: String,
+        itemsAssigned: List<String>, // Tambahkan parameter untuk itemsAssigned
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        // Ambil daftar item untuk menghitung total biaya participant
+        db.collection("split_events")
+            .document(eventId)
+            .collection("items")
+            .get()
+            .addOnSuccessListener { itemsSnapshot ->
+                // Hitung total biaya berdasarkan item yang diassign
+                val totalAmountForParticipant = itemsSnapshot.documents
+                    .filter { itemsAssigned.contains(it.id) }
+                    .sumOf { doc ->
+                        val price = doc.getLong("price") ?: 0L
+                        val quantity = doc.getLong("quantity")?.toInt() ?: 0
+                        price * quantity
+                    }
+
+                // Tambahkan service fee dan tax (proporsional)
+                db.collection("split_events")
+                    .document(eventId)
+                    .get()
+                    .addOnSuccessListener { eventDoc ->
+                        val serviceFee = eventDoc.getLong("service_fee") ?: 0L
+                        val taxAmount = eventDoc.getLong("tax_amount") ?: 0L
+                        val totalItems = itemsSnapshot.documents.size
+                        val assignedItemsCount = itemsAssigned.size
+
+                        // Proporsionalkan service fee dan tax berdasarkan jumlah item yang diassign
+                        val participantServiceFee = if (totalItems > 0) (serviceFee * assignedItemsCount) / totalItems else 0L
+                        val participantTax = if (totalItems > 0) (taxAmount * assignedItemsCount) / totalItems else 0L
+
+                        val participantTotal = totalAmountForParticipant + participantServiceFee + participantTax
+
+                        // Simpan participant dengan itemsAssigned
+                        val participantData = hashMapOf(
+                            "name" to participantName,
+                            "userId" to null,
+                            "amount" to participantTotal,
+                            "paid" to false,
+                            "itemsAssigned" to itemsAssigned
+                        )
+
+                        db.collection("split_events")
+                            .document(eventId)
+                            .collection("participants")
+                            .add(participantData)
+                            .addOnSuccessListener {
+                                onSuccess()
+                            }
+                            .addOnFailureListener { e ->
+                                onFailure(e)
+                            }
+                    }
+                    .addOnFailureListener { e ->
+                        onFailure(e)
+                    }
+            }
+            .addOnFailureListener { e ->
+                onFailure(e)
+            }
+    }
+
+    fun updateParticipantItems(
+        eventId: String,
+        participantId: String,
+        itemsAssigned: List<String>,
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        // Ambil daftar item untuk menghitung total biaya participant
+        db.collection("split_events")
+            .document(eventId)
+            .collection("items")
+            .get()
+            .addOnSuccessListener { itemsSnapshot ->
+                // Hitung total biaya berdasarkan item yang diassign
+                val totalAmountForParticipant = itemsSnapshot.documents
+                    .filter { itemsAssigned.contains(it.id) }
+                    .sumOf { doc ->
+                        val price = doc.getLong("price") ?: 0L
+                        val quantity = doc.getLong("quantity")?.toInt() ?: 0
+                        price * quantity
+                    }
+
+                // Tambahkan service fee dan tax (proporsional)
+                db.collection("split_events")
+                    .document(eventId)
+                    .get()
+                    .addOnSuccessListener { eventDoc ->
+                        val serviceFee = eventDoc.getLong("service_fee") ?: 0L
+                        val taxAmount = eventDoc.getLong("tax_amount") ?: 0L
+                        val totalItems = itemsSnapshot.documents.size
+                        val assignedItemsCount = itemsAssigned.size
+
+                        // Proporsionalkan service fee dan tax berdasarkan jumlah item yang diassign
+                        val participantServiceFee = if (totalItems > 0) (serviceFee * assignedItemsCount) / totalItems else 0L
+                        val participantTax = if (totalItems > 0) (taxAmount * assignedItemsCount) / totalItems else 0L
+
+                        val participantTotal = totalAmountForParticipant + participantServiceFee + participantTax
+
+                        // Update participant dengan itemsAssigned dan amount baru
+                        val participantRef = db.collection("split_events")
+                            .document(eventId)
+                            .collection("participants")
+                            .document(participantId)
+
+                        participantRef.update(
+                            mapOf(
+                                "itemsAssigned" to itemsAssigned,
+                                "amount" to participantTotal
+                            )
+                        )
+                            .addOnSuccessListener {
+                                onSuccess()
+                            }
+                            .addOnFailureListener { e ->
+                                onFailure(e)
+                            }
+                    }
+                    .addOnFailureListener { e ->
+                        onFailure(e)
+                    }
+            }
+            .addOnFailureListener { e ->
+                onFailure(e)
+            }
+    }
 //    fun getUserProfile(
 //        onSuccess: (UserProfile) -> Unit,
 //        onFailure: (Exception) -> Unit

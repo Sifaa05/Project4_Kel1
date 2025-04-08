@@ -15,6 +15,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.billbuddy.data.SplitBillRepository
 import com.example.billbuddy.ui.MainViewModel
+import com.example.billbuddy.ui.screen.AddBuddyScreen
+import com.example.billbuddy.ui.screen.AssignItemsScreen
 import com.example.billbuddy.ui.screen.EventDetailScreen
 import com.example.billbuddy.ui.screen.HomeScreen
 import com.example.billbuddy.ui.screen.InputEventScreen
@@ -101,6 +103,24 @@ fun AppNavigation(
                 eventId = eventId,
                 viewModel = viewModel,
                 navController = navController // Teruskan NavController
+            )
+        }
+        composable("add_buddy_screen/{eventId}") { backStackEntry ->
+            val eventId = backStackEntry.arguments?.getString("eventId") ?: ""
+            AddBuddyScreen(
+                eventId = eventId,
+                navController = navController,
+                viewModel = viewModel
+            )
+        }
+        composable("assign_items_screen/{eventId}/{selectedFriendsParam}") { backStackEntry ->
+            val eventId = backStackEntry.arguments?.getString("eventId") ?: ""
+            val selectedFriendsParam = backStackEntry.arguments?.getString("selectedFriendsParam") ?: ""
+            AssignItemsScreen(
+                eventId = eventId,
+                selectedFriendsParam = selectedFriendsParam,
+                navController = navController,
+                viewModel = viewModel
             )
         }
     }

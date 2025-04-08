@@ -148,6 +148,42 @@ class MainViewModel : ViewModel() {
             }
         )
     }
+
+    fun addParticipant(
+        eventId: String,
+        participantName: String,
+        itemsAssigned: List<String> = emptyList() // Default ke emptyList jika tidak ada item yang diassign
+    ) {
+        repository.addParticipant(
+            eventId = eventId,
+            participantName = participantName,
+            itemsAssigned = itemsAssigned,
+            onSuccess = {
+                getEventDetails(eventId) // Perbarui data event setelah participant ditambahkan
+            },
+            onFailure = { e ->
+                _error.value = e.message
+            }
+        )
+    }
+
+    fun updateParticipantItems(
+        eventId: String,
+        participantId: String,
+        itemsAssigned: List<String>
+    ) {
+        repository.updateParticipantItems(
+            eventId = eventId,
+            participantId = participantId,
+            itemsAssigned = itemsAssigned,
+            onSuccess = {
+                getEventDetails(eventId) // Perbarui data event setelah update
+            },
+            onFailure = { e ->
+                _error.value = e.message
+            }
+        )
+    }
 //    private val _userProfile = MutableLiveData<UserProfile?>()
 //    val userProfile: LiveData<UserProfile?> get() = _userProfile
 //
