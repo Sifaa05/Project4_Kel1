@@ -42,7 +42,7 @@ fun HomeScreen(
     viewModel: MainViewModel
 ) {
     // Warna sesuai desain
-    val backgroundColor = Color(0xFFFFDCDC) // Latar pink
+    val backgroundColor = Color(0xFFDCDC) // Latar pink
     val buttonColor = Color(0xFFFFB6C1) // Warna tombol pink
     val textColor = Color(0xFF4A4A4A) // Warna teks abu-abu tua
 
@@ -83,7 +83,7 @@ fun HomeScreen(
             ) {
                 // Judul Bottom Sheet
                 Text(
-                    text = "Select Input Method",
+                    text = "Pilih Metode Input",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = textColor
@@ -109,12 +109,12 @@ fun HomeScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Create,
-                            contentDescription = "Manual Input",
+                            contentDescription = "Input Manual",
                             tint = buttonColor
                         )
                         Spacer(modifier = Modifier.width(16.dp))
                         Text(
-                            text = "Manual Input",
+                            text = "Input Manual",
                             fontSize = 18.sp,
                             color = textColor
                         )
@@ -141,12 +141,12 @@ fun HomeScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.CameraAlt,
-                            contentDescription = "Scan with Camera",
+                            contentDescription = "Scan dengan Kamera",
                             tint = buttonColor
                         )
                         Spacer(modifier = Modifier.width(16.dp))
                         Text(
-                            text = "Scan with Camera",
+                            text = "Scan dengan Kamera",
                             fontSize = 18.sp,
                             color = textColor
                         )
@@ -167,7 +167,7 @@ fun HomeScreen(
                         .padding(horizontal = 16.dp)
                 ) {
                     Text(
-                        text = "Cancel",
+                        text = "Batal",
                         fontSize = 18.sp,
                         color = buttonColor
                     )
@@ -220,11 +220,11 @@ fun HomeScreen(
         },
         modifier = Modifier
             .fillMaxSize()
+            .background(backgroundColor)
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(backgroundColor)
                 .padding(padding)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -271,7 +271,7 @@ fun HomeScreen(
 
             // Judul Bagian
             Text(
-                text = "Active Events",
+                text = "Event Aktif",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = textColor
@@ -326,7 +326,7 @@ fun HomeScreen(
                                     }
                                 ) {
                                     Text(
-                                        text = "Check Details",
+                                        text = "Cek Detail",
                                         fontSize = 14.sp,
                                         color = buttonColor
                                     )
@@ -342,7 +342,7 @@ fun HomeScreen(
                         color = MaterialTheme.colorScheme.error
                     )
                 } ?: Text(
-                    text = "There are no active events yet",
+                    text = "Belum ada event aktif",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Medium,
                     color = textColor
