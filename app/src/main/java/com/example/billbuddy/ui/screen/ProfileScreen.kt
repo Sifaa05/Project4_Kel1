@@ -24,7 +24,7 @@ fun ProfileScreen(
     navController: NavController
 ) {
     // Warna sesuai desain
-    val backgroundColor = Color(0xFFFFE6E6) // Latar pink
+    val backgroundColor = Color(0xFFFFDCDC) // Latar pink
     val textColor = Color(0xFF4A4A4A) // Warna teks abu-abu tua
     val premiumColor = Color(0xFFFFB6C1) // Warna pink untuk status premium
 
@@ -55,11 +55,11 @@ fun ProfileScreen(
         },
         modifier = Modifier
             .fillMaxSize()
-            .background(backgroundColor)
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(backgroundColor)
                 .padding(padding)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -98,7 +98,7 @@ fun ProfileScreen(
 
             // Nama Pengguna
             Text(
-                text = "Pengguna Aplikasi",
+                text = "Application Users",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = textColor

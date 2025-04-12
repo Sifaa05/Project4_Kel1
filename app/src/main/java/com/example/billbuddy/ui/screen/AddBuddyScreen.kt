@@ -29,7 +29,7 @@ fun AddBuddyScreen(
     viewModel: MainViewModel
 ) {
     // Warna sesuai desain
-    val backgroundColor = Color(0xFFFFE6E6) // Latar pink
+    val backgroundColor = Color(0xFFFFDCDC) // Latar pink
     val buttonColor = Color(0xFFFFB6C1) // Warna tombol pink
     val textColor = Color(0xFF4A4A4A) // Warna teks abu-abu tua
 
@@ -94,7 +94,7 @@ fun AddBuddyScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Tambah Teman Baru",
+                        text = "Add New Friends",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = textColor
@@ -106,7 +106,7 @@ fun AddBuddyScreen(
                         value = newFriendName.value,
                         onValueChange = { newFriendName.value = it },
                         modifier = Modifier.fillMaxWidth(),
-                        label = { Text("Nama Teman") },
+                        label = { Text("Friends Name") },
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                         colors = TextFieldDefaults.colors(
@@ -127,7 +127,7 @@ fun AddBuddyScreen(
                             onClick = { showAddFriendDialog.value = false }
                         ) {
                             Text(
-                                text = "Batal",
+                                text = "Cancel",
                                 color = buttonColor,
                                 fontSize = 16.sp
                             )
@@ -144,7 +144,7 @@ fun AddBuddyScreen(
                             enabled = newFriendName.value.isNotBlank()
                         ) {
                             Text(
-                                text = "Tambah",
+                                text = "Add",
                                 color = if (newFriendName.value.isNotBlank()) buttonColor else Color.Gray,
                                 fontSize = 16.sp
                             )
@@ -236,7 +236,7 @@ fun AddBuddyScreen(
             // Bagian Pengguna Aplikasi
             item {
                 Text(
-                    text = "Pengguna Aplikasi",
+                    text = "Application Users",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = textColor,
@@ -273,7 +273,7 @@ fun AddBuddyScreen(
             item {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "Teman Tanpa Akun",
+                    text = "Friends Without BillBuddy Accounts",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = textColor,
@@ -283,7 +283,7 @@ fun AddBuddyScreen(
             if (nonAppUsersList.isEmpty()) {
                 item {
                     Text(
-                        text = "Belum ada teman tanpa akun.",
+                        text = "No friends without Buddy account yet.",
                         fontSize = 14.sp,
                         color = textColor.copy(alpha = 0.6f)
                     )

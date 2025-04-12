@@ -31,7 +31,7 @@ fun AssignItemsScreen(
     viewModel: MainViewModel
 ) {
     // Warna sesuai desain
-    val backgroundColor = Color(0xFFFFE6E6) // Latar pink
+    val backgroundColor = Color(0xFFFFDCDC) // Latar pink
     val buttonColor = Color(0xFFFFB6C1) // Warna tombol pink
     val textColor = Color(0xFF4A4A4A) // Warna teks abu-abu tua
 

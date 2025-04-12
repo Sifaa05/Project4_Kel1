@@ -54,7 +54,7 @@ fun InputEventScreen(
     }
 
     // Colors matching the UI
-    val backgroundColor = Color(0xFFFFE6E6) // Light pink background
+    val backgroundColor = Color(0xFFFFDCDC) // Light pink background
     val buttonColor = Color(0xFFFFB6C1) // Slightly darker pink for buttons
     val textColor = Color(0xFF4A4A4A) // Dark gray for text
 
@@ -62,11 +62,11 @@ fun InputEventScreen(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         modifier = Modifier
             .fillMaxSize()
-            .background(backgroundColor)
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(backgroundColor)
                 .padding(padding)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -135,7 +135,7 @@ fun InputEventScreen(
             OutlinedTextField(
                 value = eventName,
                 onValueChange = { eventName = it },
-                label = { Text("Name Event") },
+                label = { Text("Event Name") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
@@ -152,7 +152,7 @@ fun InputEventScreen(
             OutlinedTextField(
                 value = itemName,
                 onValueChange = { itemName = it },
-                label = { Text("Name Item") },
+                label = { Text("Item Name") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
@@ -254,7 +254,7 @@ fun InputEventScreen(
                         quantity = ""
                         price = ""
                     } else {
-                        snackbarMessage = "Harap isi semua kolom item"
+                        snackbarMessage = "Please fill in all item fields"
                     }
                 },
                 modifier = Modifier
@@ -308,26 +308,26 @@ fun InputEventScreen(
                                         isCreator = true
                                     )
                                 ),
-                                splitType = "even",
+                                splitType = "event",
                                 taxAmount = tax.toLongOrNull() ?: 0,
                                 serviceFee = serviceFee.toLongOrNull() ?: 0,
                                 onSuccess = { eventId ->
                                     onBillCreated(eventId)
                                 },
                                 onFailure = { exception: Exception ->
-                                    snackbarMessage = "Gagal membuat event: ${exception.message}"
+                                    snackbarMessage = "Failed to create event: ${exception.message}"
                                 }
                             )
                         } else {
-                            snackbarMessage = "Harap tambahkan setidaknya 1 item"
+                            snackbarMessage = "Please add at least 1 item"
                         }
                     } else {
-                        snackbarMessage = "Harap isi semua kolom yang diperlukan (Creator Name, Creator ID, Event Name)"
+                        snackbarMessage = "Please fill in all required fields (Creator Name, Creator ID, Event Name)"
                     }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(56.dp),
+                    .height(64.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = buttonColor)
             ) {

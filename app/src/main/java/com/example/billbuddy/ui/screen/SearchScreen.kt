@@ -36,7 +36,7 @@ fun SearchScreen(
     viewModel: MainViewModel
 ) {
     // Warna sesuai desain
-    val backgroundColor = Color(0xFFFFE6E6) // Latar pink
+    val backgroundColor = Color(0xFFFFDCDC) // Latar pink
     val buttonColor = Color(0xFFFFB6C1) // Warna tombol pink
     val textColor = Color(0xFF4A4A4A) // Warna teks abu-abu tua
 
@@ -84,11 +84,11 @@ fun SearchScreen(
         },
         modifier = Modifier
             .fillMaxSize()
-            .background(backgroundColor)
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(backgroundColor)
                 .padding(padding)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally // Pindahkan alignment ke sini
@@ -124,7 +124,7 @@ fun SearchScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color.White, RoundedCornerShape(8.dp)),
-                placeholder = { Text("Cari event...") },
+                placeholder = { Text("Search event...") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                 colors = TextFieldDefaults.colors(
@@ -139,7 +139,7 @@ fun SearchScreen(
 
             // Judul Bagian
             Text(
-                text = "Hasil Pencarian",
+                text = "Search Results",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = textColor
@@ -155,7 +155,7 @@ fun SearchScreen(
                 )
             } else if (searchQuery.value.isEmpty()) {
                 Text(
-                    text = "Masukkan kata kunci untuk mencari event",
+                    text = "Enter keywords to search for events",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Medium,
                     color = textColor
@@ -206,7 +206,7 @@ fun SearchScreen(
                                     }
                                 ) {
                                     Text(
-                                        text = "Cek Detail",
+                                        text = "Check Details",
                                         fontSize = 14.sp,
                                         color = buttonColor
                                     )
@@ -217,7 +217,7 @@ fun SearchScreen(
                 }
             } else {
                 Text(
-                    text = "Tidak ada event ditemukan",
+                    text = "No events found",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Medium,
                     color = textColor

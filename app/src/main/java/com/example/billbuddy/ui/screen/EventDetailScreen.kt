@@ -43,7 +43,7 @@ fun EventDetailScreen(
     val showDeleteDialog = remember { mutableStateOf(false) }
 
     // Warna sesuai desain
-    val backgroundColor = Color(0xFFFFE6E6) // Latar pink
+    val backgroundColor = Color(0xFFFFDCDC) // Latar pink
     val buttonColor = Color(0xFFFFB6C1) // Warna tombol pink
     val textColor = Color(0xFF4A4A4A) // Warna teks abu-abu tua
     val paidButtonColor = Color(0xFF6A5ACD) // Warna tombol Mark Unpaid (ungu)
@@ -65,7 +65,7 @@ fun EventDetailScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "Hapus Event",
+                        text = "Delete Event",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         color = textColor
@@ -74,7 +74,7 @@ fun EventDetailScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
-                        text = "Apakah Anda yakin ingin menghapus event ini?",
+                        text = "Are you sure you want to delete this event?",
                         fontSize = 16.sp,
                         color = textColor,
                         modifier = Modifier.padding(horizontal = 16.dp)
@@ -90,7 +90,7 @@ fun EventDetailScreen(
                             onClick = { showDeleteDialog.value = false }
                         ) {
                             Text(
-                                text = "Batal",
+                                text = "Cancel",
                                 color = buttonColor,
                                 fontSize = 16.sp
                             )
@@ -104,7 +104,7 @@ fun EventDetailScreen(
                             }
                         ) {
                             Text(
-                                text = "Hapus",
+                                text = "Delete",
                                 color = deleteButtonColor,
                                 fontSize = 16.sp
                             )
@@ -303,7 +303,7 @@ fun EventDetailScreen(
                         text = "Error: $it",
                         color = MaterialTheme.colorScheme.error
                     )
-                } ?: Text(text = "Memuat detail event...")
+                } ?: Text(text = "Loading event details...")
             }
         }
 
@@ -351,7 +351,7 @@ fun EventDetailScreen(
             colors = ButtonDefaults.buttonColors(containerColor = deleteButtonColor)
         ) {
             Text(
-                text = "Hapus Event",
+                text = "Delete Event",
                 color = Color.White,
                 fontSize = 18.sp
             )
