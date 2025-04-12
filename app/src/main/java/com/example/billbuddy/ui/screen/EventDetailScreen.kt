@@ -222,7 +222,7 @@ fun EventDetailScreen(
                                     color = textColor
                                 )
                                 Text(
-                                    text = "Rp ${item.price * item.quantity}",
+                                    text = "Rp ${item.unitPrice * item.quantity}",
                                     fontSize = 16.sp,
                                     color = textColor
                                 )

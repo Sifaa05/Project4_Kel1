@@ -32,14 +32,10 @@ class MainActivity : ComponentActivity() {
         FirebaseApp.initializeApp(this)
         val repository = SplitBillRepository()
         val viewModel = MainViewModel()
-
         setContent {
             BillBuddyTheme {
                 Surface {
-                    AppNavigation(
-                        repository = repository,
-                        viewModel = viewModel
-                    )
+                    AppNavigation(repository = repository, viewModel = viewModel)
                 }
             }
         }

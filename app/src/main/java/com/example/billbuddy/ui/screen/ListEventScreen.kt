@@ -1,5 +1,6 @@
 package com.example.billbuddy.ui.screen
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,6 +31,14 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.billbuddy.R
 import com.example.billbuddy.ui.MainViewModel
+import com.example.billbuddy.model.EventData
+import java.text.SimpleDateFormat
+import java.util.Locale
+
+// Definisikan FontFamily untuk font kustom
+val jomhuriaFontFamily = FontFamily(
+    Font(resId = R.font.jomhuria_regular, weight = FontWeight.Normal)
+)
 
 @Composable
 fun ListEventScreen(
@@ -41,11 +50,6 @@ fun ListEventScreen(
     val buttonColor = Color(0xFFFFB6C1) // Warna tombol pink
     val textColor = Color(0xFF4A4A4A) // Warna teks abu-abu tua
 
-    // Definisikan FontFamily untuk font kustom
-    val jomhuriaFontFamily = FontFamily(
-        Font(R.font.jomhuria_regular)
-    )
-
     // State untuk loading
     val isLoading = remember { mutableStateOf(true) }
 
@@ -55,8 +59,17 @@ fun ListEventScreen(
 
     // Panggil saat layar dimuat
     LaunchedEffect(Unit) {
+        Log.d("ListEventScreen", "Memanggil getAllEvents()")
         viewModel.getAllEvents()
         isLoading.value = false
+    }
+
+    // Logging untuk debugging
+    LaunchedEffect(events) {
+        Log.d("ListEventScreen", "Jumlah event diterima: ${events.size}")
+        events.forEach { event ->
+            Log.d("ListEventScreen", "Event: ${event.eventName}, ID: ${event.eventId}")
+        }
     }
 
     Scaffold(
@@ -160,78 +173,118 @@ fun ListEventScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             // Tampilkan loading, error, atau daftar event
-            if (isLoading.value) {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                )
-            } else if (error != null) {
-                Text(
-                    text = "Error: ${error}",
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                )
-            } else if (events.isNotEmpty()) {
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    items(events) { event ->
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp),
-                            shape = RoundedCornerShape(8.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                // Ikon grup (placeholder)
-                                Box(
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                        .background(Color.Gray, CircleShape),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(text = "👥", fontSize = 20.sp)
+            when {
+                isLoading.value -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
+                }
+                error != null -> {
+                    Text(
+                        text = "Error: $error",
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
+                }
+                events.isNotEmpty() -> {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(events) { event ->
+                            EventCard(
+                                event = event,
+                                textColor = textColor,
+                                buttonColor = buttonColor,
+                                onClick = {
+                                    navController.navigate("event_detail_screen/${event.eventId}")
                                 }
-
-                                Spacer(modifier = Modifier.width(16.dp))
-
-                                // Nama Event
-                                Text(
-                                    text = event.eventName,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = textColor,
-                                    modifier = Modifier.weight(1f)
-                                )
-
-                                // Tombol Cek Detail
-                                TextButton(
-                                    onClick = {
-                                        navController.navigate("event_detail_screen/${event.eventId}")
-                                    }
-                                ) {
-                                    Text(
-                                        text = "Cek Detail",
-                                        fontSize = 14.sp,
-                                        color = buttonColor
-                                    )
-                                }
-                            }
+                            )
                         }
                     }
                 }
-            } else {
+                else -> {
+                    Text(
+                        text = "Belum ada event",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = textColor,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun EventCard(
+    event: EventData,
+    textColor: Color,
+    buttonColor: Color,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        shape = RoundedCornerShape(8.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Ikon grup (placeholder)
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(Color.Gray, CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = "👥", fontSize = 20.sp)
+            }
+
+            Spacer(modifier = Modifier.width(16.dp))
+
+            // Informasi Event
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
                 Text(
-                    text = "Belum ada event",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Medium,
-                    color = textColor,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                    text = event.eventName,
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = textColor
+                )
+                Text(
+                    text = "Status: ${event.status}",
+                    fontSize = 14.sp,
+                    color = textColor
+                )
+                Text(
+                    text = "Tanggal: ${event.timestamp?.toDate()?.let { date ->
+                        SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(date)
+                    } ?: "Unknown"}",
+                    fontSize = 14.sp,
+                    color = textColor
+                )
+                Text(
+                    text = "Peserta: ${event.participants.size}",
+                    fontSize = 14.sp,
+                    color = textColor
+                )
+            }
+
+            // Tombol Cek Detail
+            TextButton(
+                onClick = onClick
+            ) {
+                Text(
+                    text = "Cek Detail",
+                    fontSize = 14.sp,
+                    color = buttonColor
                 )
             }
         }

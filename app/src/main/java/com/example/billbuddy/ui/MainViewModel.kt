@@ -19,7 +19,7 @@ class MainViewModel : ViewModel() {
     private val _error = MutableLiveData<String?>()
     val error: LiveData<String?> get() = _error
 
-    private val _allEvents = MutableLiveData<List<EventData>>(emptyList())
+    private val _allEvents = MutableLiveData<List<EventData>>()
     val allEvents: LiveData<List<EventData>> get() = _allEvents
 
     fun createEvent(
@@ -73,15 +73,16 @@ class MainViewModel : ViewModel() {
     }
 
     fun getAllEvents() {
-        Log.d("MainViewModel", "Memulai pengambilan semua event")
+        Log.d("MainViewModel", "Mengambil semua event")
         repository.getAllEvents(
             onSuccess = { events ->
                 Log.d("MainViewModel", "Berhasil mengambil ${events.size} event")
                 _allEvents.value = events
+                _error.value = null
             },
-            onFailure = { e ->
-                Log.e("MainViewModel", "Gagal mengambil event: ${e.message}")
-                _error.value = e.message
+            onFailure = { exception ->
+                Log.e("MainViewModel", "Gagal mengambil event: ${exception.message}")
+                _error.value = exception.message
             }
         )
     }

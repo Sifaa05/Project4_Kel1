@@ -121,7 +121,7 @@ fun AssignItemsScreen(
             // Hitung berdasarkan item yang dipilih untuk member saat ini
             val subtotal = event.items
                 .filter { currentItems[it.itemId] == true }
-                .sumOf { it.price * it.quantity }
+                .sumOf { it.unitPrice * it.quantity } // Ganti price dengan unitPrice
             val totalItems = event.items.size
             val assignedItemsCount = currentItems.count { it.value }
             val serviceFee = event.serviceFee
@@ -266,7 +266,7 @@ fun AssignItemsScreen(
                                 color = textColor
                             )
                             Text(
-                                text = "Rp ${item.price}",
+                                text = "Rp ${item.unitPrice}", // Ganti price dengan unitPrice
                                 fontSize = 14.sp,
                                 color = textColor
                             )
@@ -278,7 +278,7 @@ fun AssignItemsScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Rp ${item.price * item.quantity}",
+                            text = "Rp ${item.unitPrice * item.quantity}", // Ganti price dengan unitPrice
                             fontSize = 16.sp,
                             color = textColor
                         )

@@ -32,7 +32,7 @@ fun InputEventScreen(
     var eventName by remember { mutableStateOf("") }
     var itemName by remember { mutableStateOf("") }
     var quantity by remember { mutableStateOf("") }
-    var price by remember { mutableStateOf("") }
+    var unitPrice by remember { mutableStateOf("") } // Ganti price menjadi unitPrice
     var serviceFee by remember { mutableStateOf("") }
     var tax by remember { mutableStateOf("") }
 
@@ -183,11 +183,11 @@ fun InputEventScreen(
                 )
             )
 
-            // Price
+            // Unit Price (ganti label dari Price ke Unit Price)
             OutlinedTextField(
-                value = price,
-                onValueChange = { price = it },
-                label = { Text("Price") },
+                value = unitPrice,
+                onValueChange = { unitPrice = it },
+                label = { Text("Unit Price") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 8.dp),
@@ -240,19 +240,23 @@ fun InputEventScreen(
             // Add Item Button
             IconButton(
                 onClick = {
-                    if (itemName.isNotEmpty() && quantity.isNotEmpty() && price.isNotEmpty()) {
+                    if (itemName.isNotEmpty() && quantity.isNotEmpty() && unitPrice.isNotEmpty()) {
+                        val quantityValue = quantity.toIntOrNull() ?: 0
+                        val unitPriceValue = unitPrice.toLongOrNull() ?: 0
+                        val totalPriceValue = unitPriceValue * quantityValue // Hitung totalPrice
                         items.add(
                             Item(
                                 itemId = "", // Akan diatur oleh Firestore
                                 name = itemName,
-                                quantity = quantity.toIntOrNull() ?: 0,
-                                price = price.toLongOrNull() ?: 0
+                                quantity = quantityValue,
+                                unitPrice = unitPriceValue,
+                                totalPrice = totalPriceValue
                             )
                         )
                         // Bersihkan kolom setelah menambahkan item
                         itemName = ""
                         quantity = ""
-                        price = ""
+                        unitPrice = ""
                     } else {
                         snackbarMessage = "Please fill in all item fields"
                     }
@@ -277,16 +281,20 @@ fun InputEventScreen(
             // Make Bill Button
             Button(
                 onClick = {
-                    // Pastikan semua kolom utama terisi dan ada setidaknya 1 item jika itemName, quantity, dan price terisi
+                    // Pastikan semua kolom utama terisi dan ada setidaknya 1 item jika itemName, quantity, dan unitPrice terisi
                     if (creatorName.isNotEmpty() && creatorId.isNotEmpty() && eventName.isNotEmpty()) {
-                        // Jika itemName, quantity, dan price terisi, tambahkan item ke daftar
-                        if (itemName.isNotEmpty() && quantity.isNotEmpty() && price.isNotEmpty()) {
+                        // Jika itemName, quantity, dan unitPrice terisi, tambahkan item ke daftar
+                        if (itemName.isNotEmpty() && quantity.isNotEmpty() && unitPrice.isNotEmpty()) {
+                            val quantityValue = quantity.toIntOrNull() ?: 0
+                            val unitPriceValue = unitPrice.toLongOrNull() ?: 0
+                            val totalPriceValue = unitPriceValue * quantityValue // Hitung totalPrice
                             items.add(
                                 Item(
                                     itemId = "",
                                     name = itemName,
-                                    quantity = quantity.toIntOrNull() ?: 0,
-                                    price = price.toLongOrNull() ?: 0
+                                    quantity = quantityValue,
+                                    unitPrice = unitPriceValue,
+                                    totalPrice = totalPriceValue
                                 )
                             )
                         }
