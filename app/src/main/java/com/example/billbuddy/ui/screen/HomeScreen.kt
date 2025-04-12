@@ -25,10 +25,13 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.billbuddy.R
 import com.example.billbuddy.ui.MainViewModel
 import kotlinx.coroutines.launch
 
@@ -39,9 +42,14 @@ fun HomeScreen(
     viewModel: MainViewModel
 ) {
     // Warna sesuai desain
-    val backgroundColor = Color(0xFFFFE6E6) // Latar pink
+    val backgroundColor = Color(0xFFDCDC) // Latar pink
     val buttonColor = Color(0xFFFFB6C1) // Warna tombol pink
     val textColor = Color(0xFF4A4A4A) // Warna teks abu-abu tua
+
+    // Definisikan FontFamily untuk font kustom
+    val jomhuriaFontFamily = FontFamily(
+        Font(R.font.jomhuria_regular)
+    )
 
     // State untuk Bottom Sheet
     val sheetState = rememberModalBottomSheetState()
@@ -227,7 +235,7 @@ fun HomeScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Hello, Budi!",
+                    text = "Hello, Buddy!",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = textColor
@@ -246,10 +254,11 @@ fun HomeScreen(
 
             // Judul Aplikasi
             Text(
-                text = "BILLBUDDY",
-                fontSize = 32.sp,
+                text = "BillBuddy",
+                fontSize = 90.sp,
                 fontWeight = FontWeight.Bold,
-                color = textColor
+                color = buttonColor,
+                fontFamily = jomhuriaFontFamily // Gunakan font kustom
             )
             Text(
                 text = "IT'S HERE",
