@@ -4,10 +4,13 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.billbuddy.data.SplitBillRepository
 import com.example.billbuddy.model.EventData
 import com.example.billbuddy.model.Item
 import com.example.billbuddy.model.Participant
+import kotlinx.coroutines.launch
+
 //import com.example.billbuddy.model.UserProfile
 
 class MainViewModel : ViewModel() {
@@ -59,17 +62,20 @@ class MainViewModel : ViewModel() {
     }
 
     fun updatePaymentStatus(eventId: String, participantId: String, paid: Boolean) {
-        repository.updatePaymentStatus(
-            eventId = eventId,
-            participantId = participantId,
-            paid = paid,
-            onSuccess = {
-                getEventDetails(eventId) // Perbarui data setelah status berubah
-            },
-            onFailure = { e ->
-                _error.value = e.message
-            }
-        )
+        viewModelScope.launch {
+            repository.updatePaymentStatus(
+                eventId = eventId,
+                participantId = participantId,
+                paid = paid,
+                onSuccess = {
+                    // Refresh data event setelah status diubah
+                    getEventDetails(eventId)
+                },
+                onFailure = { exception ->
+                    _error.postValue(exception.message)
+                }
+            )
+        }
     }
 
     fun getAllEvents() {
@@ -109,12 +115,16 @@ class MainViewModel : ViewModel() {
     private val _activeEvents = MutableLiveData<List<EventData>>(emptyList())
     val activeEvents: LiveData<List<EventData>> get() = _activeEvents
     fun getActiveEvents() {
+        Log.d("MainViewModel", "Mengambil event aktif")
         repository.getActiveEvents(
             onSuccess = { events ->
+                Log.d("MainViewModel", "Berhasil mengambil ${events.size} event aktif")
                 _activeEvents.value = events
+                _error.value = null
             },
-            onFailure = { e ->
-                _error.value = e.message
+            onFailure = { exception ->
+                Log.e("MainViewModel", "Gagal mengambil event aktif: ${exception.message}")
+                _error.value = exception.message
             }
         )
     }
@@ -185,6 +195,7 @@ class MainViewModel : ViewModel() {
             }
         )
     }
+
 //    private val _userProfile = MutableLiveData<UserProfile?>()
 //    val userProfile: LiveData<UserProfile?> get() = _userProfile
 //

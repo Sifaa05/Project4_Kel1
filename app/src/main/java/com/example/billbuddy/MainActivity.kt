@@ -21,6 +21,8 @@ import com.example.billbuddy.ui.screen.EventDetailScreen
 import com.example.billbuddy.ui.screen.HomeScreen
 import com.example.billbuddy.ui.screen.InputEventScreen
 import com.example.billbuddy.ui.screen.ListEventScreen
+import com.example.billbuddy.ui.screen.ParticipantBillDetailScreen
+import com.example.billbuddy.ui.screen.ParticipantScreen
 import com.example.billbuddy.ui.screen.ProfileScreen
 import com.example.billbuddy.ui.screen.SearchScreen
 import com.example.billbuddy.ui.theme.BillBuddyTheme
@@ -115,6 +117,25 @@ fun AppNavigation(
             AssignItemsScreen(
                 eventId = eventId,
                 selectedFriendsParam = selectedFriendsParam,
+                navController = navController,
+                viewModel = viewModel
+            )
+        }
+        composable("participant_screen/{eventId}") { backStackEntry ->
+            val eventId = backStackEntry.arguments?.getString("eventId") ?: ""
+            ParticipantScreen(
+                eventId = eventId,
+                viewModel = viewModel,
+                navController = navController
+            )
+        }
+
+        composable("participant_bill_detail_screen/{eventId}/{participantId}") { backStackEntry ->
+            val eventId = backStackEntry.arguments?.getString("eventId") ?: ""
+            val participantId = backStackEntry.arguments?.getString("participantId") ?: ""
+            ParticipantBillDetailScreen(
+                eventId = eventId,
+                participantId = participantId,
                 navController = navController,
                 viewModel = viewModel
             )

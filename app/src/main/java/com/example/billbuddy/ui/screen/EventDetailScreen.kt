@@ -1,5 +1,6 @@
 package com.example.billbuddy.ui.screen
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -8,9 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -46,7 +45,6 @@ fun EventDetailScreen(
     val backgroundColor = Color(0xFFFFDCDC) // Latar pink
     val buttonColor = Color(0xFFFFB6C1) // Warna tombol pink
     val textColor = Color(0xFF4A4A4A) // Warna teks abu-abu tua
-    val paidButtonColor = Color(0xFF6A5ACD) // Warna tombol Mark Unpaid (ungu)
     val deleteButtonColor = Color(0xFFFF4444) // Warna tombol hapus (merah)
 
     // Dialog untuk konfirmasi hapus
@@ -205,6 +203,9 @@ fun EventDetailScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         items(event.items) { item ->
+                            // Log data item untuk debugging
+                            Log.d("EventDetailScreen", "Item: ${item.name}, UnitPrice: ${item.unitPrice}, Quantity: ${item.quantity}, Subtotal: ${item.unitPrice * item.quantity}")
+
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -231,6 +232,14 @@ fun EventDetailScreen(
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
+
+                    // Hitung subtotal keseluruhan dari semua item
+                    val subtotal = event.items.sumOf { item ->
+                        (item.unitPrice * item.quantity).toLong()
+                    }
+
+                    // Log subtotal untuk debugging
+                    Log.d("EventDetailScreen", "Subtotal: $subtotal")
 
                     // Service Fee
                     Row(
@@ -272,6 +281,12 @@ fun EventDetailScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    // Hitung total akhir
+                    val total = subtotal + event.taxAmount + event.serviceFee
+
+                    // Log total untuk debugging
+                    Log.d("EventDetailScreen", "Total: $total, Tax: ${event.taxAmount}, ServiceFee: ${event.serviceFee}")
+
                     // Total
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -292,7 +307,7 @@ fun EventDetailScreen(
                             )
                         }
                         Text(
-                            text = "Rp ${event.totalAmount}",
+                            text = "Rp $total",
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = textColor
@@ -309,10 +324,10 @@ fun EventDetailScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Tombol Add Buddy
+        // Tombol untuk navigasi ke ParticipantScreen
         Button(
             onClick = {
-                navController.navigate("add_buddy_screen/$eventId") // Navigasi ke AddBuddyScreen
+                navController.navigate("participant_screen/$eventId")
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -320,21 +335,11 @@ fun EventDetailScreen(
             shape = RoundedCornerShape(16.dp),
             colors = ButtonDefaults.buttonColors(containerColor = buttonColor)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add Buddy",
-                    tint = Color.White
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Add Buddy",
-                    color = Color.White,
-                    fontSize = 18.sp
-                )
-            }
+            Text(
+                text = "View Participants",
+                color = Color.White,
+                fontSize = 18.sp
+            )
         }
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -355,72 +360,6 @@ fun EventDetailScreen(
                 color = Color.White,
                 fontSize = 18.sp
             )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Daftar peserta
-        eventData?.let { event ->
-            Text(
-                text = "Participants:",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = textColor,
-                modifier = Modifier.align(Alignment.Start)
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            LazyColumn(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                items(event.participants) { participant ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row {
-                            if (participant.isCreator) {
-                                Icon(
-                                    imageVector = Icons.Default.Star,
-                                    contentDescription = "Creator",
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                            }
-                            Text(
-                                text = "${participant.name}: ${participant.amount} (Paid: ${participant.paid})",
-                                fontSize = 16.sp,
-                                color = textColor
-                            )
-                        }
-                        Button(
-                            onClick = {
-                                viewModel.updatePaymentStatus(
-                                    event.eventId,
-                                    participant.id,
-                                    !participant.paid
-                                )
-                            },
-                            enabled = participant.isCreator, // Hanya creator yang bisa ubah status
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (participant.paid) paidButtonColor else Color.Gray
-                            ),
-                            shape = RoundedCornerShape(8.dp)
-                        ) {
-                            Text(
-                                text = if (participant.paid) "Mark Unpaid" else "Mark Paid",
-                                color = Color.White,
-                                fontSize = 14.sp
-                            )
-                        }
-                    }
-                }
-            }
         }
     }
 }

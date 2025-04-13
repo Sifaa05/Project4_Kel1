@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -22,6 +23,7 @@ import com.example.billbuddy.model.EventData
 import com.example.billbuddy.model.Item
 import com.example.billbuddy.model.Participant
 import com.example.billbuddy.ui.MainViewModel
+import com.example.billbuddy.util.Tuple4
 
 @Composable
 fun AssignItemsScreen(
@@ -34,6 +36,7 @@ fun AssignItemsScreen(
     val backgroundColor = Color(0xFFFFDCDC) // Latar pink
     val buttonColor = Color(0xFFFFB6C1) // Warna tombol pink
     val textColor = Color(0xFF4A4A4A) // Warna teks abu-abu tua
+    val divideEvenlyColor = Color(0xFF6A5ACD) // Warna ungu untuk tombol divide evenly saat aktif
 
     // Ambil data event dari ViewModel
     val eventData by viewModel.eventData.observeAsState()
@@ -98,6 +101,7 @@ fun AssignItemsScreen(
     // Hitung subtotal, service fee, tax, dan total untuk member saat ini
     val (subtotal, participantServiceFee, participantTax, total) = localEventData?.let { event ->
         val currentItems = selectedItemsForMembers[currentMember?.id] ?: emptyMap()
+        val participantCount = allMembers.size // Jumlah total participant
         if (divideEvenly.value) {
             // Jika divide evenly, semua item diassign untuk semua member
             allMembers.forEach { member ->
@@ -111,23 +115,32 @@ fun AssignItemsScreen(
             val totalAmount = event.totalAmount
             val serviceFee = event.serviceFee
             val taxAmount = event.taxAmount
-            val participantCount = allMembers.size
             val amountPerPerson = if (participantCount > 0) totalAmount / participantCount else 0L
             val serviceFeePerPerson = if (participantCount > 0) serviceFee / participantCount else 0L
             val taxPerPerson = if (participantCount > 0) taxAmount / participantCount else 0L
             val totalPerPerson = amountPerPerson + serviceFeePerPerson + taxPerPerson
             Tuple4(amountPerPerson, serviceFeePerPerson, taxPerPerson, totalPerPerson)
         } else {
-            // Hitung berdasarkan item yang dipilih untuk member saat ini
+            // Hitung jumlah participant yang memilih setiap item
+            val itemSelectionCount = mutableMapOf<String, Int>()
+            event.items.forEach { item ->
+                val count = selectedItemsForMembers.values.count { it[item.itemId] == true }
+                itemSelectionCount[item.itemId] = if (count > 0) count else 1 // Hindari pembagian dengan 0
+            }
+
+            // Hitung subtotal berdasarkan totalPrice yang dibagi rata
             val subtotal = event.items
                 .filter { currentItems[it.itemId] == true }
-                .sumOf { it.unitPrice * it.quantity } // Ganti price dengan unitPrice
-            val totalItems = event.items.size
-            val assignedItemsCount = currentItems.count { it.value }
+                .sumOf { item ->
+                    val participantsForItem = itemSelectionCount[item.itemId] ?: 1
+                    (item.totalPrice / participantsForItem).toLong()
+                }
+
+            // Hitung service fee dan tax berdasarkan jumlah participant
             val serviceFee = event.serviceFee
             val taxAmount = event.taxAmount
-            val participantServiceFee = if (totalItems > 0) (serviceFee * assignedItemsCount) / totalItems else 0L
-            val participantTax = if (totalItems > 0) (taxAmount * assignedItemsCount) / totalItems else 0L
+            val participantServiceFee = if (participantCount > 0) serviceFee / participantCount else 0L
+            val participantTax = if (participantCount > 0) taxAmount / participantCount else 0L
             val total = subtotal + participantServiceFee + participantTax
             Tuple4(subtotal, participantServiceFee, participantTax, total)
         }
@@ -140,7 +153,7 @@ fun AssignItemsScreen(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Header dengan tombol close
+        // Header dengan tombol close dan tombol divide evenly
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
@@ -152,6 +165,27 @@ fun AssignItemsScreen(
                 color = textColor
             )
             Spacer(modifier = Modifier.weight(1f))
+            // Tombol Divide Evenly (bulatan)
+            IconButton(
+                onClick = {
+                    divideEvenly.value = !divideEvenly.value
+                },
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(
+                        if (divideEvenly.value) divideEvenlyColor else Color.Gray,
+                        shape = CircleShape
+                    )
+            ) {
+                Text(
+                    text = "%",
+                    fontSize = 18.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            // Tombol Close
             IconButton(onClick = {
                 navController.popBackStack() // Kembali ke AddBuddyScreen
             }) {
@@ -203,29 +237,6 @@ fun AssignItemsScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Tombol Divide Evenly
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Divide Evenly",
-                    fontSize = 16.sp,
-                    color = textColor
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                Checkbox(
-                    checked = divideEvenly.value,
-                    onCheckedChange = { divideEvenly.value = it },
-                    colors = CheckboxDefaults.colors(
-                        checkedColor = buttonColor,
-                        uncheckedColor = textColor
-                    )
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
             // Daftar item
             LazyColumn(
                 modifier = Modifier
@@ -266,7 +277,7 @@ fun AssignItemsScreen(
                                 color = textColor
                             )
                             Text(
-                                text = "Rp ${item.unitPrice}", // Ganti price dengan unitPrice
+                                text = "Rp ${item.unitPrice}",
                                 fontSize = 14.sp,
                                 color = textColor
                             )
@@ -278,7 +289,7 @@ fun AssignItemsScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Rp ${item.unitPrice * item.quantity}", // Ganti price dengan unitPrice
+                            text = "Rp ${item.totalPrice}",
                             fontSize = 16.sp,
                             color = textColor
                         )
@@ -377,7 +388,7 @@ fun AssignItemsScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Tombol Finish
+        // Tombol Next (seperti pada gambar)
         Button(
             onClick = {
                 // Simpan semua perubahan untuk semua member
@@ -391,8 +402,8 @@ fun AssignItemsScreen(
                         viewModel.addParticipant(eventId, member.name, itemsAssigned)
                     }
                 }
-                // Kembali ke EventDetailScreen
-                navController.popBackStack("event_detail_screen/$eventId", false)
+                // Navigasi ke ParticipantScreen
+                navController.navigate("participant_screen/$eventId")
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -401,7 +412,7 @@ fun AssignItemsScreen(
             colors = ButtonDefaults.buttonColors(containerColor = buttonColor)
         ) {
             Text(
-                text = "Finish",
+                text = "Next",
                 color = Color.White,
                 fontSize = 18.sp
             )
@@ -415,6 +426,3 @@ data class Member(
     val name: String,
     val isExisting: Boolean // True jika participant sudah ada, False jika teman baru
 )
-
-// Data class untuk menyimpan hasil perhitungan
-data class Tuple4<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D)

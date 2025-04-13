@@ -123,7 +123,7 @@ class SplitBillRepository {
                         }
 
                         participantsCollection.get().addOnSuccessListener { participantsSnapshot ->
-                            val participants = participantsSnapshot.documents.mapNotNull { participantDoc ->
+                            @Suppress("UNCHECKED_CAST") val participants = participantsSnapshot.documents.mapNotNull { participantDoc ->
                                 try {
                                     Participant(
                                         id = participantDoc.id,
@@ -234,7 +234,7 @@ class SplitBillRepository {
                     val itemsTask = doc.reference.collection("items").get()
                     val participantsTask = doc.reference.collection("participants").get()
 
-                    Tasks.whenAllSuccess<Any>(itemsTask, participantsTask).continueWith { task ->
+                    Tasks.whenAllSuccess<Any>(itemsTask, participantsTask).continueWith { _ ->
                         try {
                             val itemsSnapshot = itemsTask.result
                             val participantsSnapshot = participantsTask.result
@@ -253,7 +253,7 @@ class SplitBillRepository {
                                 )
                             } ?: emptyList()
 
-                            val participants = participantsSnapshot?.documents?.mapNotNull { participantDoc ->
+                            @Suppress("UNCHECKED_CAST") val participants = participantsSnapshot?.documents?.mapNotNull { participantDoc ->
                                 Participant(
                                     id = participantDoc.id,
                                     name = participantDoc.getString("name") ?: "",
@@ -316,7 +316,7 @@ class SplitBillRepository {
                     val itemsTask = doc.reference.collection("items").get()
                     val participantsTask = doc.reference.collection("participants").get()
 
-                    Tasks.whenAllSuccess<Any>(itemsTask, participantsTask).continueWith { task ->
+                    Tasks.whenAllSuccess<Any>(itemsTask, participantsTask).continueWith { _ ->
                         try {
                             val itemsSnapshot = itemsTask.result
                             val participantsSnapshot = participantsTask.result
@@ -331,7 +331,7 @@ class SplitBillRepository {
                                 )
                             } ?: emptyList()
 
-                            val participants = participantsSnapshot?.documents?.mapNotNull { participantDoc ->
+                            @Suppress("UNCHECKED_CAST") val participants = participantsSnapshot?.documents?.mapNotNull { participantDoc ->
                                 Participant(
                                     id = participantDoc.id,
                                     name = participantDoc.getString("name") ?: "",
@@ -388,7 +388,7 @@ class SplitBillRepository {
                     val itemsTask = doc.reference.collection("items").get()
                     val participantsTask = doc.reference.collection("participants").get()
 
-                    Tasks.whenAllSuccess<Any>(itemsTask, participantsTask).continueWith { task ->
+                    Tasks.whenAllSuccess<Any>(itemsTask, participantsTask).continueWith { _ ->
                         try {
                             val itemsSnapshot = itemsTask.result
                             val participantsSnapshot = participantsTask.result
@@ -403,7 +403,7 @@ class SplitBillRepository {
                                 )
                             } ?: emptyList()
 
-                            val participants = participantsSnapshot?.documents?.mapNotNull { participantDoc ->
+                            @Suppress("UNCHECKED_CAST") val participants = participantsSnapshot?.documents?.mapNotNull { participantDoc ->
                                 Participant(
                                     id = participantDoc.id,
                                     name = participantDoc.getString("name") ?: "",
@@ -447,11 +447,10 @@ class SplitBillRepository {
             }
     }
 
-    // Fungsi addParticipant yang telah digabungkan
     fun addParticipant(
         eventId: String,
         participantName: String,
-        itemsAssigned: List<String>? = null, // Parameter opsional
+        itemsAssigned: List<String>? = null,
         onSuccess: () -> Unit,
         onFailure: (Exception) -> Unit
     ) {
@@ -462,71 +461,84 @@ class SplitBillRepository {
                 val subtotal = eventDoc.getLong("subtotal") ?: 0
                 val taxAmount = eventDoc.getLong("tax_amount") ?: 0
                 val serviceFee = eventDoc.getLong("service_fee") ?: 0
-                val totalAmount = eventDoc.getLong("total_amount") ?: 0
 
-                if (itemsAssigned != null) {
-                    // Logika untuk pembagian berdasarkan item
-                    db.collection("split_events")
-                        .document(eventId)
-                        .collection("items")
-                        .get()
-                        .addOnSuccessListener { itemsSnapshot ->
-                            val totalAmountForParticipant = itemsSnapshot.documents
-                                .filter { itemsAssigned.contains(it.id) }
-                                .sumOf { doc ->
-                                    val price = doc.getLong("totalPrice") ?: 0L
-                                    price
+                db.collection("split_events")
+                    .document(eventId)
+                    .collection("items")
+                    .get()
+                    .addOnSuccessListener { itemsSnapshot ->
+                        // Ambil daftar semua participant untuk menghitung pembagian
+                        db.collection("split_events")
+                            .document(eventId)
+                            .collection("participants")
+                            .get()
+                            .addOnSuccessListener { participantsSnapshot ->
+                                // Hitung jumlah participant yang memilih setiap item
+                                val itemSelectionCount = mutableMapOf<String, Int>()
+                                itemsSnapshot.documents.forEach { itemDoc ->
+                                    val itemId = itemDoc.id
+                                    // Hitung berapa banyak participant yang sudah memilih item ini
+                                    val existingCount = participantsSnapshot.documents.count { participantDoc ->
+                                        val items = participantDoc.get("itemsAssigned") as? List<String>
+                                        items?.contains(itemId) == true
+                                    }
+                                    // Tambahkan 1 untuk participant baru ini jika item ada di itemsAssigned
+                                    val newCount = if (itemsAssigned?.contains(itemId) == true) existingCount + 1 else existingCount
+                                    itemSelectionCount[itemId] = if (newCount > 0) newCount else 1
                                 }
-                            val itemProportion = if (subtotal > 0) totalAmountForParticipant.toDouble() / subtotal else 0.0
-                            val taxPortion = (itemProportion * taxAmount).toLong()
-                            val servicePortion = (itemProportion * serviceFee).toLong()
-                            val participantTotal = totalAmountForParticipant + taxPortion + servicePortion
 
-                            val participantData = hashMapOf(
-                                "name" to participantName,
-                                "userId" to null,
-                                "amount" to participantTotal,
-                                "paid" to false,
-                                "itemsAssigned" to itemsAssigned,
-                                "isCreator" to false
-                            )
+                                // Hitung jumlah total participant (termasuk yang baru ditambahkan)
+                                val participantCount = participantsSnapshot.documents.size + 1
 
-                            db.collection("split_events")
-                                .document(eventId)
-                                .collection("participants")
-                                .add(participantData)
-                                .addOnSuccessListener {
-                                    onSuccess()
+                                val participantTotal = if (itemsAssigned.isNullOrEmpty()) {
+                                    0L
+                                } else {
+                                    // Hitung total berdasarkan pembagian totalPrice
+                                    val totalAmountForParticipant = itemsSnapshot.documents
+                                        .filter { itemsAssigned.contains(it.id) }
+                                        .sumOf { doc ->
+                                            val totalPrice = doc.getLong("totalPrice") ?: 0L
+                                            val participantsForItem = itemSelectionCount[doc.id] ?: 1
+                                            (totalPrice / participantsForItem).toLong()
+                                        }
+
+                                    // Hitung tax dan service fee berdasarkan jumlah participant
+                                    val taxPortion = if (participantCount > 0) taxAmount / participantCount else 0L
+                                    val servicePortion = if (participantCount > 0) serviceFee / participantCount else 0L
+                                    totalAmountForParticipant + taxPortion + servicePortion
                                 }
-                                .addOnFailureListener { e ->
-                                    onFailure(e)
-                                }
-                        }
-                        .addOnFailureListener { e ->
-                            onFailure(e)
-                        }
-                } else {
-                    // Logika untuk pembagian rata
-                    val participantData = hashMapOf(
-                        "name" to participantName,
-                        "userId" to null,
-                        "amount" to 0L,
-                        "paid" to false,
-                        "itemsAssigned" to emptyList<String>(),
-                        "isCreator" to false
-                    )
 
-                    db.collection("split_events")
-                        .document(eventId)
-                        .collection("participants")
-                        .add(participantData)
-                        .addOnSuccessListener {
-                            recalculateEventTotal(eventId, onSuccess, onFailure)
-                        }
-                        .addOnFailureListener { e ->
-                            onFailure(e)
-                        }
-                }
+                                val participantData = hashMapOf(
+                                    "name" to participantName,
+                                    "userId" to null,
+                                    "amount" to participantTotal,
+                                    "paid" to false,
+                                    "itemsAssigned" to itemsAssigned,
+                                    "isCreator" to false
+                                )
+
+                                db.collection("split_events")
+                                    .document(eventId)
+                                    .collection("participants")
+                                    .add(participantData)
+                                    .addOnSuccessListener {
+                                        if (itemsAssigned.isNullOrEmpty()) {
+                                            recalculateEventTotal(eventId, onSuccess, onFailure)
+                                        } else {
+                                            onSuccess()
+                                        }
+                                    }
+                                    .addOnFailureListener { e ->
+                                        onFailure(e)
+                                    }
+                            }
+                            .addOnFailureListener { e ->
+                                onFailure(e)
+                            }
+                    }
+                    .addOnFailureListener { e ->
+                        onFailure(e)
+                    }
             }
             .addOnFailureListener { e ->
                 onFailure(e)
@@ -642,31 +654,63 @@ class SplitBillRepository {
                     .collection("items")
                     .get()
                     .addOnSuccessListener { itemsSnapshot ->
-                        val totalAmountForParticipant = itemsSnapshot.documents
-                            .filter { itemsAssigned.contains(it.id) }
-                            .sumOf { doc ->
-                                val price = doc.getLong("totalPrice") ?: 0L
-                                price
-                            }
-
-                        val itemProportion = if (subtotal > 0) totalAmountForParticipant.toDouble() / subtotal else 0.0
-                        val taxPortion = (itemProportion * taxAmount).toLong()
-                        val servicePortion = (itemProportion * serviceFee).toLong()
-                        val participantTotal = totalAmountForParticipant + taxPortion + servicePortion
-
-                        val participantRef = db.collection("split_events")
+                        // Ambil daftar semua participant untuk menghitung pembagian
+                        db.collection("split_events")
                             .document(eventId)
                             .collection("participants")
-                            .document(participantId)
+                            .get()
+                            .addOnSuccessListener { participantsSnapshot ->
+                                // Hitung jumlah participant yang memilih setiap item
+                                val itemSelectionCount = mutableMapOf<String, Int>()
+                                itemsSnapshot.documents.forEach { itemDoc ->
+                                    val itemId = itemDoc.id
+                                    // Hitung berapa banyak participant yang sudah memilih item ini (termasuk yang sedang diupdate)
+                                    val existingCount = participantsSnapshot.documents.count { participantDoc ->
+                                        if (participantDoc.id == participantId) {
+                                            // Untuk participant yang sedang diupdate, gunakan itemsAssigned baru
+                                            itemsAssigned.contains(itemId)
+                                        } else {
+                                            val items = participantDoc.get("itemsAssigned") as? List<String>
+                                            items?.contains(itemId) == true
+                                        }
+                                    }
+                                    itemSelectionCount[itemId] = if (existingCount > 0) existingCount else 1
+                                }
 
-                        participantRef.update(
-                            mapOf(
-                                "itemsAssigned" to itemsAssigned,
-                                "amount" to participantTotal
-                            )
-                        )
-                            .addOnSuccessListener {
-                                onSuccess()
+                                // Hitung jumlah total participant
+                                val participantCount = participantsSnapshot.documents.size
+
+                                // Hitung total berdasarkan pembagian totalPrice
+                                val totalAmountForParticipant = itemsSnapshot.documents
+                                    .filter { itemsAssigned.contains(it.id) }
+                                    .sumOf { doc ->
+                                        val totalPrice = doc.getLong("totalPrice") ?: 0L
+                                        val participantsForItem = itemSelectionCount[doc.id] ?: 1
+                                        (totalPrice / participantsForItem).toLong()
+                                    }
+
+                                // Hitung tax dan service fee berdasarkan jumlah participant
+                                val taxPortion = if (participantCount > 0) taxAmount / participantCount else 0L
+                                val servicePortion = if (participantCount > 0) serviceFee / participantCount else 0L
+                                val participantTotal = totalAmountForParticipant + taxPortion + servicePortion
+
+                                val participantRef = db.collection("split_events")
+                                    .document(eventId)
+                                    .collection("participants")
+                                    .document(participantId)
+
+                                participantRef.update(
+                                    mapOf(
+                                        "itemsAssigned" to itemsAssigned,
+                                        "amount" to participantTotal
+                                    )
+                                )
+                                    .addOnSuccessListener {
+                                        onSuccess()
+                                    }
+                                    .addOnFailureListener { e ->
+                                        onFailure(e)
+                                    }
                             }
                             .addOnFailureListener { e ->
                                 onFailure(e)
