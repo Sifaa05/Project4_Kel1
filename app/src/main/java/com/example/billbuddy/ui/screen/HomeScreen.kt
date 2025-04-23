@@ -42,7 +42,7 @@ fun HomeScreen(
     viewModel: MainViewModel
 ) {
     // Warna sesuai desain
-    val backgroundColor = Color(0xFFDCDC) // Latar pink
+    val backgroundColor = Color(0xFFFFDCDC) // Latar pink
     val buttonColor = Color(0xFFFFB6C1) // Warna tombol pink
     val textColor = Color(0xFF4A4A4A) // Warna teks abu-abu tua
 
@@ -220,11 +220,11 @@ fun HomeScreen(
         },
         modifier = Modifier
             .fillMaxSize()
-            .background(backgroundColor)
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .background(backgroundColor)
                 .padding(padding)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
