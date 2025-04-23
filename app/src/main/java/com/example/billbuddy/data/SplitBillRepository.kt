@@ -381,7 +381,6 @@ class SplitBillRepository {
     ) {
         db.collection("split_events")
             .whereEqualTo("status", "ongoing")
-            .orderBy("timestamp", Query.Direction.DESCENDING)
             .get()
             .addOnSuccessListener { snapshot ->
                 val eventTasks = snapshot.documents.map { doc ->
