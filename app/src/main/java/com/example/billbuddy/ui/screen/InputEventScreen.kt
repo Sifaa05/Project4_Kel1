@@ -16,14 +16,18 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.billbuddy.data.SplitBillRepository
 import com.example.billbuddy.model.Item
 import com.example.billbuddy.model.Participant
+import com.example.billbuddy.navigation.NavRoutes
+import com.example.billbuddy.ui.components.AppFilledButton
+import com.example.billbuddy.ui.components.AppIconButton
+import com.example.billbuddy.ui.components.CommonNavigationBar
 
 @Composable
 fun InputEventScreen(
-    onBackClick: () -> Unit,
-    onBillCreated: (String) -> Unit,
+    navController: NavController,
     repository: SplitBillRepository
 ) {
     // State variables for form inputs
@@ -32,7 +36,7 @@ fun InputEventScreen(
     var eventName by remember { mutableStateOf("") }
     var itemName by remember { mutableStateOf("") }
     var quantity by remember { mutableStateOf("") }
-    var unitPrice by remember { mutableStateOf("") } // Ganti price menjadi unitPrice
+    var unitPrice by remember { mutableStateOf("") }
     var serviceFee by remember { mutableStateOf("") }
     var tax by remember { mutableStateOf("") }
 
@@ -60,8 +64,13 @@ fun InputEventScreen(
 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
-        modifier = Modifier
-            .fillMaxSize()
+        bottomBar = {
+            CommonNavigationBar(
+                navController = navController,
+                selectedScreen = "List"
+            )
+        },
+        modifier = Modifier.fillMaxSize()
     ) { padding ->
         Column(
             modifier = Modifier
@@ -76,17 +85,15 @@ fun InputEventScreen(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = onBackClick) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Back",
-                        tint = Color.White,
-                        modifier = Modifier
-                            .background(buttonColor, shape = RoundedCornerShape(50))
-                            .size(40.dp)
-                            .padding(8.dp)
-                    )
-                }
+                AppIconButton(
+                    onClick = { navController.popBackStack() },
+                    icon = Icons.Default.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color.White,
+                    modifier = Modifier
+                        .background(buttonColor, shape = RoundedCornerShape(50))
+                        .size(40.dp)
+                )
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(
                     text = "Input Bill",
@@ -183,7 +190,7 @@ fun InputEventScreen(
                 )
             )
 
-            // Unit Price (ganti label dari Price ke Unit Price)
+            // Unit Price
             OutlinedTextField(
                 value = unitPrice,
                 onValueChange = { unitPrice = it },
@@ -238,22 +245,21 @@ fun InputEventScreen(
             )
 
             // Add Item Button
-            IconButton(
+            AppIconButton(
                 onClick = {
                     if (itemName.isNotEmpty() && quantity.isNotEmpty() && unitPrice.isNotEmpty()) {
                         val quantityValue = quantity.toIntOrNull() ?: 0
                         val unitPriceValue = unitPrice.toLongOrNull() ?: 0
-                        val totalPriceValue = unitPriceValue * quantityValue // Hitung totalPrice
+                        val totalPriceValue = unitPriceValue * quantityValue
                         items.add(
                             Item(
-                                itemId = "", // Akan diatur oleh Firestore
+                                itemId = "",
                                 name = itemName,
                                 quantity = quantityValue,
                                 unitPrice = unitPriceValue,
                                 totalPrice = totalPriceValue
                             )
                         )
-                        // Bersihkan kolom setelah menambahkan item
                         itemName = ""
                         quantity = ""
                         unitPrice = ""
@@ -261,33 +267,26 @@ fun InputEventScreen(
                         snackbarMessage = "Please fill in all item fields"
                     }
                 },
+                icon = Icons.Default.Add,
+                contentDescription = "Add Item",
+                tint = Color.White,
                 modifier = Modifier
                     .align(Alignment.End)
                     .padding(vertical = 8.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add Item",
-                    tint = Color.White,
-                    modifier = Modifier
-                        .background(buttonColor, shape = RoundedCornerShape(50))
-                        .size(40.dp)
-                        .padding(8.dp)
-                )
-            }
+                    .background(buttonColor, shape = RoundedCornerShape(50))
+                    .size(40.dp)
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             // Make Bill Button
-            Button(
+            AppFilledButton(
                 onClick = {
-                    // Pastikan semua kolom utama terisi dan ada setidaknya 1 item jika itemName, quantity, dan unitPrice terisi
                     if (creatorName.isNotEmpty() && creatorId.isNotEmpty() && eventName.isNotEmpty()) {
-                        // Jika itemName, quantity, dan unitPrice terisi, tambahkan item ke daftar
                         if (itemName.isNotEmpty() && quantity.isNotEmpty() && unitPrice.isNotEmpty()) {
                             val quantityValue = quantity.toIntOrNull() ?: 0
                             val unitPriceValue = unitPrice.toLongOrNull() ?: 0
-                            val totalPriceValue = unitPriceValue * quantityValue // Hitung totalPrice
+                            val totalPriceValue = unitPriceValue * quantityValue
                             items.add(
                                 Item(
                                     itemId = "",
@@ -298,8 +297,6 @@ fun InputEventScreen(
                                 )
                             )
                         }
-
-                        // Pastikan ada setidaknya 1 item untuk membuat bill
                         if (items.isNotEmpty()) {
                             repository.createSplitEvent(
                                 creatorId = creatorId,
@@ -320,9 +317,13 @@ fun InputEventScreen(
                                 taxAmount = tax.toLongOrNull() ?: 0,
                                 serviceFee = serviceFee.toLongOrNull() ?: 0,
                                 onSuccess = { eventId ->
-                                    onBillCreated(eventId)
+                                    if (eventId.isNotEmpty()) {
+                                        navController.navigate(NavRoutes.EventDetail.createRoute(eventId))
+                                    } else {
+                                        snackbarMessage = "Failed to create event: Invalid event ID"
+                                    }
                                 },
-                                onFailure = { exception: Exception ->
+                                onFailure = { exception ->
                                     snackbarMessage = "Failed to create event: ${exception.message}"
                                 }
                             )
@@ -333,28 +334,13 @@ fun InputEventScreen(
                         snackbarMessage = "Please fill in all required fields (Creator Name, Creator ID, Event Name)"
                     }
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(64.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = buttonColor)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Make Bill!",
-                        color = Color.White,
-                        fontSize = 18.sp
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Icon(
-                        imageVector = Icons.Default.ArrowForward,
-                        contentDescription = "Next",
-                        tint = Color.White
-                    )
-                }
-            }
+                text = "Make Bill!",
+                containerColor = buttonColor,
+                textColor = Color.White,
+                icon = Icons.Default.ArrowForward,
+                iconTint = Color.White,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }

@@ -8,11 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,10 +26,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.billbuddy.R
+import com.example.billbuddy.navigation.NavRoutes
 import com.example.billbuddy.ui.MainViewModel
 import com.example.billbuddy.model.EventData
-import java.text.SimpleDateFormat
-import java.util.Locale
+import com.example.billbuddy.ui.components.CommonNavigationBar
+import com.example.billbuddy.ui.components.CommonEventCard
 
 // Definisikan FontFamily untuk font kustom
 val jomhuriaFontFamily = FontFamily(
@@ -73,44 +70,11 @@ fun ListEventScreen(
     }
 
     Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    navController.navigate("input_event_screen")
-                },
-                shape = CircleShape,
-                containerColor = buttonColor,
-                contentColor = Color.White
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add Event"
-                )
-            }
-        },
         bottomBar = {
-            NavigationBar(
-                containerColor = Color.White
-            ) {
-                NavigationBarItem(
-                    selected = false,
-                    onClick = { navController.navigate("home_screen") },
-                    icon = { Icon(Icons.Filled.Home, contentDescription = "Home") },
-                    label = { Text("Home") }
-                )
-                NavigationBarItem(
-                    selected = true,
-                    onClick = { /* Sudah di ListEventScreen */ },
-                    icon = { Icon(Icons.Filled.List, contentDescription = "List") },
-                    label = { Text("List") }
-                )
-                NavigationBarItem(
-                    selected = false,
-                    onClick = { navController.navigate("profile_screen") },
-                    icon = { Icon(Icons.Filled.Person, contentDescription = "Profile") },
-                    label = { Text("Profile") }
-                )
-            }
+            CommonNavigationBar(
+                navController = navController,
+                selectedScreen = "List"
+            )
         },
         modifier = Modifier
             .fillMaxSize()
@@ -134,7 +98,7 @@ fun ListEventScreen(
                     color = textColor
                 )
                 Spacer(modifier = Modifier.weight(1f))
-                IconButton(onClick = { navController.navigate("search_screen") }) {
+                IconButton(onClick = { navController.navigate(NavRoutes.Search.route) }) {
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = "Search",
@@ -191,13 +155,18 @@ fun ListEventScreen(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         items(events) { event ->
-                            EventCard(
+                            CommonEventCard(
                                 event = event,
                                 textColor = textColor,
                                 buttonColor = buttonColor,
                                 onClick = {
-                                    navController.navigate("event_detail_screen/${event.eventId}")
-                                }
+                                    if (event.eventId.isNotEmpty()) {
+                                        navController.navigate(NavRoutes.EventDetail.createRoute(event.eventId))
+                                    } else {
+                                        Log.e("ListEventScreen", "Invalid eventId for event: ${event.eventName}")
+                                    }
+                                },
+                                showDetails = true
                             )
                         }
                     }
@@ -211,81 +180,6 @@ fun ListEventScreen(
                         modifier = Modifier.align(Alignment.CenterHorizontally)
                     )
                 }
-            }
-        }
-    }
-}
-
-@Composable
-fun EventCard(
-    event: EventData,
-    textColor: Color,
-    buttonColor: Color,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Ikon grup (placeholder)
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(Color.Gray, CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = "👥", fontSize = 20.sp)
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // Informasi Event
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = event.eventName,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = textColor
-                )
-                Text(
-                    text = "Status: ${event.status}",
-                    fontSize = 14.sp,
-                    color = textColor
-                )
-                Text(
-                    text = "Tanggal: ${event.timestamp?.toDate()?.let { date ->
-                        SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(date)
-                    } ?: "Unknown"}",
-                    fontSize = 14.sp,
-                    color = textColor
-                )
-                Text(
-                    text = "Peserta: ${event.participants.size}",
-                    fontSize = 14.sp,
-                    color = textColor
-                )
-            }
-
-            // Tombol Cek Detail
-            TextButton(
-                onClick = onClick
-            ) {
-                Text(
-                    text = "Cek Detail",
-                    fontSize = 14.sp,
-                    color = buttonColor
-                )
             }
         }
     }

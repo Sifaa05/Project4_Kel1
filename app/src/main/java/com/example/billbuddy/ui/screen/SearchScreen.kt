@@ -10,9 +10,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,7 +25,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.billbuddy.navigation.NavRoutes
 import com.example.billbuddy.ui.MainViewModel
+import com.example.billbuddy.ui.components.AppIconButton
+import com.example.billbuddy.ui.components.AppTextButton
+import com.example.billbuddy.ui.components.CommonNavigationBar
 
 @Composable
 fun SearchScreen(
@@ -59,31 +60,12 @@ fun SearchScreen(
 
     Scaffold(
         bottomBar = {
-            NavigationBar(
-                containerColor = Color.White
-            ) {
-                NavigationBarItem(
-                    selected = false,
-                    onClick = { navController.navigate("home_screen") },
-                    icon = { Icon(Icons.Filled.Home, contentDescription = "Home") },
-                    label = { Text("Home") }
-                )
-                NavigationBarItem(
-                    selected = false,
-                    onClick = { navController.navigate("list_event_screen") },
-                    icon = { Icon(Icons.Filled.List, contentDescription = "List") },
-                    label = { Text("List") }
-                )
-                NavigationBarItem(
-                    selected = false,
-                    onClick = { navController.navigate("profile_screen") },
-                    icon = { Icon(Icons.Filled.Person, contentDescription = "Profile") },
-                    label = { Text("Profile") }
-                )
-            }
+            CommonNavigationBar(
+                navController = navController,
+                selectedScreen = "List"
+            )
         },
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) { padding ->
         Column(
             modifier = Modifier
@@ -91,28 +73,32 @@ fun SearchScreen(
                 .background(backgroundColor)
                 .padding(padding)
                 .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally // Pindahkan alignment ke sini
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Back",
-                        tint = textColor
-                    )
-                }
+                AppIconButton(
+                    onClick = { navController.popBackStack() },
+                    icon = Icons.Default.ArrowBack,
+                    contentDescription = "Back",
+                    tint = Color.White,
+                    modifier = Modifier
+                        .background(buttonColor, shape = RoundedCornerShape(50))
+                        .size(40.dp)
+                )
                 Spacer(modifier = Modifier.weight(1f))
-                IconButton(onClick = { /* TODO: Aksi notifikasi */ }) {
-                    Icon(
-                        imageVector = Icons.Default.Notifications,
-                        contentDescription = "Notifications",
-                        tint = textColor
-                    )
-                }
+                AppIconButton(
+                    onClick = { /* TODO: Aksi notifikasi */ },
+                    icon = Icons.Default.Notifications,
+                    contentDescription = "Notifications",
+                    tint = Color.White,
+                    modifier = Modifier
+                        .background(buttonColor, shape = RoundedCornerShape(50))
+                        .size(40.dp)
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -200,17 +186,16 @@ fun SearchScreen(
                                 )
 
                                 // Tombol Cek Detail
-                                TextButton(
+                                AppTextButton(
                                     onClick = {
-                                        navController.navigate("event_detail_screen/${event.eventId}")
-                                    }
-                                ) {
-                                    Text(
-                                        text = "Check Details",
-                                        fontSize = 14.sp,
-                                        color = buttonColor
-                                    )
-                                }
+                                        if (event.eventId.isNotEmpty()) {
+                                            navController.navigate(NavRoutes.EventDetail.createRoute(event.eventId))
+                                        }
+                                    },
+                                    text = "Check Details",
+                                    textColor = buttonColor,
+                                    modifier = Modifier.padding(start = 8.dp)
+                                )
                             }
                         }
                     }

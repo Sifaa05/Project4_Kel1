@@ -21,7 +21,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import com.example.billbuddy.navigation.NavRoutes
 import com.example.billbuddy.ui.MainViewModel
+import com.example.billbuddy.ui.components.CommonNavigationBar
+import com.example.billbuddy.ui.components.AppIconButton
+import com.example.billbuddy.ui.components.AppSmallTextButton
+import com.example.billbuddy.ui.components.AppFilledButton
 
 @Composable
 fun EventDetailScreen(
@@ -84,281 +89,266 @@ fun EventDetailScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        TextButton(
-                            onClick = { showDeleteDialog.value = false }
-                        ) {
-                            Text(
-                                text = "Cancel",
-                                color = buttonColor,
-                                fontSize = 16.sp
-                            )
-                        }
-                        TextButton(
+                        AppSmallTextButton(
+                            onClick = { showDeleteDialog.value = false },
+                            text = "Cancel",
+                            textColor = buttonColor
+                        )
+                        AppSmallTextButton(
                             onClick = {
                                 viewModel.deleteEvent(eventId) {
                                     showDeleteDialog.value = false
-                                    navController.popBackStack() // Kembali ke halaman sebelumnya
+                                    navController.popBackStack()
                                 }
-                            }
-                        ) {
-                            Text(
-                                text = "Delete",
-                                color = deleteButtonColor,
-                                fontSize = 16.sp
-                            )
-                        }
+                            },
+                            text = "Delete",
+                            textColor = deleteButtonColor
+                        )
                     }
                 }
             }
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundColor)
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Header dengan tombol close
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Split Bill",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = textColor
+    Scaffold(
+        bottomBar = {
+            CommonNavigationBar(
+                navController = navController,
+                selectedScreen = "List"
             )
-            Spacer(modifier = Modifier.weight(1f))
-            IconButton(onClick = {
-                navController.popBackStack() // Kembali ke halaman sebelumnya
-            }) {
-                Icon(
-                    imageVector = Icons.Default.Close,
+        },
+        modifier = Modifier.fillMaxSize()
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundColor)
+                .padding(padding)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // Header dengan tombol close
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Split Bill",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = textColor
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                AppIconButton(
+                    onClick = { navController.popBackStack() },
+                    icon = Icons.Default.Close,
                     contentDescription = "Close",
                     tint = Color.Black
                 )
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        // Kotak konten dengan border putih
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .border(2.dp, Color.White, RoundedCornerShape(16.dp)),
-            shape = RoundedCornerShape(16.dp),
-            color = Color.White
-        ) {
-            Column(
+            // Kotak konten dengan border putih
+            Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .border(2.dp, Color.White, RoundedCornerShape(16.dp)),
+                shape = RoundedCornerShape(16.dp),
+                color = Color.White
             ) {
-                eventData?.let { event ->
-                    // Ikon grup (placeholder, bisa diganti dengan gambar asli)
-                    Box(
-                        modifier = Modifier
-                            .size(80.dp)
-                            .background(Color.Gray, CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = "👥", fontSize = 40.sp)
-                    }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    eventData?.let { event ->
+                        // Ikon grup (placeholder, bisa diganti dengan gambar asli)
+                        Box(
+                            modifier = Modifier
+                                .size(80.dp)
+                                .background(Color.Gray, CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(text = "👥", fontSize = 40.sp)
+                        }
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                    // Nama event dan pembuat
-                    Text(
-                        text = event.eventName,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = textColor
-                    )
-                    Text(
-                        text = "Creator: ${event.creatorName}",
-                        fontSize = 16.sp,
-                        color = textColor
-                    )
+                        // Nama event dan pembuat
+                        Text(
+                            text = event.eventName,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = textColor
+                        )
+                        Text(
+                            text = "Creator: ${event.creatorName}",
+                            fontSize = 16.sp,
+                            color = textColor
+                        )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(16.dp))
 
-                    // Detail transaksi
-                    Text(
-                        text = "Transaction Details",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = textColor,
-                        modifier = Modifier.align(Alignment.Start)
-                    )
+                        // Detail transaksi
+                        Text(
+                            text = "Transaction Details",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = textColor,
+                            modifier = Modifier.align(Alignment.Start)
+                        )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                    // Daftar item
-                    LazyColumn(
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        items(event.items) { item ->
-                            // Log data item untuk debugging
-                            Log.d("EventDetailScreen", "Item: ${item.name}, UnitPrice: ${item.unitPrice}, Quantity: ${item.quantity}, Subtotal: ${item.unitPrice * item.quantity}")
+                        // Daftar item
+                        LazyColumn(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            items(event.items) { item ->
+                                Log.d("EventDetailScreen", "Item: ${item.name}, UnitPrice: ${item.unitPrice}, Quantity: ${item.quantity}, Subtotal: ${item.unitPrice * item.quantity}")
 
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 4.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 4.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        text = item.name,
+                                        fontSize = 16.sp,
+                                        color = textColor
+                                    )
+                                    Text(
+                                        text = "${item.quantity}x",
+                                        fontSize = 16.sp,
+                                        color = textColor
+                                    )
+                                    Text(
+                                        text = "Rp ${item.unitPrice * item.quantity}",
+                                        fontSize = 16.sp,
+                                        color = textColor
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Hitung subtotal keseluruhan dari semua item
+                        val subtotal = event.items.sumOf { item ->
+                            (item.unitPrice * item.quantity).toLong()
+                        }
+
+                        Log.d("EventDetailScreen", "Subtotal: $subtotal")
+
+                        // Service Fee
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "Service Fee",
+                                fontSize = 16.sp,
+                                color = textColor
+                            )
+                            Text(
+                                text = "Rp ${event.serviceFee}",
+                                fontSize = 16.sp,
+                                color = textColor
+                            )
+                        }
+
+                        // Tax
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "Tax",
+                                fontSize = 16.sp,
+                                color = textColor
+                            )
+                            Text(
+                                text = "Rp ${event.taxAmount}",
+                                fontSize = 16.sp,
+                                color = textColor
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Hitung total akhir
+                        val total = subtotal + event.taxAmount + event.serviceFee
+
+                        Log.d("EventDetailScreen", "Total: $total, Tax: ${event.taxAmount}, ServiceFee: ${event.serviceFee}")
+
+                        // Total
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Row {
                                 Text(
-                                    text = item.name,
-                                    fontSize = 16.sp,
+                                    text = "TOTAL",
+                                    fontSize = 18.sp,
+                                    fontWeight = FontWeight.Bold,
                                     color = textColor
                                 )
+                                Spacer(modifier = Modifier.width(8.dp))
                                 Text(
-                                    text = "${item.quantity}x",
-                                    fontSize = 16.sp,
-                                    color = textColor
-                                )
-                                Text(
-                                    text = "Rp ${item.unitPrice * item.quantity}",
-                                    fontSize = 16.sp,
+                                    text = "(${event.participants.size})",
+                                    fontSize = 18.sp,
                                     color = textColor
                                 )
                             }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // Hitung subtotal keseluruhan dari semua item
-                    val subtotal = event.items.sumOf { item ->
-                        (item.unitPrice * item.quantity).toLong()
-                    }
-
-                    // Log subtotal untuk debugging
-                    Log.d("EventDetailScreen", "Subtotal: $subtotal")
-
-                    // Service Fee
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = "Service Fee",
-                            fontSize = 16.sp,
-                            color = textColor
-                        )
-                        Text(
-                            text = "Rp ${event.serviceFee}",
-                            fontSize = 16.sp,
-                            color = textColor
-                        )
-                    }
-
-                    // Tax
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = "Tax",
-                            fontSize = 16.sp,
-                            color = textColor
-                        )
-                        Text(
-                            text = "Rp ${event.taxAmount}",
-                            fontSize = 16.sp,
-                            color = textColor
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Hitung total akhir
-                    val total = subtotal + event.taxAmount + event.serviceFee
-
-                    // Log total untuk debugging
-                    Log.d("EventDetailScreen", "Total: $total, Tax: ${event.taxAmount}, ServiceFee: ${event.serviceFee}")
-
-                    // Total
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row {
                             Text(
-                                text = "TOTAL",
+                                text = "Rp $total",
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = textColor
                             )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "(${event.participants.size})",
-                                fontSize = 18.sp,
-                                color = textColor
-                            )
                         }
+                    } ?: error?.let {
                         Text(
-                            text = "Rp $total",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = textColor
+                            text = "Error: $it",
+                            color = MaterialTheme.colorScheme.error
                         )
-                    }
-                } ?: error?.let {
-                    Text(
-                        text = "Error: $it",
-                        color = MaterialTheme.colorScheme.error
-                    )
-                } ?: Text(text = "Loading event details...")
+                    } ?: Text(text = "Loading event details...")
+                }
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        // Tombol untuk navigasi ke ParticipantScreen
-        Button(
-            onClick = {
-                navController.navigate("participant_screen/$eventId")
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = buttonColor)
-        ) {
-            Text(
+            // Tombol untuk navigasi ke ParticipantScreen
+            AppFilledButton(
+                onClick = {
+                    if (eventId.isNotEmpty()) {
+                        navController.navigate(NavRoutes.Participant.createRoute(eventId))
+                    } else {
+                        Log.e("EventDetailScreen", "Invalid eventId")
+                    }
+                },
                 text = "View Participants",
-                color = Color.White,
-                fontSize = 18.sp
+                containerColor = buttonColor,
+                textColor = Color.White,
+                modifier = Modifier.fillMaxWidth()
             )
-        }
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-        // Tombol Hapus Event
-        Button(
-            onClick = {
-                showDeleteDialog.value = true // Tampilkan dialog konfirmasi hapus
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = deleteButtonColor)
-        ) {
-            Text(
+            // Tombol Hapus Event
+            AppFilledButton(
+                onClick = { showDeleteDialog.value = true },
                 text = "Delete Event",
-                color = Color.White,
-                fontSize = 18.sp
+                containerColor = deleteButtonColor,
+                textColor = Color.White,
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }
