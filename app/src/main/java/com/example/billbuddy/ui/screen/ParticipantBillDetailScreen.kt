@@ -70,7 +70,7 @@ fun ParticipantBillDetailScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Detail Bill",
+                    text = "Bill Details",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = textColor
@@ -235,7 +235,7 @@ fun ParticipantBillDetailScreen(
 
                         // Rincian tagihan
                         Text(
-                            text = "DETAIL BILL",
+                            text = "BILL DETAILS",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = accentColor

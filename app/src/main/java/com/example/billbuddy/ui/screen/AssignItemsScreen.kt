@@ -173,7 +173,7 @@ fun AssignItemsScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Add Item untuk ${currentMember?.name ?: "Member"}",
+                    text = "Add Items for ${currentMember?.name ?: "Member"}",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = textColor
@@ -394,7 +394,7 @@ fun AssignItemsScreen(
                     text = "Error: $it",
                     color = MaterialTheme.colorScheme.error
                 )
-            } ?: Text(text = "Memuat detail event...")
+            } ?: Text(text = "Loading event details...")
 
             Spacer(modifier = Modifier.height(16.dp))
 

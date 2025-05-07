@@ -56,14 +56,14 @@ fun ListEventScreen(
 
     // Panggil saat layar dimuat
     LaunchedEffect(Unit) {
-        Log.d("ListEventScreen", "Memanggil getAllEvents()")
+        Log.d("ListEventScreen", "Call getAllEvents()")
         viewModel.getAllEvents()
         isLoading.value = false
     }
 
     // Logging untuk debugging
     LaunchedEffect(events) {
-        Log.d("ListEventScreen", "Jumlah event diterima: ${events.size}")
+        Log.d("ListEventScreen", "Number of events accepted: ${events.size}")
         events.forEach { event ->
             Log.d("ListEventScreen", "Event: ${event.eventName}, ID: ${event.eventId}")
         }
@@ -173,7 +173,7 @@ fun ListEventScreen(
                 }
                 else -> {
                     Text(
-                        text = "Belum ada event",
+                        text = "No events yet",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
                         color = textColor,
