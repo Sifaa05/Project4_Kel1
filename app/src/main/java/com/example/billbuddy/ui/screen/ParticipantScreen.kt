@@ -191,7 +191,7 @@ fun ParticipantScreen(
                                         .padding(end = 8.dp)
                                 ) {
                                     Text(
-                                        text = if (participant.paid) "Mark Unpaid" else "Mark Paid",
+                                        text = if (participant.paid) "Mark Paid" else "Mark Unpaid",
                                         color = Color.White,
                                         fontSize = 12.sp
                                     )

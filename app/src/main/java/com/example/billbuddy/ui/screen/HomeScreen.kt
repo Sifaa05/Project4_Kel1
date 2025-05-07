@@ -271,7 +271,7 @@ fun HomeScreen(
 
             // Judul Bagian
             Text(
-                text = "Event Aktif",
+                text = "Active Event",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = textColor
@@ -326,7 +326,7 @@ fun HomeScreen(
                                     }
                                 ) {
                                     Text(
-                                        text = "Cek Detail",
+                                        text = "Check Details",
                                         fontSize = 14.sp,
                                         color = buttonColor
                                     )

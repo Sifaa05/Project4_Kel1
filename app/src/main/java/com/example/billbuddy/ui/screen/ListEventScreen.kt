@@ -66,7 +66,7 @@ fun ListEventScreen(
 
     // Logging untuk debugging
     LaunchedEffect(events) {
-        Log.d("ListEventScreen", "Jumlah event diterima: ${events.size}")
+        Log.d("ListEventScreen", "Number of events accepted: ${events.size}")
         events.forEach { event ->
             Log.d("ListEventScreen", "Event: ${event.eventName}, ID: ${event.eventId}")
         }
@@ -204,7 +204,7 @@ fun ListEventScreen(
                 }
                 else -> {
                     Text(
-                        text = "Belum ada event",
+                        text = "No events yet",
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Medium,
                         color = textColor,
@@ -264,14 +264,14 @@ fun EventCard(
                     color = textColor
                 )
                 Text(
-                    text = "Tanggal: ${event.timestamp?.toDate()?.let { date ->
+                    text = "Date: ${event.timestamp?.toDate()?.let { date ->
                         SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(date)
                     } ?: "Unknown"}",
                     fontSize = 14.sp,
                     color = textColor
                 )
                 Text(
-                    text = "Peserta: ${event.participants.size}",
+                    text = "Participant: ${event.participants.size}",
                     fontSize = 14.sp,
                     color = textColor
                 )
@@ -282,7 +282,7 @@ fun EventCard(
                 onClick = onClick
             ) {
                 Text(
-                    text = "Cek Detail",
+                    text = "Check Details",
                     fontSize = 14.sp,
                     color = buttonColor
                 )
