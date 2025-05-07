@@ -55,3 +55,106 @@ fun BillBuddyTheme(
         content = content
     )
 }
+//
+//package com.example.billbuddy.ui.theme
+//
+//import android.os.Build
+//import androidx.compose.foundation.isSystemInDarkTheme
+//import androidx.compose.material3.MaterialTheme
+//import androidx.compose.material3.Typography
+//import androidx.compose.material3.darkColorScheme
+//import androidx.compose.material3.dynamicDarkColorScheme
+//import androidx.compose.material3.dynamicLightColorScheme
+//import androidx.compose.material3.lightColorScheme
+//import androidx.compose.runtime.Composable
+//import androidx.compose.ui.graphics.Color
+//import androidx.compose.ui.platform.LocalContext
+//import androidx.compose.ui.text.TextStyle
+//import androidx.compose.ui.text.font.Font
+//import androidx.compose.ui.text.font.FontFamily
+//import androidx.compose.ui.text.font.FontWeight
+//import androidx.compose.ui.unit.sp
+//import com.example.billbuddy.R
+//
+//private val LightColorScheme = lightColorScheme(
+//    primary = Color(0xFFFFB6C1),
+//    onPrimary = Color.White,
+//    secondary = Color(0xFFFFB6C1),
+//    onSecondary = Color.White,
+//    background = Color(0xFFFFDCDC),
+//    onBackground = Color(0xFF4A4A4A),
+//    surface = Color.White,
+//    onSurface = Color(0xFF4A4A4A),
+//    error = Color(0xFFB00020),
+//    onError = Color.White
+//)
+//
+//private val DarkColorScheme = darkColorScheme(
+//    primary = Color(0xFFFFB6C1),
+//    onPrimary = Color.White,
+//    secondary = Color(0xFFFFB6C1),
+//    onSecondary = Color.White,
+//    background = Color(0xFFFFDCDC),
+//    onBackground = Color(0xFF4A4A4A),
+//    surface = Color.White,
+//    onSurface = Color(0xFF4A4A4A),
+//    error = Color(0xFFB00020),
+//    onError = Color.White
+//)
+//
+//// Definisi font kustom Jomhuria
+//private val Jomhuria = FontFamily(Font(R.font.jomhuria_regular))
+//
+//// Definisi Typography kustom dengan ukuran teks lebih besar
+//private val AppTypography = Typography(
+//    bodyLarge = TextStyle(
+//        fontFamily = Jomhuria,
+//        fontWeight = FontWeight.Normal,
+//        fontSize = 18.sp,
+//        lineHeight = 26.sp,
+//        letterSpacing = 0.5.sp
+//    ),
+//    titleLarge = TextStyle(
+//        fontFamily = Jomhuria,
+//        fontWeight = FontWeight.Bold,
+//        fontSize = 24.sp,
+//        lineHeight = 32.sp,
+//        letterSpacing = 0.sp
+//    ),
+//    labelSmall = TextStyle(
+//        fontFamily = Jomhuria,
+//        fontWeight = FontWeight.Medium,
+//        fontSize = 16.sp,
+//        lineHeight = 22.sp,
+//        letterSpacing = 0.5.sp
+//    ),
+//    displayLarge = TextStyle(
+//        fontFamily = Jomhuria,
+//        fontWeight = FontWeight.Normal,
+//        fontSize = 36.sp,
+//        lineHeight = 44.sp,
+//        letterSpacing = 0.sp
+//    )
+//)
+//
+//@Composable
+//fun BillBuddyTheme(
+//    darkTheme: Boolean = isSystemInDarkTheme(),
+//    dynamicColor: Boolean = false,
+//    content: @Composable () -> Unit
+//) {
+//    val colorScheme = when {
+//        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+//            val context = LocalContext.current
+//            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+//        }
+//        darkTheme -> DarkColorScheme
+//        else -> LightColorScheme
+//    }
+//
+//    MaterialTheme(
+//        colorScheme = colorScheme,
+//        typography = AppTypography,
+//        content = content
+//    )
+//}

@@ -1,5 +1,6 @@
 package com.example.billbuddy.ui.screen
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -7,13 +8,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.CameraAlt
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,7 +29,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.billbuddy.R
+import com.example.billbuddy.navigation.NavRoutes
 import com.example.billbuddy.ui.MainViewModel
+import com.example.billbuddy.ui.components.AppFloatingActionButton
+import com.example.billbuddy.ui.components.AppSmallTextButton
+import com.example.billbuddy.ui.components.AppTextButton
+import com.example.billbuddy.ui.components.CommonNavigationBar
+import com.example.billbuddy.ui.components.CommonEventCard
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,7 +86,7 @@ fun HomeScreen(
             ) {
                 // Judul Bottom Sheet
                 Text(
-                    text = "Pilih Metode Input",
+                    text = "Select Input Method",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = textColor
@@ -92,86 +95,47 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Opsi 1: Input Manual
-                TextButton(
+                AppTextButton(
                     onClick = {
                         scope.launch { sheetState.hide() }.invokeOnCompletion {
                             showBottomSheet.value = false
-                            navController.navigate("input_event_screen")
+                            navController.navigate(NavRoutes.InputEvent.route)
                         }
                     },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Create,
-                            contentDescription = "Input Manual",
-                            tint = buttonColor
-                        )
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Text(
-                            text = "Input Manual",
-                            fontSize = 18.sp,
-                            color = textColor
-                        )
-                    }
-                }
+                    text = "Manual Input",
+                    textColor = textColor,
+                    icon = Icons.Default.Create,
+                    iconTint = buttonColor
+                )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
                 // Opsi 2: Scan dengan Kamera
-                TextButton(
+                AppTextButton(
                     onClick = {
                         scope.launch { sheetState.hide() }.invokeOnCompletion {
                             showBottomSheet.value = false
-                            navController.navigate("scan_screen")
+                            //navController.navigate(NavRoutes.Scan.route)
                         }
                     },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.CameraAlt,
-                            contentDescription = "Scan dengan Kamera",
-                            tint = buttonColor
-                        )
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Text(
-                            text = "Scan dengan Kamera",
-                            fontSize = 18.sp,
-                            color = textColor
-                        )
-                    }
-                }
+                    text = "Scan With Camera",
+                    textColor = textColor,
+                    icon = Icons.Default.CameraAlt,
+                    iconTint = buttonColor
+                )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Tombol Batal
-                TextButton(
+                AppTextButton(
                     onClick = {
                         scope.launch { sheetState.hide() }.invokeOnCompletion {
                             showBottomSheet.value = false
                         }
                     },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                ) {
-                    Text(
-                        text = "Batal",
-                        fontSize = 18.sp,
-                        color = buttonColor
-                    )
-                }
+                    text = "Cancel",
+                    textColor = buttonColor
+                )
 
                 Spacer(modifier = Modifier.height(16.dp))
             }
@@ -180,43 +144,17 @@ fun HomeScreen(
 
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = {
-                    showBottomSheet.value = true // Tampilkan Bottom Sheet saat FAB diklik
-                },
-                shape = CircleShape,
+            AppFloatingActionButton(
+                onClick = { showBottomSheet.value = true },
                 containerColor = buttonColor,
                 contentColor = Color.White
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add Event"
-                )
-            }
+            )
         },
         bottomBar = {
-            NavigationBar(
-                containerColor = Color.White
-            ) {
-                NavigationBarItem(
-                    selected = true,
-                    onClick = { /* Sudah di HomeScreen */ },
-                    icon = { Icon(Icons.Filled.Home, contentDescription = "Home") },
-                    label = { Text("Home") }
-                )
-                NavigationBarItem(
-                    selected = false,
-                    onClick = { navController.navigate("list_event_screen") },
-                    icon = { Icon(Icons.Filled.List, contentDescription = "List") },
-                    label = { Text("List") }
-                )
-                NavigationBarItem(
-                    selected = false,
-                    onClick = { navController.navigate("profile_screen") },
-                    icon = { Icon(Icons.Filled.Person, contentDescription = "Profile") },
-                    label = { Text("Profile") }
-                )
-            }
+            CommonNavigationBar(
+                navController = navController,
+                selectedScreen = "Home"
+            )
         },
         modifier = Modifier
             .fillMaxSize()
@@ -241,7 +179,7 @@ fun HomeScreen(
                     color = textColor
                 )
                 Spacer(modifier = Modifier.weight(1f))
-                IconButton(onClick = { navController.navigate("search_screen") }) {
+                IconButton(onClick = { navController.navigate(NavRoutes.Search.route) }) {
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = "Search",
@@ -258,7 +196,7 @@ fun HomeScreen(
                 fontSize = 90.sp,
                 fontWeight = FontWeight.Bold,
                 color = buttonColor,
-                fontFamily = jomhuriaFontFamily // Gunakan font kustom
+                fontFamily = jomhuriaFontFamily
             )
             Text(
                 text = "IT'S HERE",
@@ -271,7 +209,7 @@ fun HomeScreen(
 
             // Judul Bagian
             Text(
-                text = "Active Event",
+                text = "Active Events",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = textColor
@@ -285,54 +223,19 @@ fun HomeScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     items(activeEvents) { event ->
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp),
-                            shape = RoundedCornerShape(8.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                // Ikon grup (placeholder)
-                                Box(
-                                    modifier = Modifier
-                                        .size(40.dp)
-                                        .background(Color.Gray, CircleShape),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(text = "👥", fontSize = 20.sp)
+                        CommonEventCard(
+                            event = event,
+                            textColor = textColor,
+                            buttonColor = buttonColor,
+                            onClick = {
+                                if (event.eventId.isNotEmpty()) {
+                                    navController.navigate(NavRoutes.EventDetail.createRoute(event.eventId))
+                                } else {
+                                    Log.e("HomeScreen", "Invalid eventId for event: ${event.eventName}")
                                 }
-
-                                Spacer(modifier = Modifier.width(16.dp))
-
-                                // Nama Event
-                                Text(
-                                    text = event.eventName,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = textColor,
-                                    modifier = Modifier.weight(1f)
-                                )
-
-                                // Tombol Cek Detail
-                                TextButton(
-                                    onClick = {
-                                        navController.navigate("event_detail_screen/${event.eventId}")
-                                    }
-                                ) {
-                                    Text(
-                                        text = "Check Details",
-                                        fontSize = 14.sp,
-                                        color = buttonColor
-                                    )
-                                }
-                            }
-                        }
+                            },
+                            showDetails = false
+                        )
                     }
                 }
             } else {
@@ -342,7 +245,7 @@ fun HomeScreen(
                         color = MaterialTheme.colorScheme.error
                     )
                 } ?: Text(
-                    text = "Belum ada event aktif",
+                    text = "Not active events yet",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Medium,
                     color = textColor

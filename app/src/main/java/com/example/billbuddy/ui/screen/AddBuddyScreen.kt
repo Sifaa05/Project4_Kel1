@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
+import com.example.billbuddy.navigation.NavRoutes
 import com.example.billbuddy.ui.MainViewModel
 
 @Composable
@@ -326,7 +327,7 @@ fun AddBuddyScreen(
                 if (selectedFriendsList.isNotEmpty()) {
                     // Encode daftar teman yang dipilih sebagai parameter navigasi
                     val selectedFriendsParam = selectedFriendsList.joinToString(",")
-                    navController.navigate("assign_items_screen/$eventId/$selectedFriendsParam")
+                    navController.navigate(NavRoutes.AssignItems.createRoute(eventId, selectedFriendsParam)) // Modifikasi: Gunakan NavRoutes
                 }
             },
             modifier = Modifier
