@@ -3,12 +3,6 @@ package com.example.billbuddy.ui.screen
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -18,35 +12,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.billbuddy.R
 import com.example.billbuddy.navigation.NavRoutes
 import com.example.billbuddy.ui.MainViewModel
-import com.example.billbuddy.model.EventData
-import com.example.billbuddy.ui.components.CommonNavigationBar
-import com.example.billbuddy.ui.components.CommonEventCard
+import com.example.billbuddy.ui.components.*
+import com.example.billbuddy.ui.theme.Pink40
 
-// Definisikan FontFamily untuk font kustom
-val jomhuriaFontFamily = FontFamily(
-    Font(resId = R.font.jomhuria_regular, weight = FontWeight.Normal)
-)
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListEventScreen(
     navController: NavController,
     viewModel: MainViewModel
 ) {
-    // Warna sesuai desain
-    val backgroundColor = Color(0xFFFFDCDC) // Latar pink
-    val buttonColor = Color(0xFFFFB6C1) // Warna tombol pink
-    val textColor = Color(0xFF4A4A4A) // Warna teks abu-abu tua
-
     // State untuk loading
     val isLoading = remember { mutableStateOf(true) }
 
@@ -76,111 +57,49 @@ fun ListEventScreen(
                 selectedScreen = "List"
             )
         },
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(backgroundColor)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(padding)
-                .padding(16.dp)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Hello, Buddy!",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = textColor
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                IconButton(onClick = { navController.navigate(NavRoutes.Search.route) }) {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search",
-                        tint = textColor
-                    )
-                }
-            }
+            HomeHeader(navController = navController)
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Judul Aplikasi
-            Text(
-                text = "BillBuddy",
-                fontSize = 90.sp,
-                fontWeight = FontWeight.Bold,
-                color = buttonColor,
-                fontFamily = jomhuriaFontFamily
-            )
-            Text(
-                text = "IT'S HERE",
-                fontSize = 32.sp,
-                fontWeight = FontWeight.Bold,
-                color = buttonColor
-            )
+            // Branding (Horizontal untuk ListEventScreen)
+            AppBranding(isHorizontal = true)
 
             Spacer(modifier = Modifier.height(16.dp))
 
             // Judul Bagian
             Text(
                 text = "All Events",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = textColor
+                style = MaterialTheme.typography.titleLarge,
+                color = Pink40,
+                fontWeight = FontWeight.ExtraBold,
+                modifier = Modifier.shadow(elevation = 30.dp)
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             // Tampilkan loading, error, atau daftar event
-            when {
-                isLoading.value -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-                }
-                error != null -> {
-                    Text(
-                        text = "Error: $error",
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-                }
-                events.isNotEmpty() -> {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        items(events) { event ->
-                            CommonEventCard(
-                                event = event,
-                                textColor = textColor,
-                                buttonColor = buttonColor,
-                                onClick = {
-                                    if (event.eventId.isNotEmpty()) {
-                                        navController.navigate(NavRoutes.EventDetail.createRoute(event.eventId))
-                                    } else {
-                                        Log.e("ListEventScreen", "Invalid eventId for event: ${event.eventName}")
-                                    }
-                                },
-                                showDetails = true
-                            )
-                        }
-                    }
-                }
-                else -> {
-                    Text(
-                        text = "No events yet",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = textColor,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
-                }
-            }
+            LoadingErrorHandler(
+                isLoading = isLoading.value,
+                error = error,
+                events = events,
+                textColor = MaterialTheme.colorScheme.onBackground,
+                onEventClick = { eventId ->
+                    navController.navigate(NavRoutes.EventDetail.createRoute(eventId))
+                },
+                modifier = Modifier.fillMaxWidth(),
+                showDetails = true
+            )
         }
     }
 }

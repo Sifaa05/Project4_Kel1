@@ -17,6 +17,7 @@ import com.example.billbuddy.ui.screen.ParticipantBillDetailScreen
 import com.example.billbuddy.ui.screen.ParticipantScreen
 import com.example.billbuddy.ui.screen.ProfileScreen
 import com.example.billbuddy.ui.screen.SearchScreen
+import com.example.billbuddy.ui.screen.SplashScreen
 
 @Composable
 fun AppNavHost(
@@ -27,9 +28,12 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = NavRoutes.Home.route,
+        startDestination = NavRoutes.Splash.route,
         modifier = modifier
     ) {
+        composable(NavRoutes.Splash.route) {
+            SplashScreen(navController = navController)
+        }
         composable(NavRoutes.Home.route) {
             HomeScreen(navController = navController, viewModel = viewModel)
         }

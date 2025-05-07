@@ -16,10 +16,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.example.billbuddy.ui.theme.PinkPrimary
 
 @Composable
 fun AppFloatingActionButton(
@@ -31,7 +30,7 @@ fun AppFloatingActionButton(
     FloatingActionButton(
         onClick = onClick,
         shape = CircleShape,
-        containerColor = containerColor,
+        containerColor = PinkPrimary,
         contentColor = contentColor,
         modifier = modifier
     ) {
@@ -69,7 +68,7 @@ fun AppTextButton(
             }
             Text(
                 text = text,
-                fontSize = 16.sp,
+                style = MaterialTheme.typography.bodyLarge, // Roboto, 16sp
                 color = textColor
             )
         }
@@ -89,7 +88,7 @@ fun AppSmallTextButton(
     ) {
         Text(
             text = text,
-            fontSize = 14.sp,
+            style = MaterialTheme.typography.labelSmall, // Roboto, 14sp
             color = textColor
         )
     }
@@ -124,7 +123,6 @@ fun AppFilledButton(
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
     iconTint: Color? = null,
-    fontSize: Float = 18f,
     height: Dp = 64.dp
 ) {
     Button(
@@ -138,8 +136,8 @@ fun AppFilledButton(
         ) {
             Text(
                 text = text,
-                color = textColor,
-                fontSize = fontSize.sp
+                style = MaterialTheme.typography.bodyLarge, // Roboto, 16sp
+                color = textColor
             )
             if (icon != null && iconTint != null) {
                 Spacer(modifier = Modifier.width(8.dp))
@@ -169,9 +167,8 @@ fun AppTextIconButton(
     ) {
         Text(
             text = text,
-            fontSize = 18.sp,
-            color = textColor,
-            fontWeight = FontWeight.Bold
+            style = MaterialTheme.typography.bodyLarge, // Roboto, 16sp
+            color = textColor
         )
     }
 }
