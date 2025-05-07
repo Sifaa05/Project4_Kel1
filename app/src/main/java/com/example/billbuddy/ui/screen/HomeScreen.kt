@@ -86,7 +86,7 @@ fun HomeScreen(
             ) {
                 // Judul Bottom Sheet
                 Text(
-                    text = "Pilih Metode Input",
+                    text = "Select Input Method",
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
                     color = textColor
@@ -102,7 +102,7 @@ fun HomeScreen(
                             navController.navigate(NavRoutes.InputEvent.route)
                         }
                     },
-                    text = "Input Manual",
+                    text = "Manual Input",
                     textColor = textColor,
                     icon = Icons.Default.Create,
                     iconTint = buttonColor
@@ -118,7 +118,7 @@ fun HomeScreen(
                             //navController.navigate(NavRoutes.Scan.route)
                         }
                     },
-                    text = "Scan dengan Kamera",
+                    text = "Scan With Camera",
                     textColor = textColor,
                     icon = Icons.Default.CameraAlt,
                     iconTint = buttonColor
@@ -133,7 +133,7 @@ fun HomeScreen(
                             showBottomSheet.value = false
                         }
                     },
-                    text = "Batal",
+                    text = "Cancel",
                     textColor = buttonColor
                 )
 
@@ -209,7 +209,7 @@ fun HomeScreen(
 
             // Judul Bagian
             Text(
-                text = "Event Aktif",
+                text = "Active Events",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 color = textColor
@@ -245,7 +245,7 @@ fun HomeScreen(
                         color = MaterialTheme.colorScheme.error
                     )
                 } ?: Text(
-                    text = "Belum ada event aktif",
+                    text = "Not active events yet",
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Medium,
                     color = textColor
