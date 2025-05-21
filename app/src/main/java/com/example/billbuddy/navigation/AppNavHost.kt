@@ -13,6 +13,9 @@ import com.example.billbuddy.ui.screen.EventDetailScreen
 import com.example.billbuddy.ui.screen.HomeScreen
 import com.example.billbuddy.ui.screen.InputEventScreen
 import com.example.billbuddy.ui.screen.ListEventScreen
+import com.example.billbuddy.ui.screen.OnboardingDuaScreen
+import com.example.billbuddy.ui.screen.OnboardingSatuScreen
+import com.example.billbuddy.ui.screen.OnboardingTigaScreen
 import com.example.billbuddy.ui.screen.ParticipantBillDetailScreen
 import com.example.billbuddy.ui.screen.ParticipantScreen
 import com.example.billbuddy.ui.screen.ProfileScreen
@@ -27,9 +30,18 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = NavRoutes.Home.route,
+        startDestination = NavRoutes.OnboardingSatu.route,
         modifier = modifier
     ) {
+        composable(NavRoutes.OnboardingSatu.route) {
+            OnboardingSatuScreen(navController = navController)
+        }
+        composable(NavRoutes.OnboardingDua.route) {
+            OnboardingDuaScreen(navController = navController)
+        }
+        composable(NavRoutes.OnboardingTiga.route) {
+            OnboardingTigaScreen(navController = navController)
+        }
         composable(NavRoutes.Home.route) {
             HomeScreen(navController = navController, viewModel = viewModel)
         }
