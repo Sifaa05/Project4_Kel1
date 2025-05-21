@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -31,7 +32,7 @@ fun OnboardingDuaScreen(
         Box(
             modifier = modifier
                 .fillMaxSize()
-                .background(Color(0xFFF7ACB8))
+                .background(Color(0xFFFFDCDC))
         ) {
             // Gambar karakter (pria dan wanita dalam satu gambar)
             Image(
@@ -40,6 +41,7 @@ fun OnboardingDuaScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 100.dp, start = 16.dp, end = 16.dp)
+                    .scale(2f)
             )
 
             // Kotak teks
@@ -54,44 +56,58 @@ fun OnboardingDuaScreen(
                     modifier = Modifier
                         .background(
                             color = Color.White.copy(alpha = 0.9f),
-                            shape = RoundedCornerShape(16.dp)
+                            shape = RoundedCornerShape(32.dp)
                         )
-                        .padding(16.dp)
+                        .padding(64.dp)
                 ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                color = (Color(0xFFFFDCDC)),
+                                shape = RoundedCornerShape(32.dp)
+                            )
+                            .padding(16.dp)
                     ) {
-                        Text(
-                            text = "Transparan & Adil",
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF8B1E3F),
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "Tak perlu ribet catat pengeluaran. Cukup masukkan total biaya, BillBuddy akan hitung otomatis siapa harus bayar berapa!",
-                            fontSize = 16.sp,
-                            color = Color.Gray,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(
-                            onClick = {
-                                // Navigasi ke layar berikutnya (misalnya HomeScreen)
-                                navController.navigate(NavRoutes.OnboardingTiga.route)
-                            },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF48FB1)),
-                            shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp)
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.padding(16.dp)
                         ) {
                             Text(
-                                text = "Next",
-                                fontSize = 18.sp,
-                                color = Color.White
+                                text = "Transparan & Adil",
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF8B1E3F),
+                                textAlign = TextAlign.Center
                             )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "Tak perlu ribet catat pengeluaran. Cukup masukkan total biaya, BillBuddy akan hitung otomatis siapa harus bayar berapa!",
+                                fontSize = 16.sp,
+                                color = Color.Gray,
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Button(
+                                onClick = {
+                                    // Navigasi ke layar berikutnya (misalnya HomeScreen)
+                                    navController.navigate(NavRoutes.OnboardingTiga.route)
+                                },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(
+                                        0xFFF48FB1
+                                    )
+                                ),
+                                shape = RoundedCornerShape(32.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(50.dp)
+                            ) {
+                                Text(
+                                    text = "Next",
+                                    fontSize = 18.sp,
+                                    color = Color.White
+                                )
+                            }
                         }
                     }
                 }
