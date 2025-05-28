@@ -27,81 +27,74 @@ fun OnboardingSatuScreen(
     modifier: Modifier = Modifier
 ) {
     BillBuddyTheme {
-        // Warna latar belakang sesuai dengan #FFF7ACB8
         Box(
             modifier = modifier
                 .fillMaxSize()
                 .background(Color(0xFFFFDCDC))
         ) {
-            // Gambar karakter (pria dan wanita dalam satu gambar)
-            Image(
-                painter = painterResource(id = R.drawable.onboarding_satu), // Ganti dengan nama file gambar yang sesuai
-                contentDescription = "Onboarding Characters",
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 100.dp, start = 16.dp, end = 16.dp)
-            )
-
-            // Kotak teks
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .align(Alignment.BottomCenter)
-                    .offset(y = (-50).dp)
+                    .fillMaxSize()
+                    .padding(horizontal = 32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center // Ini yang membuat isi ke tengah layar
             ) {
+                // Gambar
+                Image(
+                    painter = painterResource(id = R.drawable.onboarding_satu),
+                    contentDescription = "Onboarding Characters",
+                    modifier = Modifier
+                        .width(200.dp)
+                        .height(200.dp)
+                )
+
+                Spacer(modifier = Modifier.height(24.dp)) // Jarak antara gambar dan box
+
+                // Kotak putih
                 Box(
                     modifier = Modifier
+                        .fillMaxWidth()
                         .background(
                             color = Color.White.copy(alpha = 0.9f),
                             shape = RoundedCornerShape(32.dp)
                         )
-                        .padding(64.dp)
+                        .padding(vertical = 24.dp, horizontal = 16.dp)
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .background(
-                                color = (Color(0xFFFFDCDC)),
-                                shape = RoundedCornerShape(32.dp)
-                            )
-                            .padding(16.dp)
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.padding(16.dp)
+                        Text(
+                            text = "Pooling Made Easy!",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF8B1E3F),
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Tired of manually calculating your money? BillBuddy is ready to help you divide the costs easily and quickly!",
+                            fontSize = 16.sp,
+                            color = Color.Gray,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
+                            onClick = {
+                                navController.navigate(NavRoutes.OnboardingDua.route)
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF48FB1)),
+                            shape = RoundedCornerShape(32.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp)
                         ) {
                             Text(
-                                text = "Patungan Jadi Gampang!",
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF8B1E3F),
-                                textAlign = TextAlign.Center
+                                text = "Next",
+                                fontSize = 18.sp,
+                                color = Color.White
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "Capek hitung uang patungan secara manual? BillBuddy siap bantu kamu bagi biaya dengan mudah dan cepat!",
-                                fontSize = 16.sp,
-                                color = Color.Gray,
-                                textAlign = TextAlign.Center
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Button(
-                                onClick = {
-                                    // Navigasi ke layar berikutnya (misalnya HomeScreen)
-                                    navController.navigate(NavRoutes.OnboardingDua.route)
-                                },
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF48FB1)),
-                                shape = RoundedCornerShape(32.dp),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(50.dp)
-                            ) {
-                                Text(
-                                    text = "Next",
-                                    fontSize = 18.sp,
-                                    color = Color.White
-                                )
-                            }
                         }
                     }
                 }

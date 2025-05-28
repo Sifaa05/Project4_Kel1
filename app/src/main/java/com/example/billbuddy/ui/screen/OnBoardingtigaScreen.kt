@@ -10,7 +10,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -28,86 +27,74 @@ fun OnboardingTigaScreen(
     modifier: Modifier = Modifier
 ) {
     BillBuddyTheme {
-        // Warna latar belakang sesuai dengan #FFF7ACB8
         Box(
             modifier = modifier
                 .fillMaxSize()
                 .background(Color(0xFFFFDCDC))
         ) {
-            // Gambar karakter (pria dan wanita dalam satu gambar)
-            Image(
-                painter = painterResource(id = R.drawable.onboarding_tiga), // Ganti dengan nama file gambar yang sesuai
-                contentDescription = "Onboarding Characters",
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 150.dp, start = 16.dp, end = 16.dp)
-                    .scale(1.5f)
-            )
-
-            // Kotak teks
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .align(Alignment.BottomCenter)
-                    .offset(y = (-50).dp)
+                    .fillMaxSize()
+                    .padding(horizontal = 32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
+                // Gambar
+                Image(
+                    painter = painterResource(id = R.drawable.onboarding_tiga),
+                    contentDescription = "Onboarding 3 Illustration",
+                    modifier = Modifier
+                        .width(200.dp)
+                        .height(200.dp)
+                )
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // Kotak putih
                 Box(
                     modifier = Modifier
+                        .fillMaxWidth()
                         .background(
                             color = Color.White.copy(alpha = 0.9f),
                             shape = RoundedCornerShape(32.dp)
                         )
-                        .padding(64.dp)
+                        .padding(vertical = 24.dp, horizontal = 16.dp)
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .background(
-                                color = (Color(0xFFFFDCDC)),
-                                shape = RoundedCornerShape(32.dp)
-                            )
-                            .padding(16.dp)
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier.padding(16.dp)
+                        Text(
+                            text = "Enjoy the Event, Not the Count!",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF8B1E3F),
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Focus on enjoying the moment, let BillBuddy take care of the sharing. From now on, share without drama!",
+                            fontSize = 16.sp,
+                            color = Color.Gray,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Button(
+                            onClick = {
+                                navController.navigate(NavRoutes.Home.route)
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF48FB1)),
+                            shape = RoundedCornerShape(32.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp)
                         ) {
                             Text(
-                                text = "Nikmati Acara, Bukan Hitungan!",
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF8B1E3F),
-                                textAlign = TextAlign.Center
+                                text = "Get Started",
+                                fontSize = 18.sp,
+                                color = Color.White
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "Fokus nikmati momen, urusan patungan biar BillBuddy yang urus. Mulai sekarang, patungan tanpa drama!",
-                                fontSize = 16.sp,
-                                color = Color.Gray,
-                                textAlign = TextAlign.Center
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Button(
-                                onClick = {
-                                    // Navigasi ke layar berikutnya (misalnya HomeScreen)
-                                    navController.navigate(NavRoutes.Home.route)
-                                },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(
-                                        0xFFF48FB1
-                                    )
-                                ),
-                                shape = RoundedCornerShape(32.dp),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(50.dp)
-                            ) {
-                                Text(
-                                    text = "Get Started",
-                                    fontSize = 18.sp,
-                                    color = Color.White
-                                )
-                            }
                         }
                     }
                 }
