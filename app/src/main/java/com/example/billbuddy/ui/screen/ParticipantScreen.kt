@@ -19,10 +19,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.billbuddy.model.EventData
-import com.example.billbuddy.model.Participant
+import com.example.billbuddy.data.EventData
+import com.example.billbuddy.data.Participant
 import com.example.billbuddy.navigation.NavRoutes
-import com.example.billbuddy.ui.MainViewModel
+import com.example.billbuddy.ui.viewModel.MainViewModel
 import com.example.billbuddy.ui.components.AppFilledButton
 import com.example.billbuddy.ui.components.AppIconButton
 import com.example.billbuddy.ui.components.CommonNavigationBar
