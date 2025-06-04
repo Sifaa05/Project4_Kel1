@@ -6,9 +6,16 @@ sealed class NavRoutes(val route: String) {
     object ListEvent : NavRoutes("list_event_screen")
     object Profile : NavRoutes("profile_screen")
     object Search : NavRoutes("search_screen")
-    object InputEvent : NavRoutes("input_event_screen")
-    object EventDetail : NavRoutes("event_detail_screen/{eventId}") {
-        fun createRoute(eventId: String) = "event_detail_screen/$eventId"
+    object InputEvent : NavRoutes("input_event?scannedBillDataJson={scannedBillDataJson}") {
+        fun createRoute(scannedBillDataJson: String): String {
+            return "input_event?scannedBillDataJson=$scannedBillDataJson"
+        }
+    }
+    object Scan : NavRoutes("scan_screen")
+    object EventDetail : NavRoutes("event_detail/{eventId}") {
+        fun createRoute(eventId: String): String {
+            return "event_detail/$eventId"
+        }
     }
     object AddBuddy : NavRoutes("add_buddy_screen/{eventId}") {
         fun createRoute(eventId: String) = "add_buddy_screen/$eventId"

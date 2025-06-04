@@ -1,5 +1,6 @@
 package com.example.billbuddy.ui.components
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -72,7 +73,12 @@ fun InputMethodBottomSheet(
                         scope.launch {
                             sheetState.hide()
                             onDismiss()
-                            //navController.navigate(NavRoutes.Scan.route)
+                            try {
+                                navController.navigate(NavRoutes.Scan.route)
+                            } catch (e: Exception) {
+                                Log.e("InputMethodBottomSheet", "Navigation to ScanScreen failed: ${e.message}", e)
+                                // Tampilkan pesan error ke pengguna jika perlu
+                            }
                         }
                     },
                     text = "Scan With Camera",

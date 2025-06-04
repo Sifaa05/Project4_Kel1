@@ -58,6 +58,12 @@ dependencies {
     implementation(libs.androidx.core.telecom)
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.firebase.auth.ktx)
+    implementation(libs.androidx.camera.core)
+    implementation(libs.play.services.mlkit.text.recognition.common)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+    implementation(libs.play.services.mlkit.text.recognition)
+    implementation("com.google.code.gson:gson:2.10.1")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -74,4 +80,7 @@ dependencies {
     implementation ("com.google.firebase:firebase-firestore-ktx:24.10.0")
     //implementation ("com.google.firebase:firebase-auth-ktx:23.3.1")
     implementation ("androidx.compose.material:material-icons-extended:1.6.8")
+    implementation ("com.google.mlkit:text-recognition:16.0.0")
+    implementation ("androidx.navigation:navigation-compose:2.7.7")
+    implementation ("androidx.activity:activity-compose:1.8.2")
 }

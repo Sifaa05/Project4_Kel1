@@ -3,8 +3,10 @@ package com.example.billbuddy.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.example.billbuddy.data.SplitBillRepository
 import com.example.billbuddy.ui.MainViewModel
 import com.example.billbuddy.ui.screen.AddBuddyScreen
@@ -16,6 +18,7 @@ import com.example.billbuddy.ui.screen.ListEventScreen
 import com.example.billbuddy.ui.screen.ParticipantBillDetailScreen
 import com.example.billbuddy.ui.screen.ParticipantScreen
 import com.example.billbuddy.ui.screen.ProfileScreen
+import com.example.billbuddy.ui.screen.ScanScreen
 import com.example.billbuddy.ui.screen.SearchScreen
 import com.example.billbuddy.ui.screen.SplashScreen
 
@@ -52,7 +55,10 @@ fun AppNavHost(
                 repository = repository
             )
         }
-        composable(NavRoutes.EventDetail.route) { backStackEntry ->
+        composable(
+            route = NavRoutes.EventDetail.route,
+            arguments = listOf(navArgument("eventId") { type = NavType.StringType })
+        ) { backStackEntry ->
             val eventId = backStackEntry.arguments?.getString("eventId") ?: ""
             EventDetailScreen(
                 eventId = eventId,
@@ -94,6 +100,27 @@ fun AppNavHost(
                 participantId = participantId,
                 navController = navController,
                 viewModel = viewModel
+            )
+        }
+        composable(NavRoutes.Scan.route) { // Tambahkan rute ini
+            ScanScreen(
+                navController = navController,
+                viewModel = viewModel
+            )
+        }
+        composable(
+            route = NavRoutes.InputEvent.route,
+            arguments = listOf(
+                navArgument("scannedBillDataJson") {
+                    type = NavType.StringType
+                    nullable = true
+                }
+            )
+        ) { backStackEntry ->
+            InputEventScreen(
+                navController = navController,
+                repository = repository,
+                scannedBillDataJson = backStackEntry.arguments?.getString("scannedBillDataJson")
             )
         }
     }

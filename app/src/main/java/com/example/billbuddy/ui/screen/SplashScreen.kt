@@ -19,7 +19,7 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun SplashScreen(navController: NavController) {
-    val backgroundColor = Color(0xFFFFDCDC)
+    val backgroundColor = Color(0xFFFFFFFF)
 
     LaunchedEffect(Unit) {
         delay(2000L)
@@ -35,7 +35,7 @@ fun SplashScreen(navController: NavController) {
         contentAlignment = Alignment.Center
     ) {
         Image(
-            painter = painterResource(id = R.drawable.ic_launcher_foreground),
+            painter = painterResource(id = R.drawable.logobillbuddy),
             contentDescription = "BillBuddy Logo",
             modifier = Modifier.size(200.dp)
         )
