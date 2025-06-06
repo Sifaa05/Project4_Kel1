@@ -1,4 +1,4 @@
-package com.example.billbuddy.model
+package com.example.billbuddy.data
 
 import com.google.firebase.Timestamp
 

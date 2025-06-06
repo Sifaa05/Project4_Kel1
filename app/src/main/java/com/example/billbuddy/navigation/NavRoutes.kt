@@ -31,4 +31,11 @@ sealed class NavRoutes(val route: String) {
         fun createRoute(eventId: String, participantId: String) =
             "participant_bill_detail_screen/$eventId/$participantId"
     }
+    object Authentication : NavRoutes("authentication_screen")
+
+    object Login: NavRoutes("login_screen")
+
+    object Register : NavRoutes("register_screen")
+
+    object ForgotPassword : NavRoutes("forgot_password_screen")
 }

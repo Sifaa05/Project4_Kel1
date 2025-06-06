@@ -1,4 +1,4 @@
-package com.example.billbuddy.model
+package com.example.billbuddy.data
 
 data class Item(
     val itemId: String,

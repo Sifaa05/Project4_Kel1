@@ -35,9 +35,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
-import com.example.billbuddy.model.Item
+import com.example.billbuddy.data.Item
 import com.example.billbuddy.navigation.NavRoutes
-import com.example.billbuddy.ui.MainViewModel
+import com.example.billbuddy.ui.viewModel.MainViewModel
 import com.example.billbuddy.ui.components.AppIconButton
 import com.example.billbuddy.ui.components.CommonNavigationBar
 import com.google.gson.Gson

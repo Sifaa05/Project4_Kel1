@@ -25,9 +25,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.billbuddy.data.SplitBillRepository
-import com.example.billbuddy.model.Item
-import com.example.billbuddy.model.Participant
+import com.example.billbuddy.repository.SplitBillRepository
+import com.example.billbuddy.data.Item
+import com.example.billbuddy.data.Participant
 import com.example.billbuddy.navigation.NavRoutes
 import com.example.billbuddy.ui.components.AppFilledButton
 import com.example.billbuddy.ui.components.AppIconButton

@@ -1,14 +1,14 @@
-package com.example.billbuddy.ui
+package com.example.billbuddy.ui.viewModel
 
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.billbuddy.data.SplitBillRepository
-import com.example.billbuddy.model.EventData
-import com.example.billbuddy.model.Item
-import com.example.billbuddy.model.Participant
+import com.example.billbuddy.repository.SplitBillRepository
+import com.example.billbuddy.data.EventData
+import com.example.billbuddy.data.Item
+import com.example.billbuddy.data.Participant
 import kotlinx.coroutines.launch
 
 //import com.example.billbuddy.model.UserProfile
