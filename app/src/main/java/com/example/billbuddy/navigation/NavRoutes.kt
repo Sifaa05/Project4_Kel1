@@ -1,6 +1,9 @@
 package com.example.billbuddy.navigation
 
 sealed class NavRoutes(val route: String) {
+    object OnboardingSatu : NavRoutes("onboarding_satu_screen")
+    object OnboardingDua : NavRoutes("onboarding_dua_screen") // Tambahkan rute ini
+    object OnboardingTiga : NavRoutes("onboarding_tiga_screen")
     object Splash : NavRoutes("splash_screen")
     object Home : NavRoutes("home_screen")
     object ListEvent : NavRoutes("list_event_screen")

@@ -1,15 +1,18 @@
 package com.example.billbuddy
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import com.example.billbuddy.repository.SplitBillRepository
 import com.example.billbuddy.navigation.AppNavHost
+import com.example.billbuddy.navigation.NavRoutes
 import com.example.billbuddy.ui.viewModel.MainViewModel
 import com.example.billbuddy.ui.viewModel.AuthViewModel
 import com.example.billbuddy.ui.theme.BillBuddyTheme
@@ -28,7 +31,11 @@ class MainActivity : ComponentActivity() {
         FirebaseApp.initializeApp(this)
         repository = SplitBillRepository()
 
-        authViewModel.checkAuthState(auth.currentUser)
+        // Inisialisasi SharedPreferences
+        val sharedPreferences = getSharedPreferences("BillBuddyPrefs", Context.MODE_PRIVATE)
+
+        // Selalu set startDestination ke splash_screen
+        authViewModel.setStartDestinationToSplash()
 
         setContent {
             BillBuddyTheme {
@@ -38,6 +45,7 @@ class MainActivity : ComponentActivity() {
                         authViewModel = authViewModel,
                         repository = repository,
                         mainViewModel = mainViewModel,
+                        sharedPreferences = sharedPreferences,
                         modifier = Modifier
                     )
                 }
@@ -52,11 +60,17 @@ fun AppNavigation(
     authViewModel: AuthViewModel,
     repository: SplitBillRepository,
     mainViewModel: MainViewModel,
+    sharedPreferences: android.content.SharedPreferences,
     modifier: Modifier = Modifier
 ) {
     val navController = rememberNavController()
 
-    val startDestination = authViewModel.startDestination.value
+    // Reset navigasi ke splash_screen setiap kali aplikasi dibuka
+    LaunchedEffect(Unit) {
+        navController.navigate(NavRoutes.Splash.route) {
+            popUpTo(navController.graph.id) { inclusive = true }
+        }
+    }
 
     AppNavHost(
         navController = navController,
@@ -64,7 +78,8 @@ fun AppNavigation(
         authViewModel = authViewModel,
         repository = repository,
         mainViewModel = mainViewModel,
-        startDestination = startDestination,
+        sharedPreferences = sharedPreferences,
+        startDestination = authViewModel.startDestination.value,
         modifier = modifier
     )
 }

@@ -15,16 +15,29 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.billbuddy.R
 import com.example.billbuddy.navigation.NavRoutes
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 
 @Composable
-fun SplashScreen(navController: NavController) {
+fun SplashScreen(
+    navController: NavController,
+    sharedPreferences: android.content.SharedPreferences,
+    auth: FirebaseAuth
+) {
     val backgroundColor = Color(0xFFFFFFFF)
 
     LaunchedEffect(Unit) {
         delay(2000L)
-        navController.navigate(NavRoutes.Home.route) {
-            popUpTo(navController.graph.startDestinationId) { inclusive = true }
+        val isOnboardingCompleted = sharedPreferences.getBoolean("isOnboardingCompleted", false)
+        val destination = if (!isOnboardingCompleted) {
+            NavRoutes.OnboardingSatu.route
+        } else if (auth.currentUser != null) {
+            NavRoutes.Home.route
+        } else {
+            NavRoutes.Authentication.route
+        }
+        navController.navigate(destination) {
+            popUpTo(navController.graph.id) { inclusive = true }
         }
     }
 

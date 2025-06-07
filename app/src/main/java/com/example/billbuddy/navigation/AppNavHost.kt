@@ -1,5 +1,6 @@
 package com.example.billbuddy.navigation
 
+import android.content.SharedPreferences
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -17,6 +18,9 @@ import com.example.billbuddy.ui.screen.EventDetailScreen
 import com.example.billbuddy.ui.screen.HomeScreen
 import com.example.billbuddy.ui.screen.InputEventScreen
 import com.example.billbuddy.ui.screen.ListEventScreen
+import com.example.billbuddy.ui.screen.OnboardingDuaScreen
+import com.example.billbuddy.ui.screen.OnboardingSatuScreen
+import com.example.billbuddy.ui.screen.OnboardingTigaScreen
 import com.example.billbuddy.ui.screen.ParticipantBillDetailScreen
 import com.example.billbuddy.ui.screen.ParticipantScreen
 import com.example.billbuddy.ui.screen.ProfileScreen
@@ -34,6 +38,7 @@ fun AppNavHost(
     authViewModel: AuthViewModel,
     repository: SplitBillRepository,
     mainViewModel: MainViewModel,
+    sharedPreferences: SharedPreferences,
     startDestination: String,
     modifier: Modifier = Modifier
 ) {
@@ -44,7 +49,18 @@ fun AppNavHost(
     ) {
         // Splash Screen
         composable(NavRoutes.Splash.route) {
-            SplashScreen(navController = navController)
+            SplashScreen(navController = navController, sharedPreferences = sharedPreferences, auth = auth)
+        }
+
+        // Onboarding Routes
+        composable(NavRoutes.OnboardingSatu.route) {
+            OnboardingSatuScreen(navController = navController)
+        }
+        composable(NavRoutes.OnboardingDua.route) {
+            OnboardingDuaScreen(navController = navController)
+        }
+        composable(NavRoutes.OnboardingTiga.route) {
+            OnboardingTigaScreen(navController = navController, sharedPreferences = sharedPreferences)
         }
 
         // Authentication Routes
@@ -68,7 +84,7 @@ fun AppNavHost(
                     auth.signInWithEmailAndPassword(email, password)
                         .addOnCompleteListener { task ->
                             if (task.isSuccessful) {
-                                authViewModel.checkAuthState(auth.currentUser)
+                                authViewModel.checkAuthState(auth.currentUser, true)
                                 navController.navigate(NavRoutes.Home.route) {
                                     popUpTo(NavRoutes.Login.route) { inclusive = true }
                                 }
@@ -91,7 +107,7 @@ fun AppNavHost(
                     auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener { task ->
                             if (task.isSuccessful) {
-                                authViewModel.checkAuthState(auth.currentUser)
+                                authViewModel.checkAuthState(auth.currentUser, true)
                                 navController.navigate(NavRoutes.Home.route) {
                                     popUpTo(NavRoutes.Register.route) { inclusive = true }
                                 }
