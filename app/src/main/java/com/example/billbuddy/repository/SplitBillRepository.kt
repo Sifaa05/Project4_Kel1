@@ -1,13 +1,13 @@
-package com.example.billbuddy.data
+package com.example.billbuddy.repository
 
 import android.util.Log
+import com.example.billbuddy.data.EventData
+import com.example.billbuddy.data.Item
+import com.example.billbuddy.data.Participant
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import com.example.billbuddy.model.EventData
-import com.example.billbuddy.model.Item
-import com.example.billbuddy.model.Participant
 
 class SplitBillRepository {
     private val db = FirebaseFirestore.getInstance()
@@ -123,12 +123,12 @@ class SplitBillRepository {
                         }
 
                         participantsCollection.get().addOnSuccessListener { participantsSnapshot ->
-                            @Suppress("UNCHECKED_CAST") val participants = participantsSnapshot.documents.mapNotNull { participantDoc ->
+                            val participants = participantsSnapshot.documents.mapNotNull { participantDoc ->
                                 try {
                                     Participant(
                                         id = participantDoc.id,
                                         name = participantDoc.getString("name") ?: "",
-                                        userId = participantDoc.getString("userId"),
+                                        userId = participantDoc.getString("userId") ?: "",
                                         amount = participantDoc.getLong("amount") ?: 0,
                                         paid = participantDoc.getBoolean("paid") ?: false,
                                         itemsAssigned = participantDoc.get("itemsAssigned") as? List<String>,
@@ -151,7 +151,7 @@ class SplitBillRepository {
                                 serviceFee = doc.getLong("service_fee") ?: 0,
                                 status = doc.getString("status") ?: "ongoing",
                                 timestamp = doc.get("timestamp") as? Timestamp ?: Timestamp.now(),
-                                shareLink = doc.getString("share_link"),
+                                shareLink = doc.getString("share_link") ?: "",
                                 items = items,
                                 participants = participants
                             )
@@ -253,11 +253,11 @@ class SplitBillRepository {
                                 )
                             } ?: emptyList()
 
-                            @Suppress("UNCHECKED_CAST") val participants = participantsSnapshot?.documents?.mapNotNull { participantDoc ->
+                            val participants = participantsSnapshot?.documents?.mapNotNull { participantDoc ->
                                 Participant(
                                     id = participantDoc.id,
                                     name = participantDoc.getString("name") ?: "",
-                                    userId = participantDoc.getString("userId"),
+                                    userId = participantDoc.getString("userId") ?: "",
                                     amount = participantDoc.getLong("amount") ?: 0,
                                     paid = participantDoc.getBoolean("paid") ?: false,
                                     itemsAssigned = participantDoc.get("itemsAssigned") as? List<String>,
@@ -276,7 +276,7 @@ class SplitBillRepository {
                                 serviceFee = doc.getLong("service_fee") ?: 0,
                                 status = doc.getString("status") ?: "ongoing",
                                 timestamp = doc.get("timestamp") as? Timestamp ?: Timestamp.now(),
-                                shareLink = doc.getString("share_link"),
+                                shareLink = doc.getString("share_link") ?: "",
                                 items = items,
                                 participants = participants
                             )
@@ -331,11 +331,11 @@ class SplitBillRepository {
                                 )
                             } ?: emptyList()
 
-                            @Suppress("UNCHECKED_CAST") val participants = participantsSnapshot?.documents?.mapNotNull { participantDoc ->
+                            val participants = participantsSnapshot?.documents?.mapNotNull { participantDoc ->
                                 Participant(
                                     id = participantDoc.id,
                                     name = participantDoc.getString("name") ?: "",
-                                    userId = participantDoc.getString("userId"),
+                                    userId = participantDoc.getString("userId") ?: "",
                                     amount = participantDoc.getLong("amount") ?: 0,
                                     paid = participantDoc.getBoolean("paid") ?: false,
                                     itemsAssigned = participantDoc.get("itemsAssigned") as? List<String>,
@@ -354,7 +354,7 @@ class SplitBillRepository {
                                 serviceFee = doc.getLong("service_fee") ?: 0,
                                 status = doc.getString("status") ?: "ongoing",
                                 timestamp = doc.get("timestamp") as? Timestamp ?: Timestamp.now(),
-                                shareLink = doc.getString("share_link"),
+                                shareLink = doc.getString("share_link") ?: "",
                                 items = items,
                                 participants = participants
                             )
@@ -402,11 +402,11 @@ class SplitBillRepository {
                                 )
                             } ?: emptyList()
 
-                            @Suppress("UNCHECKED_CAST") val participants = participantsSnapshot?.documents?.mapNotNull { participantDoc ->
+                            val participants = participantsSnapshot?.documents?.mapNotNull { participantDoc ->
                                 Participant(
                                     id = participantDoc.id,
                                     name = participantDoc.getString("name") ?: "",
-                                    userId = participantDoc.getString("userId"),
+                                    userId = participantDoc.getString("userId") ?: "",
                                     amount = participantDoc.getLong("amount") ?: 0,
                                     paid = participantDoc.getBoolean("paid") ?: false,
                                     itemsAssigned = participantDoc.get("itemsAssigned") as? List<String>,
@@ -425,7 +425,7 @@ class SplitBillRepository {
                                 serviceFee = doc.getLong("service_fee") ?: 0,
                                 status = doc.getString("status") ?: "ongoing",
                                 timestamp = doc.get("timestamp") as? Timestamp ?: Timestamp.now(),
-                                shareLink = doc.getString("share_link"),
+                                shareLink = doc.getString("share_link") ?: "",
                                 items = items,
                                 participants = participants
                             )
@@ -466,33 +466,27 @@ class SplitBillRepository {
                     .collection("items")
                     .get()
                     .addOnSuccessListener { itemsSnapshot ->
-                        // Ambil daftar semua participant untuk menghitung pembagian
                         db.collection("split_events")
                             .document(eventId)
                             .collection("participants")
                             .get()
                             .addOnSuccessListener { participantsSnapshot ->
-                                // Hitung jumlah participant yang memilih setiap item
                                 val itemSelectionCount = mutableMapOf<String, Int>()
                                 itemsSnapshot.documents.forEach { itemDoc ->
                                     val itemId = itemDoc.id
-                                    // Hitung berapa banyak participant yang sudah memilih item ini
                                     val existingCount = participantsSnapshot.documents.count { participantDoc ->
                                         val items = participantDoc.get("itemsAssigned") as? List<String>
                                         items?.contains(itemId) == true
                                     }
-                                    // Tambahkan 1 untuk participant baru ini jika item ada di itemsAssigned
                                     val newCount = if (itemsAssigned?.contains(itemId) == true) existingCount + 1 else existingCount
                                     itemSelectionCount[itemId] = if (newCount > 0) newCount else 1
                                 }
 
-                                // Hitung jumlah total participant (termasuk yang baru ditambahkan)
                                 val participantCount = participantsSnapshot.documents.size + 1
 
                                 val participantTotal = if (itemsAssigned.isNullOrEmpty()) {
                                     0L
                                 } else {
-                                    // Hitung total berdasarkan pembagian totalPrice
                                     val totalAmountForParticipant = itemsSnapshot.documents
                                         .filter { itemsAssigned.contains(it.id) }
                                         .sumOf { doc ->
@@ -501,7 +495,6 @@ class SplitBillRepository {
                                             (totalPrice / participantsForItem).toLong()
                                         }
 
-                                    // Hitung tax dan service fee berdasarkan jumlah participant
                                     val taxPortion = if (participantCount > 0) taxAmount / participantCount else 0L
                                     val servicePortion = if (participantCount > 0) serviceFee / participantCount else 0L
                                     totalAmountForParticipant + taxPortion + servicePortion
@@ -653,20 +646,16 @@ class SplitBillRepository {
                     .collection("items")
                     .get()
                     .addOnSuccessListener { itemsSnapshot ->
-                        // Ambil daftar semua participant untuk menghitung pembagian
                         db.collection("split_events")
                             .document(eventId)
                             .collection("participants")
                             .get()
                             .addOnSuccessListener { participantsSnapshot ->
-                                // Hitung jumlah participant yang memilih setiap item
                                 val itemSelectionCount = mutableMapOf<String, Int>()
                                 itemsSnapshot.documents.forEach { itemDoc ->
                                     val itemId = itemDoc.id
-                                    // Hitung berapa banyak participant yang sudah memilih item ini (termasuk yang sedang diupdate)
                                     val existingCount = participantsSnapshot.documents.count { participantDoc ->
                                         if (participantDoc.id == participantId) {
-                                            // Untuk participant yang sedang diupdate, gunakan itemsAssigned baru
                                             itemsAssigned.contains(itemId)
                                         } else {
                                             val items = participantDoc.get("itemsAssigned") as? List<String>
@@ -676,10 +665,8 @@ class SplitBillRepository {
                                     itemSelectionCount[itemId] = if (existingCount > 0) existingCount else 1
                                 }
 
-                                // Hitung jumlah total participant
                                 val participantCount = participantsSnapshot.documents.size
 
-                                // Hitung total berdasarkan pembagian totalPrice
                                 val totalAmountForParticipant = itemsSnapshot.documents
                                     .filter { itemsAssigned.contains(it.id) }
                                     .sumOf { doc ->
@@ -688,7 +675,6 @@ class SplitBillRepository {
                                         (totalPrice / participantsForItem).toLong()
                                     }
 
-                                // Hitung tax dan service fee berdasarkan jumlah participant
                                 val taxPortion = if (participantCount > 0) taxAmount / participantCount else 0L
                                 val servicePortion = if (participantCount > 0) serviceFee / participantCount else 0L
                                 val participantTotal = totalAmountForParticipant + taxPortion + servicePortion

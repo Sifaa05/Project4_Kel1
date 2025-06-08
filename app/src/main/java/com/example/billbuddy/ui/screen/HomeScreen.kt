@@ -1,6 +1,5 @@
 package com.example.billbuddy.ui.screen
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -18,11 +17,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.billbuddy.navigation.NavRoutes
-import com.example.billbuddy.ui.MainViewModel
+import com.example.billbuddy.ui.viewModel.MainViewModel
 import com.example.billbuddy.ui.components.*
 import com.example.billbuddy.ui.theme.Pink40
+import com.example.billbuddy.ui.components.AppFloatingActionButton
+import com.example.billbuddy.ui.components.CommonNavigationBar
 
-@OptIn(ExperimentalMaterial3Api::class)
+//@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     navController: NavController,

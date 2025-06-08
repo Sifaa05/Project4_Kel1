@@ -28,37 +28,66 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
     kotlinOptions {
         jvmTarget = "11"
     }
+
     buildFeatures {
         compose = true
     }
+
     composeOptions {
         kotlinCompilerExtensionVersion = "2.0.0"
     }
 }
 
 dependencies {
-
+    // AndroidX Core Libraries
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.activity.compose) // Versi dari libs akan dipakai, versi manual dihapus
+    implementation(libs.androidx.core.telecom)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.compose.runtime.livedata)
+
+    // Navigation
+    implementation(libs.androidx.navigation.runtime.ktx)
+    implementation(libs.androidx.navigation.compose) // Versi dari libs akan dipakai, versi manual dihapus
+
+    // Compose Libraries
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.androidx.compose.runtime.livedata)
-    implementation(libs.androidx.core.telecom)
-    implementation(libs.androidx.navigation.runtime.ktx)
-    implementation(libs.firebase.auth.ktx)
+    implementation(libs.androidx.material.icons.extended) // Versi dari libs akan dipakai, versi manual dihapus
 
+    // Firebase Libraries
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.auth.ktx)
+    implementation(libs.firebase.auth)
+
+    // ML Kit Text Recognition
+    implementation(libs.play.services.mlkit.text.recognition.common)
+    implementation(libs.play.services.mlkit.text.recognition)
+
+    // CameraX Libraries
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+
+    // Third-Party Libraries
+    implementation("com.google.code.gson:gson:2.10.1")
+
+    // Testing Libraries
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -66,12 +95,4 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.analytics)
-    implementation(libs.firebase.firestore)
-    implementation ("androidx.navigation:navigation-compose:2.7.7")
-    implementation ("com.google.firebase:firebase-firestore-ktx:24.10.0")
-    //implementation ("com.google.firebase:firebase-auth-ktx:23.3.1")
-    implementation ("androidx.compose.material:material-icons-extended:1.6.8")
 }
