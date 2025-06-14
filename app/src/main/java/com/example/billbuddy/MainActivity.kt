@@ -13,6 +13,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.billbuddy.repository.SplitBillRepository
 import com.example.billbuddy.navigation.AppNavHost
 import com.example.billbuddy.navigation.NavRoutes
+import com.example.billbuddy.repository.UserRepository
 import com.example.billbuddy.ui.viewModel.MainViewModel
 import com.example.billbuddy.ui.viewModel.AuthViewModel
 import com.example.billbuddy.ui.theme.BillBuddyTheme
@@ -23,13 +24,13 @@ class MainActivity : ComponentActivity() {
 
     private val auth: FirebaseAuth by lazy { FirebaseAuth.getInstance() }
     private val authViewModel: AuthViewModel by viewModels()
-    private lateinit var repository: SplitBillRepository
+    private val splitBillRepository: SplitBillRepository by lazy { SplitBillRepository() }
+    private val userRepository: UserRepository by lazy { UserRepository() }
     private val mainViewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         FirebaseApp.initializeApp(this)
-        repository = SplitBillRepository()
 
         // Inisialisasi SharedPreferences
         val sharedPreferences = getSharedPreferences("BillBuddyPrefs", Context.MODE_PRIVATE)
@@ -43,8 +44,9 @@ class MainActivity : ComponentActivity() {
                     AppNavigation(
                         auth = auth,
                         authViewModel = authViewModel,
-                        repository = repository,
+                        repository = splitBillRepository,
                         mainViewModel = mainViewModel,
+                        userRepository = userRepository,
                         sharedPreferences = sharedPreferences,
                         modifier = Modifier
                     )
@@ -60,6 +62,7 @@ fun AppNavigation(
     authViewModel: AuthViewModel,
     repository: SplitBillRepository,
     mainViewModel: MainViewModel,
+    userRepository: UserRepository,
     sharedPreferences: android.content.SharedPreferences,
     modifier: Modifier = Modifier
 ) {
@@ -78,6 +81,7 @@ fun AppNavigation(
         authViewModel = authViewModel,
         repository = repository,
         mainViewModel = mainViewModel,
+        userRepository = userRepository,
         sharedPreferences = sharedPreferences,
         startDestination = authViewModel.startDestination.value,
         modifier = modifier

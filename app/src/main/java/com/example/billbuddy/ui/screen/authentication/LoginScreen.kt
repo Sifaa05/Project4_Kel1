@@ -33,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import com.example.billbuddy.repository.UserRepository
 import com.google.firebase.auth.FirebaseAuth
 
 val KhulaFontBold = FontFamily(Font(R.font.khula_extrabold))
@@ -173,6 +174,7 @@ fun LoginScreen(
                             .addOnCompleteListener { task ->
                                 if (task.isSuccessful) {
                                     Toast.makeText(context, "Login Berhasil", Toast.LENGTH_SHORT).show()
+                                    UserRepository().saveUserToFirestore()
                                     onLoginClick(email, password)
                                 } else {
                                     Toast.makeText(context, "Login gagal: ${task.exception?.message}", Toast.LENGTH_SHORT).show()

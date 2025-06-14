@@ -33,6 +33,7 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.layout.ContentScale
+import com.example.billbuddy.repository.UserRepository
 import com.google.firebase.auth.FirebaseAuth
 
 val khulaFontBold = FontFamily(Font(R.font.khula_extrabold))
@@ -229,6 +230,7 @@ fun RegisterScreen(
                                 .addOnCompleteListener { task ->
                                     if (task.isSuccessful) {
                                         Toast.makeText(context, "Registrasi berhasil", Toast.LENGTH_SHORT).show()
+                                        UserRepository().saveUserToFirestore()
                                         onCreateAccountClick(email, password)
                                     } else {
                                         Toast.makeText(context, "Registrasi gagal: ${task.exception?.message}", Toast.LENGTH_SHORT).show()

@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.billbuddy.repository.SplitBillRepository
+import com.example.billbuddy.repository.UserRepository
 import com.example.billbuddy.data.Item
 import com.example.billbuddy.data.Participant
 import com.example.billbuddy.navigation.NavRoutes
@@ -42,6 +43,7 @@ fun InputEventScreen(
     repository: SplitBillRepository,
     scannedBillDataJson: String? = null
 ) {
+    val userRepository = remember { UserRepository() }
     var creatorName by remember { mutableStateOf("") }
     var creatorId by remember { mutableStateOf("") }
     var eventName by remember { mutableStateOf("") }
@@ -53,6 +55,20 @@ fun InputEventScreen(
 
     val items = remember {
         mutableStateListOf<Item>()
+    }
+
+    LaunchedEffect(Unit) {
+        userRepository.getUserProfile(
+            onSuccess = { user ->
+                creatorName = user.name ?: "Anonymous"
+                creatorId = user.userId ?: "Unknown"
+            },
+            onFailure = { exception ->
+                println("Error fetching user profile: ${exception.message}")
+                creatorName = "Anonymous"
+                creatorId = "Unknown"
+            }
+        )
     }
 
     // Proses data yang dikirim dari ScanScreen
@@ -131,36 +147,17 @@ fun InputEventScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            OutlinedTextField(
-                value = creatorName,
-                onValueChange = { creatorName = it },
-                label = { Text("Creator Name") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                )
+            Text(
+                text = "Creator Name: $creatorName",
+                fontSize = 16.sp,
+                color = textColor,
+                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
             )
-
-            OutlinedTextField(
-                value = creatorId,
-                onValueChange = { creatorId = it },
-                label = { Text("Creator ID") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                )
+            Text(
+                text = "Creator ID: $creatorId",
+                fontSize = 16.sp,
+                color = textColor,
+                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
             )
 
             OutlinedTextField(

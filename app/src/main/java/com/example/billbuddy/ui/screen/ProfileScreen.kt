@@ -1,10 +1,14 @@
 package com.example.billbuddy.ui.screen
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Notifications
@@ -13,21 +17,27 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.draw.shadow
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.example.billbuddy.ui.components.AppIconButton
 import com.example.billbuddy.ui.components.CommonNavigationBar
 import com.example.billbuddy.ui.viewModel.AuthViewModel
+import com.example.billbuddy.ui.viewModel.MainViewModel
 import android.widget.Toast
 import com.example.billbuddy.navigation.NavRoutes
+import androidx.compose.runtime.livedata.observeAsState
 
 @Composable
 fun ProfileScreen(
     navController: NavController,
-    authViewModel: AuthViewModel
+    authViewModel: AuthViewModel,
+    mainViewModel: MainViewModel
 ) {
     val context = LocalContext.current
     // Warna sesuai desain
@@ -38,6 +48,20 @@ fun ProfileScreen(
 
     // State untuk mengontrol visibilitas DropdownMenu
     var showMenu by remember { mutableStateOf(false) }
+    var username by remember { mutableStateOf("") }
+    var showDialog by remember { mutableStateOf(false) }
+    val userProfile by mainViewModel.userProfile.observeAsState(initial = null)
+
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            mainViewModel.uploadProfilePhoto(it)
+            Toast.makeText(context, "Uploading profile photo...", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        mainViewModel.getUserProfile()
+    }
 
     Scaffold(
         bottomBar = {
@@ -129,17 +153,37 @@ fun ProfileScreen(
                     .background(buttonColor, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "👤",
-                    fontSize = 60.sp
-                )
+                if (userProfile?.photoUrl != null) {
+                    AsyncImage(
+                        model = userProfile?.photoUrl,
+                        contentDescription = "Profile Photo",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    Text("👤", fontSize = 60.sp)
+                }
+                IconButton(
+                    onClick = { launcher.launch("image/*") },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .size(30.dp)
+                        .background(Color.White, CircleShape)
+                        .padding(4.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.CameraAlt,
+                        contentDescription = "Change Photo",
+                        tint = buttonColor
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             // Nama Pengguna
             Text(
-                text = "Application Users",
+                text = userProfile?.username ?: userProfile?.name ?: "Application Users",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = textColor
@@ -165,15 +209,71 @@ fun ProfileScreen(
                     modifier = Modifier.size(20.dp)
                 )
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = {
+                    username = userProfile?.username ?: ""
+                    showDialog = true
+                },
+                modifier = Modifier
+                    .fillMaxWidth(0.6f)
+                    .height(50.dp)
+                    .shadow(elevation = 4.dp, shape = RoundedCornerShape(25.dp)),
+                colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
+                shape = RoundedCornerShape(25.dp)
+            ) {
+                Text("Edit Profile", fontSize = 18.sp, color = textColor)
+            }
+
+            if (showDialog) {
+                showDialog(
+                    navController = navController,
+                    mainViewModel = mainViewModel,
+                    initialUsername = username,
+                    onDismiss = { showDialog = false }
+                )
+            }
         }
     }
 }
 
 @Composable
-@androidx.compose.ui.tooling.preview.Preview
-fun ProfileScreenPreview() {
-    ProfileScreen(
-        navController = androidx.navigation.compose.rememberNavController(),
-        authViewModel = AuthViewModel()
+fun showDialog(
+    navController: NavController,
+    mainViewModel: MainViewModel,
+    initialUsername: String,
+    onDismiss: () -> Unit
+) {
+    var username by remember { mutableStateOf(initialUsername) }
+    AlertDialog(
+        onDismissRequest = { onDismiss() },
+        title = { Text("Edit Username") },
+        text = {
+            OutlinedTextField(
+                value = username,
+                onValueChange = { username = it },
+                label = { Text("Username") },
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    if (username.isNotEmpty()) {
+                        mainViewModel.updateUsername(username)
+                        onDismiss()
+                    }
+                }
+            ) {
+                Text("Save")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { onDismiss() }) {
+                Text("Cancel")
+            }
+        }
     )
 } 
