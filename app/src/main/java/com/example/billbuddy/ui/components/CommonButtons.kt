@@ -1,5 +1,6 @@
 package com.example.billbuddy.ui.components
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -7,20 +8,32 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.billbuddy.ui.theme.DarkGreyText
 import com.example.billbuddy.ui.theme.KadwaFontFamily
 import com.example.billbuddy.ui.theme.PinkButton
 import com.example.billbuddy.ui.theme.PinkButtonStroke
+import com.example.billbuddy.ui.theme.White
+import com.example.billbuddy.ui.viewModel.SortOption
 
 @Composable
 fun AppFloatingActionButton(
@@ -82,7 +95,9 @@ fun AppSmallTextButton(
     onClick: () -> Unit,
     text: String,
     textColor: Color,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    fontFamily: FontFamily = KadwaFontFamily,
+    fontSize: Int = 14
 ) {
     TextButton(
         onClick = onClick,
@@ -90,7 +105,8 @@ fun AppSmallTextButton(
     ) {
         Text(
             text = text,
-            style = MaterialTheme.typography.labelSmall,
+            fontFamily = fontFamily,
+            fontSize = fontSize.sp,
             color = textColor
         )
     }
@@ -127,15 +143,19 @@ fun AppFilledButton(
     iconTint: Color? = null,
     height: Dp = 60.dp,
     fontFamily: FontFamily = KadwaFontFamily,
-    fontSize: Int = 25
+    fontSize: Int = 25,
+    elevation: Dp = 15.dp,
+    cornerRadius: Dp = 60.dp,
+    borderWidth: Dp = 2.dp,
+    fontWeight: FontWeight = FontWeight.Normal
 ) {
     Button(
         onClick = onClick,
         modifier = modifier
             .height(height)
-            .shadow(elevation = 15.dp, shape = RoundedCornerShape(60.dp))
-            .border(2.dp, PinkButtonStroke, RoundedCornerShape(60.dp)),
-        shape = RoundedCornerShape(60.dp),
+            .shadow(elevation = elevation, shape = RoundedCornerShape(cornerRadius))
+            .border(borderWidth, PinkButtonStroke, RoundedCornerShape(cornerRadius)),
+        shape = RoundedCornerShape(cornerRadius),
         colors = ButtonDefaults.buttonColors(containerColor = containerColor)
     ) {
         Row(
@@ -145,7 +165,8 @@ fun AppFilledButton(
                 text = text,
                 fontFamily = fontFamily,
                 fontSize = fontSize.sp,
-                color = textColor
+                color = textColor,
+                fontWeight = fontWeight
             )
             if (icon != null && iconTint != null) {
                 Spacer(modifier = Modifier.width(8.dp))
@@ -179,4 +200,50 @@ fun AppTextIconButton(
             color = textColor
         )
     }
+}
+
+@Composable
+fun SortButton(
+    currentSortOption: SortOption,
+    onSortSelected: (SortOption) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    var buttonScale by remember { mutableStateOf(1f) }
+    val scale by animateFloatAsState(targetValue = buttonScale)
+
+    // Tentukan teks dan deskripsi berdasarkan opsi pengurutan saat ini
+    val (sortText, sortDescription) = when (currentSortOption) {
+        SortOption.NAME_ASC -> "A-Z" to "Sort by name A to Z"
+        SortOption.NAME_DESC -> "Z-A" to "Sort by name Z to A"
+        SortOption.DATE_ASC -> "Oldest" to "Sort by date oldest first"
+        SortOption.DATE_DESC -> "Newest" to "Sort by date newest first"
+    }
+
+    // Tentukan opsi pengurutan berikutnya
+    val nextSortOption = when (currentSortOption) {
+        SortOption.DATE_DESC -> SortOption.DATE_ASC
+        SortOption.DATE_ASC -> SortOption.NAME_ASC
+        SortOption.NAME_ASC -> SortOption.NAME_DESC
+        SortOption.NAME_DESC -> SortOption.DATE_DESC
+    }
+
+    AppFilledButton(
+        onClick = {
+            buttonScale = 0.95f
+            onSortSelected(nextSortOption)
+            buttonScale = 1f
+        },
+        text = sortText,
+        textColor = White,
+        containerColor = PinkButton,
+        icon = Icons.Default.Sort,
+        iconTint = White,
+        modifier = modifier
+            .scale(scale)
+            .semantics { contentDescription = sortDescription },
+        height = 48.dp,
+        cornerRadius = 24.dp,
+        fontSize = 14,
+        fontFamily = KadwaFontFamily
+    )
 }

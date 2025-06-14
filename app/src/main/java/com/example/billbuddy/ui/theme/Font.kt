@@ -8,20 +8,20 @@ val JomhuriaFontFamily = FontFamily(
     Font(R.font.jomhuria_regular)
 )
 
-val RobotoFontFamily = FontFamily(
-    Font(R.font.roboto_regular)
-)
-
-val KadwaFontFamily = FontFamily(
-    Font(R.font.kadwa_regular)
-)
-
 val KhulaExtrabold = FontFamily(
     Font(R.font.khula_extrabold)
 )
 
 val KhulaRegular = FontFamily(
     Font(R.font.khula_regular)
+)
+
+val KadwaFontFamily = FontFamily(
+    Font(R.font.kadwa_regular)
+)
+
+val RobotoFontFamily = FontFamily(
+    Font(R.font.roboto_regular)
 )
 
 val RobotoMedium = FontFamily(

@@ -3,56 +3,50 @@ package com.example.billbuddy.ui.screen
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.billbuddy.navigation.NavRoutes
 import com.example.billbuddy.ui.components.*
+import com.example.billbuddy.ui.theme.PinkButtonStroke
 import com.example.billbuddy.ui.viewModel.MainViewModel
-import com.example.billbuddy.ui.components.CommonNavigationBar
-import com.example.billbuddy.ui.components.CommonEventCard
-import com.example.billbuddy.ui.theme.PinkTua
+import com.example.billbuddy.ui.viewModel.SortOption
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListEventScreen(
     navController: NavController,
     viewModel: MainViewModel
 ) {
-    // State untuk loading
     val isLoading = remember { mutableStateOf(true) }
-
-    // Ambil daftar semua event dari ViewModel
     val events by viewModel.allEvents.observeAsState(initial = emptyList())
     val error by viewModel.error.observeAsState()
+    val sortOption by viewModel.sortOption.collectAsState()
 
-    // Panggil saat layar dimuat
     LaunchedEffect(Unit) {
         Log.d("ListEventScreen", "Call getAllEvents()")
         viewModel.getAllEvents()
         isLoading.value = false
     }
 
-    // Logging untuk debugging
     LaunchedEffect(events) {
         Log.d("ListEventScreen", "Number of events accepted: ${events.size}")
         events.forEach { event ->
             Log.d("ListEventScreen", "Event: ${event.eventName}, ID: ${event.eventId}")
+        }
+    }
+
+    val sortedEvents by remember(sortOption, events) {
+        derivedStateOf {
+            when (sortOption) {
+                SortOption.NAME_ASC -> events.sortedBy { it.eventName.lowercase() }
+                SortOption.NAME_DESC -> events.sortedByDescending { it.eventName.lowercase() }
+                SortOption.DATE_ASC -> events.sortedBy { it.timestamp.toDate().time }
+                SortOption.DATE_DESC -> events.sortedByDescending { it.timestamp.toDate().time }
+            }
         }
     }
 
@@ -73,32 +67,30 @@ fun ListEventScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Header
             HomeHeader(navController = navController)
-
             Spacer(modifier = Modifier.height(16.dp))
-
-            // Branding (Horizontal untuk ListEventScreen)
             AppBranding(isHorizontal = true)
-
             Spacer(modifier = Modifier.height(16.dp))
-
-            // Judul Bagian
-            Text(
-                text = "All Events",
-                style = MaterialTheme.typography.titleLarge,
-                color = PinkTua,
-                fontWeight = FontWeight.ExtraBold,
-                modifier = Modifier.shadow(elevation = 30.dp)
-            )
-
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "All Events",
+                    style = MaterialTheme.typography.displayMedium,
+                    color = PinkButtonStroke
+                )
+                SortButton(
+                    currentSortOption = sortOption,
+                    onSortSelected = { viewModel.setSortOption(it) }
+                )
+            }
             Spacer(modifier = Modifier.height(8.dp))
-
-            // Tampilkan loading, error, atau daftar event
             LoadingErrorHandler(
                 isLoading = isLoading.value,
                 error = error,
-                events = events,
+                events = sortedEvents,
                 textColor = MaterialTheme.colorScheme.onBackground,
                 onEventClick = { eventId ->
                     navController.navigate(NavRoutes.EventDetail.createRoute(eventId))

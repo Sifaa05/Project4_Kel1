@@ -1,9 +1,16 @@
 package com.example.billbuddy.ui.theme
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Typography
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+//import com.example.billbuddy.ui.screen.authentication.KhulaFont
+//import com.example.billbuddy.ui.screen.authentication.khulaFont
+//import com.example.billbuddy.ui.screen.authentication.khulaFontBold
 
 val Typography = Typography(
     bodyLarge = TextStyle(
@@ -16,23 +23,27 @@ val Typography = Typography(
     titleLarge = TextStyle(
         fontFamily = JomhuriaFontFamily,
         fontWeight = FontWeight.Bold,
-        fontSize = 30.sp, // Sesuai ukuran asli untuk header dan "Active Events"
+        fontSize = 100.sp,
         lineHeight = 28.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = 0.5.sp,
+        color = PinkButtonStroke,
+        //modifier = Modifier.shadow(elevation = 60.dp, shape = RoundedCornerShape(30.dp))
     ),
     displayLarge = TextStyle(
         fontFamily = JomhuriaFontFamily,
         fontWeight = FontWeight.Bold,
-        fontSize = 90.sp, // Sesuai ukuran asli untuk "BillBuddy"
+        fontSize = 30.sp,
         lineHeight = 96.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = 0.5.sp,
+        color = PinkButtonStroke
     ),
     displayMedium = TextStyle(
-        fontFamily = JomhuriaFontFamily,
+        fontFamily = KhulaExtrabold,
         fontWeight = FontWeight.Bold,
-        fontSize = 40.sp, // Sesuai ukuran asli untuk "IT'S HERE"
+        fontSize = 20.sp,
         lineHeight = 40.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = 0.5.sp,
+        color = PinkButtonStroke
     ),
     labelSmall = TextStyle(
         fontFamily = RobotoFontFamily,

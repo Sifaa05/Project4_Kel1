@@ -1,43 +1,40 @@
 package com.example.billbuddy.ui.screen.authentication
 
 import android.widget.Toast
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import com.example.billbuddy.R
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.draw.shadow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mail
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.billbuddy.R
+import com.example.billbuddy.ui.components.AppFilledButton
+import com.example.billbuddy.ui.components.AppSmallTextButton
+import com.example.billbuddy.ui.theme.BlackText
+import com.example.billbuddy.ui.theme.ButtonText
+import com.example.billbuddy.ui.theme.KadwaFontFamily
+import com.example.billbuddy.ui.theme.KhulaExtrabold
+import com.example.billbuddy.ui.theme.KhulaRegular
+import com.example.billbuddy.ui.theme.PinkBackground
+import com.example.billbuddy.ui.theme.PinkButtonStroke
+import com.example.billbuddy.ui.theme.TextFieldBackground
 import com.google.firebase.auth.FirebaseAuth
-
-val KhulaFontBold = FontFamily(Font(R.font.khula_extrabold))
-val KhulaFont = FontFamily(Font(R.font.khula_regular))
-val KadwaFont = FontFamily(Font(R.font.kadwa_regular))
 
 @Composable
 fun LoginScreen(
@@ -54,7 +51,7 @@ fun LoginScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF7ACB8)),
+            .background(PinkBackground),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -64,30 +61,29 @@ fun LoginScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-
             Spacer(modifier = Modifier.height(80.dp))
 
             Text(
                 text = "Login",
-                fontFamily = KhulaFontBold,
+                fontFamily = KhulaExtrabold,
                 fontSize = 32.sp,
-                color = Color(0xFF000000).copy(alpha = 0.8f)
+                color = BlackText.copy(alpha = 0.8f)
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 text = "Hi! Welcome back, you’ve been missed",
-                fontFamily = KhulaFont,
+                fontFamily = KhulaRegular,
                 fontSize = 16.sp,
-                color = Color(0xFF000000).copy(alpha = 0.58f),
+                color = BlackText.copy(alpha = 0.58f)
             )
 
             Spacer(modifier = Modifier.height(50.dp))
 
             OutlinedTextField(
                 value = email,
-                onValueChange = {email = it},
+                onValueChange = { email = it },
                 label = { Text("Enter your Email*", fontSize = 12.sp) },
                 leadingIcon = { Icon(Icons.Default.Mail, contentDescription = "Email Icon") },
                 modifier = Modifier
@@ -95,18 +91,18 @@ fun LoginScreen(
                     .height(60.dp)
                     .shadow(elevation = 5.dp, shape = RoundedCornerShape(40.dp)),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color(0xFFE2C2C2),
-                    unfocusedContainerColor = Color(0xFFE2C2C2),
-                    focusedIndicatorColor = Color(0xFFE2C2C2),
-                    unfocusedIndicatorColor = Color(0xFFE2C2C2),
-                    cursorColor = Color.Black,
-                    focusedLabelColor = Color(0xFF000000).copy(alpha = 0.58f),
-                    unfocusedLabelColor = Color(0xFF000000).copy(alpha = 0.58f)
+                    focusedContainerColor = TextFieldBackground,
+                    unfocusedContainerColor = TextFieldBackground,
+                    focusedIndicatorColor = PinkButtonStroke,
+                    unfocusedIndicatorColor = PinkButtonStroke,
+                    cursorColor = BlackText,
+                    focusedLabelColor = BlackText.copy(alpha = 0.58f),
+                    unfocusedLabelColor = BlackText.copy(alpha = 0.58f)
                 ),
                 shape = RoundedCornerShape(40.dp),
                 textStyle = LocalTextStyle.current.copy(
-                    fontFamily = KadwaFont,
-                    color = Color(0xFF000000).copy(alpha = 0.58f),
+                    fontFamily = KadwaFontFamily,
+                    color = BlackText.copy(alpha = 0.58f),
                     fontSize = 12.sp
                 ),
                 singleLine = true
@@ -116,8 +112,8 @@ fun LoginScreen(
 
             OutlinedTextField(
                 value = password,
-                onValueChange = {password = it},
-                label = { Text("Password*",  fontSize = 12.sp) },
+                onValueChange = { password = it },
+                label = { Text("Password*", fontSize = 12.sp) },
                 leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Lock Icon") },
                 trailingIcon = {
                     IconButton(onClick = { passwordVisibility = !passwordVisibility }) {
@@ -133,40 +129,35 @@ fun LoginScreen(
                     .height(60.dp)
                     .shadow(elevation = 5.dp, shape = RoundedCornerShape(40.dp)),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color(0xFFE2C2C2),
-                    unfocusedContainerColor = Color(0xFFE2C2C2),
-                    focusedIndicatorColor = Color(0xFFE2C2C2),
-                    unfocusedIndicatorColor = Color(0xFFE2C2C2),
-                    cursorColor = Color.Black,
-                    focusedLabelColor = Color(0xFF000000).copy(alpha = 0.58f),
-                    unfocusedLabelColor = Color(0xFF000000).copy(alpha = 0.58f)
+                    focusedContainerColor = TextFieldBackground,
+                    unfocusedContainerColor = TextFieldBackground,
+                    focusedIndicatorColor = PinkButtonStroke,
+                    unfocusedIndicatorColor = PinkButtonStroke,
+                    cursorColor = BlackText,
+                    focusedLabelColor = BlackText.copy(alpha = 0.58f),
+                    unfocusedLabelColor = BlackText.copy(alpha = 0.58f)
                 ),
                 shape = RoundedCornerShape(40.dp),
                 textStyle = LocalTextStyle.current.copy(
-                    fontFamily = KadwaFont,
-                    color = Color(0xFF000000).copy(alpha = 0.58f),
+                    fontFamily = KadwaFontFamily,
+                    color = BlackText.copy(alpha = 0.58f),
                     fontSize = 12.sp
                 ),
                 singleLine = true
             )
 
-            TextButton(
-                onClick = onForgotPasswordClick, // Panggil fungsi navigasi saat diklik
+            AppSmallTextButton(
+                onClick = onForgotPasswordClick,
+                text = "Forgot Password?",
+                textColor = BlackText.copy(alpha = 0.6f),
                 modifier = Modifier
                     .align(Alignment.End)
                     .padding(top = 8.dp, end = 50.dp)
-            ) {
-                Text(
-                    text = "Forgot Password?",
-                    fontFamily = KadwaFont,
-                    fontSize = 14.sp,
-                    color = Color(0xFF000000).copy(alpha = 0.6f)
-                )
-            }
+            )
 
             Spacer(modifier = Modifier.height(80.dp))
 
-            Button(
+            AppFilledButton(
                 onClick = {
                     if (email.isNotEmpty() && password.isNotEmpty()) {
                         auth.signInWithEmailAndPassword(email, password)
@@ -182,43 +173,29 @@ fun LoginScreen(
                         Toast.makeText(context, "Email dan password harus diisi", Toast.LENGTH_SHORT).show()
                     }
                 },
-                modifier = Modifier
-                    .fillMaxWidth(0.6f)
-                    .height(50.dp)
-                    .shadow(elevation = 4.dp, shape = RoundedCornerShape(25.dp)),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF4BCC5)),
-                shape = RoundedCornerShape(25.dp),
-                border = BorderStroke(2.dp, Color(0xFFF397AE))
-            ) {
-                Text(
-                    text = "Login",
-                    fontFamily = KadwaFont,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF171717).copy(alpha = 0.55f)
-                )
-            }
+                text = "Login",
+                textColor = ButtonText.copy(alpha = 0.55f),
+                modifier = Modifier.fillMaxWidth(0.6f),
+                height = 50.dp,
+                fontSize = 18,
+                elevation = 4.dp,
+                cornerRadius = 25.dp,
+                fontWeight = FontWeight.Bold
+            )
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Button(
+            AppFilledButton(
                 onClick = onBackClick,
-                modifier = Modifier
-                    .fillMaxWidth(0.6f)
-                    .height(50.dp)
-                    .shadow(elevation = 4.dp, shape =  RoundedCornerShape(25.dp)),
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF4BCC5)),
-                shape = RoundedCornerShape(25.dp),
-                    border = BorderStroke(2.dp, Color(0xFFF397AE))
-            ) {
-                Text(
-                    text = "Back",
-                    fontFamily = KadwaFont,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF171717).copy(alpha = 0.55f)
-                )
-            }
+                text = "Back",
+                textColor = ButtonText.copy(alpha = 0.55f),
+                modifier = Modifier.fillMaxWidth(0.6f),
+                height = 50.dp,
+                fontSize = 18,
+                elevation = 4.dp,
+                cornerRadius = 25.dp,
+                fontWeight = FontWeight.Bold
+            )
 
             Spacer(modifier = Modifier.weight(1f))
 
@@ -239,7 +216,7 @@ fun LoginScreen(
 @androidx.compose.ui.tooling.preview.Preview
 fun LoginScreenPreview() {
     LoginScreen(
-        onLoginClick = {_, _ ->},
+        onLoginClick = { _, _ -> },
         onBackClick = {},
         onForgotPasswordClick = {}
     )

@@ -130,7 +130,7 @@ fun AppNavHost(
             ListEventScreen(navController = navController, viewModel = mainViewModel)
         }
         composable(NavRoutes.Profile.route) {
-            ProfileScreen(navController = navController)
+            ProfileScreen(navController = navController, authViewModel = authViewModel)
         }
         composable(NavRoutes.Search.route) {
             SearchScreen(navController = navController, viewModel = mainViewModel)

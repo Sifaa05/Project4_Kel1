@@ -9,10 +9,14 @@ import com.example.billbuddy.repository.SplitBillRepository
 import com.example.billbuddy.data.EventData
 import com.example.billbuddy.data.Item
 import com.example.billbuddy.data.Participant
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 //import com.example.billbuddy.model.UserProfile
-
+enum class SortOption {
+    NAME_ASC, NAME_DESC, DATE_ASC, DATE_DESC
+}
 class MainViewModel : ViewModel() {
     private val repository = SplitBillRepository()
 
@@ -194,6 +198,13 @@ class MainViewModel : ViewModel() {
                 _error.value = e.message
             }
         )
+    }
+
+    private val _sortOption = MutableStateFlow(SortOption.DATE_DESC)
+    val sortOption: StateFlow<SortOption> get() = _sortOption
+
+    fun setSortOption(option: SortOption) {
+        _sortOption.value = option
     }
 
 //    private val _userProfile = MutableLiveData<UserProfile?>()

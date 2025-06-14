@@ -1,15 +1,7 @@
 package com.example.billbuddy.ui.screen
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,15 +19,13 @@ import com.example.billbuddy.navigation.NavRoutes
 import com.example.billbuddy.ui.viewModel.MainViewModel
 import com.example.billbuddy.ui.components.*
 import com.example.billbuddy.ui.components.AppFloatingActionButton
-import com.example.billbuddy.ui.components.AppTextButton
 import com.example.billbuddy.ui.components.CommonNavigationBar
 import com.example.billbuddy.ui.components.CommonEventCard
-import com.example.billbuddy.ui.theme.PinkTua
 import com.example.billbuddy.ui.theme.PinkBackground
 import com.example.billbuddy.ui.theme.White
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
+//@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     navController: NavController,
@@ -90,10 +80,10 @@ fun HomeScreen(
             // Judul Bagian
             Text(
                 text = "Active Events",
-                style = MaterialTheme.typography.titleLarge,
-                color = PinkBackground,
-                fontWeight = FontWeight.ExtraBold,
-                modifier = Modifier.shadow(elevation = 30.dp)
+                style = MaterialTheme.typography.displayMedium,
+                //color = PinkBackground,
+                //fontWeight = FontWeight.ExtraBold,
+                //modifier = Modifier.shadow(elevation = 30.dp)
             )
 
             Spacer(modifier = Modifier.height(8.dp))

@@ -50,7 +50,7 @@ fun InputMethodBottomSheet(
             ) {
                 Text(
                     text = "Select Input Method",
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.displayMedium,
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Spacer(modifier = Modifier.height(16.dp))

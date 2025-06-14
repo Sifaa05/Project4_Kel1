@@ -1,5 +1,6 @@
 package com.example.billbuddy.ui.components
 
+import android.graphics.Paint.Style
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -15,6 +16,8 @@ import androidx.compose.ui.unit.sp
 import com.example.billbuddy.ui.theme.JomhuriaFontFamily
 import com.example.billbuddy.ui.theme.WhiteTitle
 import com.example.billbuddy.ui.theme.PinkBackground
+import com.example.billbuddy.ui.theme.PinkButton
+import com.example.billbuddy.ui.theme.PinkButtonStroke
 import com.example.billbuddy.ui.theme.WhiteTitle
 
 @Composable
@@ -34,8 +37,8 @@ fun AppBranding(
                 text = "BillBuddy",
                 fontFamily = jomhuriaFont,
                 fontSize = 100.sp,
-                color = WhiteTitle,
-                modifier = Modifier.shadow(elevation = 60.dp, shape = RoundedCornerShape(30.dp))
+                color = PinkButtonStroke,
+                //modifier = Modifier.shadow(elevation = 60.dp, shape = RoundedCornerShape(30.dp))
             )
 //            Text(
 //                text = "IT'S HERE",
@@ -52,16 +55,17 @@ fun AppBranding(
             Text(
                 text = "BillBuddy",
                 fontFamily = jomhuriaFont,
+                //style = MaterialTheme.typography.titleLarge,
                 fontSize = 100.sp,
-                color = WhiteTitle,
+                color = PinkButtonStroke,
                 modifier = Modifier.shadow(elevation = 60.dp, shape = RoundedCornerShape(30.dp))
             )
-            Text(
-                text = "IT'S HERE",
-                style = MaterialTheme.typography.displayMedium,
-                color = WhiteTitle,
-                textAlign = TextAlign.Center
-            )
+//            Text(
+//                text = "You're Smart Friend ^.^",
+//                style = MaterialTheme.typography.displayLarge,
+//                color = PinkButtonStroke,
+//                textAlign = TextAlign.Center
+//            )
         }
     }
 }
