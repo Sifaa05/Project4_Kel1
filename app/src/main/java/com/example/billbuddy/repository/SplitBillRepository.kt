@@ -1,16 +1,24 @@
-package com.example.billbuddy.data
+package com.example.billbuddy.repository
 
+import android.net.Uri
 import android.util.Log
+import com.example.billbuddy.data.EventData
+import com.example.billbuddy.data.Item
+import com.example.billbuddy.data.Participant
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
-import com.example.billbuddy.model.EventData
-import com.example.billbuddy.model.Item
-import com.example.billbuddy.model.Participant
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.auth.FirebaseAuth
+import java.text.SimpleDateFormat
+import java.util.*
+
 
 class SplitBillRepository {
     private val db = FirebaseFirestore.getInstance()
+    private val storage = FirebaseStorage.getInstance()
 
     fun createSplitEvent(
         creatorId: String,
@@ -26,6 +34,7 @@ class SplitBillRepository {
     ) {
         val subtotal = items.sumOf { it.totalPrice }
         val totalAmount = subtotal + taxAmount + serviceFee
+        val montYear = SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(Date())
 
         val eventData = hashMapOf(
             "creator_id" to creatorId,
@@ -37,6 +46,7 @@ class SplitBillRepository {
             "service_fee" to serviceFee,
             "status" to "ongoing",
             "timestamp" to Timestamp.now(),
+            "monthYeah" to montYear,
             "share_link" to "https://billbuddy.app/event?eventId=$eventName"
         )
 
@@ -62,7 +72,7 @@ class SplitBillRepository {
                     .addOnSuccessListener {
                         val updatedParticipants = participants.map { participant ->
                             val amount = if (splitType == "even") {
-                                totalAmount / participants.size
+                                totalAmount / (participants.size + 1)
                             } else {
                                 val assignedItems = items.filter { participant.itemsAssigned?.contains(it.itemId) == true }
                                 val itemTotal = assignedItems.sumOf { it.totalPrice }
@@ -77,12 +87,27 @@ class SplitBillRepository {
                             )
                         }
 
-                        updatedParticipants.forEach { participant ->
-                            participantsCollection.document(participant.id).set(participant)
+                        val allParticipants = listOf(
+                            Participant(id = creatorId, name = creatorName, userId = creatorId, amount = 0, paid = true, isCreator = true)
+                        ) + updatedParticipants
+
+                        allParticipants.forEach { participant ->
+                            participantsCollection.document(participant.id).set(
+                                hashMapOf(
+                                    "userId" to participant.userId,
+                                    "name" to participant.name,
+                                    "paid" to participant.paid,
+                                    "itemAssigned" to participant.itemsAssigned,
+                                    "isCreator" to participant.isCreator,
+                                    "paymentProofUrl" to participant.paymentProofUrl
+                                )
+                            )
                         }
 
-                        docRef.update("share_link", "https://billbuddy.app/event?eventId=$eventId")
-                        onSuccess(eventId)
+                        UserRepository().addEventHistory(eventId, {
+                            docRef.update("share_link", "https://billbuddy.app/event?eventId=$eventId")
+                            onSuccess(eventId)
+                        }, onFailure)
                     }
                     .addOnFailureListener { e ->
                         Log.e("Firestore", "Error saving items: $e")
@@ -123,7 +148,7 @@ class SplitBillRepository {
                         }
 
                         participantsCollection.get().addOnSuccessListener { participantsSnapshot ->
-                            @Suppress("UNCHECKED_CAST") val participants = participantsSnapshot.documents.mapNotNull { participantDoc ->
+                            val participants = participantsSnapshot.documents.mapNotNull { participantDoc ->
                                 try {
                                     Participant(
                                         id = participantDoc.id,
@@ -132,7 +157,8 @@ class SplitBillRepository {
                                         amount = participantDoc.getLong("amount") ?: 0,
                                         paid = participantDoc.getBoolean("paid") ?: false,
                                         itemsAssigned = participantDoc.get("itemsAssigned") as? List<String>,
-                                        isCreator = participantDoc.id == doc.getString("creator_id")
+                                        isCreator = participantDoc.getBoolean("isCreator") ?: false,
+                                        paymentProofUrl = participantDoc.getString("paymentProofUrl")
                                     )
                                 } catch (e: Exception) {
                                     Log.e("Firestore", "Error parsing participant: ${e.message}")
@@ -151,7 +177,8 @@ class SplitBillRepository {
                                 serviceFee = doc.getLong("service_fee") ?: 0,
                                 status = doc.getString("status") ?: "ongoing",
                                 timestamp = doc.get("timestamp") as? Timestamp ?: Timestamp.now(),
-                                shareLink = doc.getString("share_link"),
+                                monthYear = doc.getString("monthYear") ?: "",
+                                shareLink = doc.getString("share_link") ?: "",
                                 items = items,
                                 participants = participants
                             )
@@ -253,7 +280,7 @@ class SplitBillRepository {
                                 )
                             } ?: emptyList()
 
-                            @Suppress("UNCHECKED_CAST") val participants = participantsSnapshot?.documents?.mapNotNull { participantDoc ->
+                            val participants = participantsSnapshot?.documents?.mapNotNull { participantDoc ->
                                 Participant(
                                     id = participantDoc.id,
                                     name = participantDoc.getString("name") ?: "",
@@ -261,7 +288,8 @@ class SplitBillRepository {
                                     amount = participantDoc.getLong("amount") ?: 0,
                                     paid = participantDoc.getBoolean("paid") ?: false,
                                     itemsAssigned = participantDoc.get("itemsAssigned") as? List<String>,
-                                    isCreator = participantDoc.id == doc.getString("creator_id")
+                                    isCreator = participantDoc.getBoolean("isCreator") ?: false,
+                                    paymentProofUrl = participantDoc.getString("paymentProofUrl")
                                 )
                             } ?: emptyList()
 
@@ -276,7 +304,8 @@ class SplitBillRepository {
                                 serviceFee = doc.getLong("service_fee") ?: 0,
                                 status = doc.getString("status") ?: "ongoing",
                                 timestamp = doc.get("timestamp") as? Timestamp ?: Timestamp.now(),
-                                shareLink = doc.getString("share_link"),
+                                monthYear = doc.getString("monthYear") ?: "",
+                                shareLink = doc.getString("share_link") ?: "",
                                 items = items,
                                 participants = participants
                             )
@@ -331,7 +360,7 @@ class SplitBillRepository {
                                 )
                             } ?: emptyList()
 
-                            @Suppress("UNCHECKED_CAST") val participants = participantsSnapshot?.documents?.mapNotNull { participantDoc ->
+                            val participants = participantsSnapshot?.documents?.mapNotNull { participantDoc ->
                                 Participant(
                                     id = participantDoc.id,
                                     name = participantDoc.getString("name") ?: "",
@@ -339,7 +368,8 @@ class SplitBillRepository {
                                     amount = participantDoc.getLong("amount") ?: 0,
                                     paid = participantDoc.getBoolean("paid") ?: false,
                                     itemsAssigned = participantDoc.get("itemsAssigned") as? List<String>,
-                                    isCreator = participantDoc.id == doc.getString("creator_id")
+                                    isCreator = participantDoc.getBoolean("isCreator") ?: false,
+                                    paymentProofUrl = participantDoc.getString("paymentProofUrl")
                                 )
                             } ?: emptyList()
 
@@ -354,7 +384,8 @@ class SplitBillRepository {
                                 serviceFee = doc.getLong("service_fee") ?: 0,
                                 status = doc.getString("status") ?: "ongoing",
                                 timestamp = doc.get("timestamp") as? Timestamp ?: Timestamp.now(),
-                                shareLink = doc.getString("share_link"),
+                                monthYear = doc.getString("monthYear") ?: "",
+                                shareLink = doc.getString("share_link") ?: "",
                                 items = items,
                                 participants = participants
                             )
@@ -402,7 +433,7 @@ class SplitBillRepository {
                                 )
                             } ?: emptyList()
 
-                            @Suppress("UNCHECKED_CAST") val participants = participantsSnapshot?.documents?.mapNotNull { participantDoc ->
+                            val participants = participantsSnapshot?.documents?.mapNotNull { participantDoc ->
                                 Participant(
                                     id = participantDoc.id,
                                     name = participantDoc.getString("name") ?: "",
@@ -410,7 +441,8 @@ class SplitBillRepository {
                                     amount = participantDoc.getLong("amount") ?: 0,
                                     paid = participantDoc.getBoolean("paid") ?: false,
                                     itemsAssigned = participantDoc.get("itemsAssigned") as? List<String>,
-                                    isCreator = participantDoc.id == doc.getString("creator_id")
+                                    isCreator = participantDoc.getBoolean("isCreator") ?: false,
+                                    paymentProofUrl = participantDoc.getString("paymentProofUrl")
                                 )
                             } ?: emptyList()
 
@@ -425,7 +457,8 @@ class SplitBillRepository {
                                 serviceFee = doc.getLong("service_fee") ?: 0,
                                 status = doc.getString("status") ?: "ongoing",
                                 timestamp = doc.get("timestamp") as? Timestamp ?: Timestamp.now(),
-                                shareLink = doc.getString("share_link"),
+                                monthYear = doc.getString("monthYear") ?: "",
+                                shareLink = doc.getString("share_link") ?: "",
                                 items = items,
                                 participants = participants
                             )
@@ -466,33 +499,27 @@ class SplitBillRepository {
                     .collection("items")
                     .get()
                     .addOnSuccessListener { itemsSnapshot ->
-                        // Ambil daftar semua participant untuk menghitung pembagian
                         db.collection("split_events")
                             .document(eventId)
                             .collection("participants")
                             .get()
                             .addOnSuccessListener { participantsSnapshot ->
-                                // Hitung jumlah participant yang memilih setiap item
                                 val itemSelectionCount = mutableMapOf<String, Int>()
                                 itemsSnapshot.documents.forEach { itemDoc ->
                                     val itemId = itemDoc.id
-                                    // Hitung berapa banyak participant yang sudah memilih item ini
                                     val existingCount = participantsSnapshot.documents.count { participantDoc ->
                                         val items = participantDoc.get("itemsAssigned") as? List<String>
                                         items?.contains(itemId) == true
                                     }
-                                    // Tambahkan 1 untuk participant baru ini jika item ada di itemsAssigned
                                     val newCount = if (itemsAssigned?.contains(itemId) == true) existingCount + 1 else existingCount
                                     itemSelectionCount[itemId] = if (newCount > 0) newCount else 1
                                 }
 
-                                // Hitung jumlah total participant (termasuk yang baru ditambahkan)
                                 val participantCount = participantsSnapshot.documents.size + 1
 
                                 val participantTotal = if (itemsAssigned.isNullOrEmpty()) {
                                     0L
                                 } else {
-                                    // Hitung total berdasarkan pembagian totalPrice
                                     val totalAmountForParticipant = itemsSnapshot.documents
                                         .filter { itemsAssigned.contains(it.id) }
                                         .sumOf { doc ->
@@ -501,7 +528,6 @@ class SplitBillRepository {
                                             (totalPrice / participantsForItem).toLong()
                                         }
 
-                                    // Hitung tax dan service fee berdasarkan jumlah participant
                                     val taxPortion = if (participantCount > 0) taxAmount / participantCount else 0L
                                     val servicePortion = if (participantCount > 0) serviceFee / participantCount else 0L
                                     totalAmountForParticipant + taxPortion + servicePortion
@@ -653,20 +679,16 @@ class SplitBillRepository {
                     .collection("items")
                     .get()
                     .addOnSuccessListener { itemsSnapshot ->
-                        // Ambil daftar semua participant untuk menghitung pembagian
                         db.collection("split_events")
                             .document(eventId)
                             .collection("participants")
                             .get()
                             .addOnSuccessListener { participantsSnapshot ->
-                                // Hitung jumlah participant yang memilih setiap item
                                 val itemSelectionCount = mutableMapOf<String, Int>()
                                 itemsSnapshot.documents.forEach { itemDoc ->
                                     val itemId = itemDoc.id
-                                    // Hitung berapa banyak participant yang sudah memilih item ini (termasuk yang sedang diupdate)
                                     val existingCount = participantsSnapshot.documents.count { participantDoc ->
                                         if (participantDoc.id == participantId) {
-                                            // Untuk participant yang sedang diupdate, gunakan itemsAssigned baru
                                             itemsAssigned.contains(itemId)
                                         } else {
                                             val items = participantDoc.get("itemsAssigned") as? List<String>
@@ -676,10 +698,8 @@ class SplitBillRepository {
                                     itemSelectionCount[itemId] = if (existingCount > 0) existingCount else 1
                                 }
 
-                                // Hitung jumlah total participant
                                 val participantCount = participantsSnapshot.documents.size
 
-                                // Hitung total berdasarkan pembagian totalPrice
                                 val totalAmountForParticipant = itemsSnapshot.documents
                                     .filter { itemsAssigned.contains(it.id) }
                                     .sumOf { doc ->
@@ -688,7 +708,6 @@ class SplitBillRepository {
                                         (totalPrice / participantsForItem).toLong()
                                     }
 
-                                // Hitung tax dan service fee berdasarkan jumlah participant
                                 val taxPortion = if (participantCount > 0) taxAmount / participantCount else 0L
                                 val servicePortion = if (participantCount > 0) serviceFee / participantCount else 0L
                                 val participantTotal = totalAmountForParticipant + taxPortion + servicePortion
@@ -718,6 +737,134 @@ class SplitBillRepository {
                     .addOnFailureListener { e ->
                         onFailure(e)
                     }
+            }
+            .addOnFailureListener { e ->
+                onFailure(e)
+            }
+    }
+
+    fun uploadPaymentProof(
+        eventId: String,
+        participantId: String,
+        uri: Uri,
+        onSuccess: (String) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser == null || currentUser.uid != participantId) {
+            onFailure(Exception("Unauthorized"))
+            return
+        }
+
+        val storageRef = storage.reference.child("payment_proofs/$eventId/$participantId.jpg")
+        val uploadTask = storageRef.putFile(uri)
+
+        uploadTask.addOnSuccessListener {
+            storageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                val proofUrl = downloadUri.toString()
+                db.collection("split_events").document(eventId)
+                    .collection("participants").document(participantId)
+                    .update("paymentProofUrl", proofUrl)
+                    .addOnSuccessListener { onSuccess(proofUrl) }
+                    .addOnFailureListener { e -> onFailure(e) }
+            }
+        }.addOnFailureListener { e -> onFailure(e) }
+    }
+
+    fun getEventHistory(
+        userId: String,
+        onSuccess: (List<EventData>) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        db.collection("users").document(userId).get()
+            .addOnSuccessListener { userDoc ->
+                val eventIds = userDoc.get("eventHistory") as? List<String> ?: emptyList()
+                val eventTasks = eventIds.map { eventId ->
+                    db.collection("split_events").document(eventId).get()
+                        .continueWith { task ->
+                            if (task.isSuccessful) {
+                                val doc = task.result
+                                if (doc.exists()) {
+                                    val itemsTask = doc.reference.collection("items").get()
+                                    val participantsTask = doc.reference.collection("participants").get()
+                                    Tasks.whenAllSuccess<Any>(itemsTask, participantsTask).continueWith { subTask ->
+                                        try {
+                                            val itemsSnapshot = itemsTask.result
+                                            val participantsSnapshot = participantsTask.result
+
+                                            val items = itemsSnapshot?.documents?.mapNotNull { itemDoc ->
+                                                Item(
+                                                    itemId = itemDoc.id,
+                                                    name = itemDoc.getString("name") ?: "",
+                                                    quantity = itemDoc.getLong("quantity")?.toInt() ?: 0,
+                                                    unitPrice = itemDoc.getLong("unitPrice") ?: 0,
+                                                    totalPrice = itemDoc.getLong("totalPrice") ?: 0
+                                                )
+                                            } ?: emptyList()
+
+                                            val participants = participantsSnapshot?.documents?.mapNotNull { participantDoc ->
+                                                Participant(
+                                                    id = participantDoc.id,
+                                                    name = participantDoc.getString("name") ?: "",
+                                                    userId = participantDoc.getString("userId"),
+                                                    amount = participantDoc.getLong("amount") ?: 0,
+                                                    paid = participantDoc.getBoolean("paid") ?: false,
+                                                    itemsAssigned = participantDoc.get("itemsAssigned") as? List<String>,
+                                                    isCreator = participantDoc.getBoolean("isCreator") ?: false,
+                                                    paymentProofUrl = participantDoc.getString("paymentProofUrl")
+                                                )
+                                            } ?: emptyList()
+
+                                            EventData(
+                                                eventId = doc.id,
+                                                creatorId = doc.getString("creator_id") ?: "",
+                                                creatorName = doc.getString("creator_name") ?: "",
+                                                eventName = doc.getString("event_name") ?: "",
+                                                subtotal = doc.getLong("subtotal") ?: 0,
+                                                totalAmount = doc.getLong("total_amount") ?: 0,
+                                                taxAmount = doc.getLong("tax_amount") ?: 0,
+                                                serviceFee = doc.getLong("service_fee") ?: 0,
+                                                status = doc.getString("status") ?: "ongoing",
+                                                timestamp = doc.get("timestamp") as? Timestamp ?: Timestamp.now(),
+                                                monthYear = doc.getString("monthYear") ?: "",
+                                                shareLink = doc.getString("share_link") ?: "",
+                                                items = items,
+                                                participants = participants
+                                            )
+                                        } catch (e: Exception) {
+                                            null
+                                        }
+                                    }
+                                } else null
+                            } else null
+                        }
+                }
+
+                Tasks.whenAllSuccess<EventData?>(eventTasks).addOnSuccessListener { events ->
+                    onSuccess(events.filterNotNull())
+                }.addOnFailureListener { e ->
+                    onFailure(e)
+                }
+            }
+            .addOnFailureListener { e ->
+                onFailure(e)
+            }
+    }
+
+    fun getMonthlyTotals(
+        userId: String,
+        onSuccess: (Map<String, Long>) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        db.collection("split_events")
+            .whereEqualTo("creator_id", userId)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val totals = snapshot.documents.groupBy { it.getString("monthYear") ?: "Unknown" }
+                    .mapValues { entry ->
+                        entry.value.sumOf { it.getLong("total_amount") ?: 0L }
+                    }
+                onSuccess(totals)
             }
             .addOnFailureListener { e ->
                 onFailure(e)

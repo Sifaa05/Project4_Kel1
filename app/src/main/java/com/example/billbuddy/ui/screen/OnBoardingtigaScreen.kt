@@ -24,6 +24,7 @@ import com.example.billbuddy.ui.theme.BillBuddyTheme
 @Composable
 fun OnboardingTigaScreen(
     navController: NavController,
+    sharedPreferences: android.content.SharedPreferences,
     modifier: Modifier = Modifier
 ) {
     BillBuddyTheme {
@@ -82,7 +83,12 @@ fun OnboardingTigaScreen(
                         Spacer(modifier = Modifier.height(16.dp))
                         Button(
                             onClick = {
-                                navController.navigate(NavRoutes.Home.route)
+                                // Simpan status onboarding selesai
+                                sharedPreferences.edit().putBoolean("isOnboardingCompleted", true).apply()
+                                // Navigasi ke AuthenticationScreen
+                                navController.navigate(NavRoutes.Authentication.route) {
+                                    popUpTo(NavRoutes.OnboardingTiga.route) { inclusive = true }
+                                }
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF48FB1)),
                             shape = RoundedCornerShape(32.dp),

@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import com.example.billbuddy.navigation.NavRoutes
-import com.example.billbuddy.ui.MainViewModel
+import com.example.billbuddy.ui.viewModel.MainViewModel
 
 @Composable
 fun AddBuddyScreen(

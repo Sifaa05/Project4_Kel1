@@ -19,10 +19,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.billbuddy.model.EventData
-import com.example.billbuddy.model.Participant
+import com.example.billbuddy.data.EventData
+import com.example.billbuddy.data.Participant
 import com.example.billbuddy.navigation.NavRoutes
-import com.example.billbuddy.ui.MainViewModel
+import com.example.billbuddy.ui.viewModel.MainViewModel
 import com.example.billbuddy.ui.components.AppFilledButton
 import com.example.billbuddy.ui.components.AppIconButton
 import com.example.billbuddy.ui.components.CommonNavigationBar
@@ -100,7 +100,7 @@ fun ParticipantScreen(
                 icon = Icons.Default.Add,
                 iconTint = Color.White,
                 modifier = Modifier.fillMaxWidth(),
-                fontSize = 18f,
+                //fontSize = 18f,
                 height = 56.dp
             )
 
@@ -187,7 +187,7 @@ fun ParticipantScreen(
                                         modifier = Modifier
                                             .height(36.dp)
                                             .padding(end = 8.dp),
-                                        fontSize = 12f,
+                                        //fontSize = 12f,
                                         height = 36.dp
                                     )
                                     // Tombol Detail Bill
@@ -199,7 +199,7 @@ fun ParticipantScreen(
                                         containerColor = buttonColor,
                                         textColor = Color.White,
                                         modifier = Modifier.height(36.dp),
-                                        fontSize = 12f,
+                                        //fontSize = 12f,
                                         height = 36.dp
                                     )
                                 }

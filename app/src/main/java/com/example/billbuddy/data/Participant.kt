@@ -1,4 +1,4 @@
-package com.example.billbuddy.model
+package com.example.billbuddy.data
 
 data class Participant(
     val id: String,
@@ -7,5 +7,6 @@ data class Participant(
     val amount: Long,
     val paid: Boolean,
     val itemsAssigned: List<String>? = null,
-    val isCreator: Boolean = false
+    val isCreator: Boolean = false,
+    val paymentProofUrl: String? = null
 )

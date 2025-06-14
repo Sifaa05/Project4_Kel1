@@ -12,7 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.billbuddy.model.EventData
+import com.example.billbuddy.data.EventData
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -22,14 +22,14 @@ fun CommonEventCard(
     textColor: Color,
     buttonColor: Color,
     onClick: () -> Unit,
-    showDetails: Boolean = false // Parameter untuk menampilkan detail tambahan
+    showDetails: Boolean = false
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 4.dp),
         shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
     ) {
         Row(
             modifier = Modifier
@@ -37,50 +37,50 @@ fun CommonEventCard(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Ikon grup (placeholder)
             Box(
                 modifier = Modifier
                     .size(40.dp)
                     .background(Color.Gray, CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = "👥", fontSize = 20.sp)
+                Text(
+                    text = "👥",
+                    style = MaterialTheme.typography.bodyLarge
+                )
             }
 
             Spacer(modifier = Modifier.width(16.dp))
 
-            // Informasi Event
             Column(
                 modifier = Modifier.weight(1f)
             ) {
                 Text(
                     text = event.eventName,
-                    fontSize = 16.sp,
+                    style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold,
                     color = textColor
                 )
                 if (showDetails) {
                     Text(
                         text = "Status: ${event.status}",
-                        fontSize = 14.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         color = textColor
                     )
                     Text(
                         text = "Tanggal: ${event.timestamp?.toDate()?.let { date ->
                             SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(date)
                         } ?: "Unknown"}",
-                        fontSize = 14.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         color = textColor
                     )
                     Text(
                         text = "Peserta: ${event.participants.size}",
-                        fontSize = 14.sp,
+                        style = MaterialTheme.typography.labelSmall,
                         color = textColor
                     )
                 }
             }
 
-            // Tombol Cek Detail
             AppSmallTextButton(
                 onClick = onClick,
                 text = "Cek Detail",

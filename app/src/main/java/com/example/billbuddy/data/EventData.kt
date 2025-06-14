@@ -1,4 +1,4 @@
-package com.example.billbuddy.model
+package com.example.billbuddy.data
 
 import com.google.firebase.Timestamp
 
@@ -13,6 +13,7 @@ data class EventData(
     val serviceFee: Long,
     val status: String,
     val timestamp: Timestamp,
+    val monthYear: String,
     val shareLink: String?,
     val items: List<Item>,
     val participants: List<Participant>

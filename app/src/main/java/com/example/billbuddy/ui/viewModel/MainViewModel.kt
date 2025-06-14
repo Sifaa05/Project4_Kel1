@@ -1,20 +1,24 @@
-package com.example.billbuddy.ui
+package com.example.billbuddy.ui.viewModel
 
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.billbuddy.data.SplitBillRepository
-import com.example.billbuddy.model.EventData
-import com.example.billbuddy.model.Item
-import com.example.billbuddy.model.Participant
+import com.example.billbuddy.repository.SplitBillRepository
+import com.example.billbuddy.repository.UserRepository
+import com.example.billbuddy.data.EventData
+import com.example.billbuddy.data.Item
+import com.example.billbuddy.data.Participant
+import com.example.billbuddy.data.User
 import kotlinx.coroutines.launch
 
 //import com.example.billbuddy.model.UserProfile
 
 class MainViewModel : ViewModel() {
     private val repository = SplitBillRepository()
+    private val userRepository = UserRepository()
 
     private val _eventData = MutableLiveData<EventData?>()
     val eventData: LiveData<EventData?> get() = _eventData
@@ -24,6 +28,15 @@ class MainViewModel : ViewModel() {
 
     private val _allEvents = MutableLiveData<List<EventData>>()
     val allEvents: LiveData<List<EventData>> get() = _allEvents
+
+    private val _userProfile = MutableLiveData<User?>()
+    val userProfile: LiveData<User?> get() = _userProfile
+
+    private val _eventHistory = MutableLiveData<List<EventData>>(emptyList())
+    val eventHistory: LiveData<List<EventData>> get() = _eventHistory
+
+    private val _monthlyTotals = MutableLiveData<Map<String, Long>>()
+    val monthlyTotals: LiveData<Map<String, Long>> get() = _monthlyTotals
 
     fun createEvent(
         creatorId: String,
@@ -131,11 +144,13 @@ class MainViewModel : ViewModel() {
 
     fun addParticipant(
         eventId: String,
-        participantName: String
+        participantName: String,
+        itemsAssigned: List<String> = emptyList()
     ) {
         repository.addParticipant(
             eventId = eventId,
             participantName = participantName,
+            itemsAssigned = itemsAssigned,
             onSuccess = {
                 getEventDetails(eventId) // Perbarui data event setelah participant ditambahkan
             },
@@ -153,24 +168,6 @@ class MainViewModel : ViewModel() {
             eventId = eventId,
             onSuccess = {
                 onSuccess() // Panggil callback onSuccess untuk navigasi
-            },
-            onFailure = { e ->
-                _error.value = e.message
-            }
-        )
-    }
-
-    fun addParticipant(
-        eventId: String,
-        participantName: String,
-        itemsAssigned: List<String> = emptyList() // Default ke emptyList jika tidak ada item yang diassign
-    ) {
-        repository.addParticipant(
-            eventId = eventId,
-            participantName = participantName,
-            itemsAssigned = itemsAssigned,
-            onSuccess = {
-                getEventDetails(eventId) // Perbarui data event setelah participant ditambahkan
             },
             onFailure = { e ->
                 _error.value = e.message
@@ -196,17 +193,89 @@ class MainViewModel : ViewModel() {
         )
     }
 
-//    private val _userProfile = MutableLiveData<UserProfile?>()
-//    val userProfile: LiveData<UserProfile?> get() = _userProfile
-//
-//    fun getUserProfile() {
-//        repository.getUserProfile(
-//            onSuccess = { profile ->
-//                _userProfile.value = profile
-//            },
-//            onFailure = { e ->
-//                _error.value = e.message
-//            }
-//        )
-//    }
+    fun getUserProfile(onSuccess: (User) -> Unit = {}) {
+        userRepository.getUserProfile(
+            onSuccess = { user ->
+                _userProfile.value = user
+                onSuccess(user)
+            },
+            onFailure = { e ->
+                _error.value = e.message
+            }
+        )
+    }
+
+    fun updateUsername(username: String) {
+        userRepository.updateUsername(
+            username = username,
+            onSuccess = {
+                getUserProfile()
+            },
+            onFailure = { e ->
+                _error.value = e.message
+            }
+        )
+    }
+
+    fun uploadProfilePhoto(uri: Uri, function: () -> Unit) {
+        userRepository.uploadProfilePhoto(
+            uri = uri,
+            onSuccess = { photoUrl ->
+                getUserProfile()
+            },
+            onFailure = { e ->
+                _error.value = e.message
+            }
+        )
+    }
+
+    fun getEventHistory() {
+        val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+        if (currentUser != null) {
+            repository.getEventHistory(
+                userId = currentUser.uid,
+                onSuccess = { events ->
+                    _eventHistory.value = events
+                },
+                onFailure = { e ->
+                    _error.value = e.message
+                }
+            )
+        } else {
+            _error.value = "User not logged in"
+        }
+    }
+
+    fun getMonthlyTotals() {
+        val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+        if (currentUser != null) {
+            repository.getMonthlyTotals(
+                userId = currentUser.uid,
+                onSuccess = { totals ->
+                    _monthlyTotals.value = totals
+                },
+                onFailure = { e ->
+                    _error.value = e.message
+                }
+            )
+        } else {
+            _error.value = "User not logged in"
+        }
+    }
+
+    fun uploadPaymentProof(eventId: String, participantId: String, uri: Uri) {
+        viewModelScope.launch {
+            repository.uploadPaymentProof(
+                eventId = eventId,
+                participantId = participantId,
+                uri = uri,
+                onSuccess = { proofUrl ->
+                    getEventDetails(eventId) // Refresh data setelah upload
+                },
+                onFailure = { e ->
+                    _error.value = e.message
+                }
+            )
+        }
+    }
 }
