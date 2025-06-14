@@ -30,9 +30,12 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = NavRoutes.OnboardingSatu.route,
+        startDestination = NavRoutes.SplashScreen.route,
         modifier = modifier
     ) {
+        composable(NavRoutes.SplashScreen.route) {
+            OnboardingSatuScreen(navController = navController)
+        }
         composable(NavRoutes.OnboardingSatu.route) {
             OnboardingSatuScreen(navController = navController)
         }
