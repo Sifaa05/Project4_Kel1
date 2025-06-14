@@ -20,18 +20,19 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.billbuddy.navigation.NavRoutes
 import com.example.billbuddy.ui.viewModel.MainViewModel
 import com.example.billbuddy.ui.components.*
-import com.example.billbuddy.ui.theme.Pink40
 import com.example.billbuddy.ui.components.AppFloatingActionButton
 import com.example.billbuddy.ui.components.AppTextButton
 import com.example.billbuddy.ui.components.CommonNavigationBar
 import com.example.billbuddy.ui.components.CommonEventCard
+import com.example.billbuddy.ui.theme.PinkTua
+import com.example.billbuddy.ui.theme.PinkBackground
+import com.example.billbuddy.ui.theme.White
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,7 +58,7 @@ fun HomeScreen(
             AppFloatingActionButton(
                 onClick = { showBottomSheet.value = true },
                 containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = Color.White
+                contentColor = White
             )
         },
         bottomBar = {
@@ -90,7 +91,7 @@ fun HomeScreen(
             Text(
                 text = "Active Events",
                 style = MaterialTheme.typography.titleLarge,
-                color = Pink40,
+                color = PinkBackground,
                 fontWeight = FontWeight.ExtraBold,
                 modifier = Modifier.shadow(elevation = 30.dp)
             )

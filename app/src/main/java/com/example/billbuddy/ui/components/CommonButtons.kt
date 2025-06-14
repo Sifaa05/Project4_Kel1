@@ -1,11 +1,8 @@
 package com.example.billbuddy.ui.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -14,29 +11,34 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.example.billbuddy.ui.theme.PinkPrimary
+import androidx.compose.ui.unit.sp
+import com.example.billbuddy.ui.theme.KadwaFontFamily
+import com.example.billbuddy.ui.theme.PinkButton
+import com.example.billbuddy.ui.theme.PinkButtonStroke
 
 @Composable
 fun AppFloatingActionButton(
     onClick: () -> Unit,
-    containerColor: Color,
+    containerColor: Color = PinkButton,
     contentColor: Color,
     modifier: Modifier = Modifier
 ) {
     FloatingActionButton(
         onClick = onClick,
         shape = CircleShape,
-        containerColor = PinkPrimary,
+        containerColor = containerColor,
         contentColor = contentColor,
         modifier = modifier
     ) {
         Icon(
             imageVector = Icons.Default.Add,
-            contentDescription = "Add"
+            contentDescription = "Add Event"
         )
     }
 }
@@ -68,7 +70,7 @@ fun AppTextButton(
             }
             Text(
                 text = text,
-                style = MaterialTheme.typography.bodyLarge, // Roboto, 16sp
+                style = MaterialTheme.typography.bodyLarge,
                 color = textColor
             )
         }
@@ -88,7 +90,7 @@ fun AppSmallTextButton(
     ) {
         Text(
             text = text,
-            style = MaterialTheme.typography.labelSmall, // Roboto, 14sp
+            style = MaterialTheme.typography.labelSmall,
             color = textColor
         )
     }
@@ -118,17 +120,22 @@ fun AppIconButton(
 fun AppFilledButton(
     onClick: () -> Unit,
     text: String,
-    containerColor: Color,
+    containerColor: Color = PinkButton,
     textColor: Color,
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
     iconTint: Color? = null,
-    height: Dp = 64.dp
+    height: Dp = 60.dp,
+    fontFamily: FontFamily = KadwaFontFamily,
+    fontSize: Int = 25
 ) {
     Button(
         onClick = onClick,
-        modifier = modifier.height(height),
-        shape = RoundedCornerShape(16.dp),
+        modifier = modifier
+            .height(height)
+            .shadow(elevation = 15.dp, shape = RoundedCornerShape(60.dp))
+            .border(2.dp, PinkButtonStroke, RoundedCornerShape(60.dp)),
+        shape = RoundedCornerShape(60.dp),
         colors = ButtonDefaults.buttonColors(containerColor = containerColor)
     ) {
         Row(
@@ -136,7 +143,8 @@ fun AppFilledButton(
         ) {
             Text(
                 text = text,
-                style = MaterialTheme.typography.bodyLarge, // Roboto, 16sp
+                fontFamily = fontFamily,
+                fontSize = fontSize.sp,
                 color = textColor
             )
             if (icon != null && iconTint != null) {
@@ -167,7 +175,7 @@ fun AppTextIconButton(
     ) {
         Text(
             text = text,
-            style = MaterialTheme.typography.bodyLarge, // Roboto, 16sp
+            style = MaterialTheme.typography.bodyLarge,
             color = textColor
         )
     }

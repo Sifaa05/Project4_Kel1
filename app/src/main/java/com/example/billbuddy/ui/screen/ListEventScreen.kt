@@ -23,10 +23,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.billbuddy.navigation.NavRoutes
 import com.example.billbuddy.ui.components.*
-import com.example.billbuddy.ui.theme.Pink40
 import com.example.billbuddy.ui.viewModel.MainViewModel
 import com.example.billbuddy.ui.components.CommonNavigationBar
 import com.example.billbuddy.ui.components.CommonEventCard
+import com.example.billbuddy.ui.theme.PinkTua
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -87,7 +87,7 @@ fun ListEventScreen(
             Text(
                 text = "All Events",
                 style = MaterialTheme.typography.titleLarge,
-                color = Pink40,
+                color = PinkTua,
                 fontWeight = FontWeight.ExtraBold,
                 modifier = Modifier.shadow(elevation = 30.dp)
             )

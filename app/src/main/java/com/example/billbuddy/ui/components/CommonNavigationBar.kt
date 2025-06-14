@@ -12,7 +12,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
 import com.example.billbuddy.navigation.NavRoutes
-import com.example.billbuddy.ui.theme.PinkPrimary
+import com.example.billbuddy.ui.theme.PinkTua
+import com.example.billbuddy.ui.theme.White
+import com.example.billbuddy.ui.theme.WhiteTitle
 
 @Composable
 fun CommonNavigationBar(
@@ -20,7 +22,7 @@ fun CommonNavigationBar(
     selectedScreen: String
 ) {
     NavigationBar(
-        containerColor = PinkPrimary // Pink tua untuk navbar
+        containerColor = White // Pink tua untuk navbar
     ) {
         NavigationBarItem(
             selected = selectedScreen == "Home",

@@ -17,7 +17,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.billbuddy.navigation.NavRoutes
-import com.example.billbuddy.ui.theme.Pink40
+import com.example.billbuddy.ui.theme.PinkBackground
+import com.example.billbuddy.ui.theme.PinkTua
 
 @Composable
 fun HomeHeader(
@@ -31,14 +32,14 @@ fun HomeHeader(
         Text(
             text = "Hello, Buddy!",
             style = MaterialTheme.typography.titleLarge,
-            color = Pink40 // Pink tua untuk header
+            color = PinkTua // Pink tua untuk header
         )
         Spacer(modifier = Modifier.weight(1f))
         IconButton(onClick = { /* TODO: Navigasi ke NotificationScreen */ }) {
             Icon(
                 imageVector = Icons.Default.Notifications,
                 contentDescription = "Notifications",
-                tint = Pink40,
+                tint = PinkTua,
                 modifier = Modifier.size(24.dp)
             )
         }
@@ -46,7 +47,7 @@ fun HomeHeader(
             Icon(
                 imageVector = Icons.Default.Search,
                 contentDescription = "Search",
-                tint = Pink40,
+                tint = PinkTua,
                 modifier = Modifier.size(24.dp)
             )
         }

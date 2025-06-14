@@ -12,27 +12,30 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.sp
-import com.example.billbuddy.ui.theme.Pink40
-import com.example.billbuddy.ui.theme.Pink80
+import com.example.billbuddy.ui.theme.JomhuriaFontFamily
+import com.example.billbuddy.ui.theme.WhiteTitle
+import com.example.billbuddy.ui.theme.PinkBackground
+import com.example.billbuddy.ui.theme.WhiteTitle
 
 @Composable
 fun AppBranding(
     modifier: Modifier = Modifier,
     isHorizontal: Boolean = false
 ) {
+    val jomhuriaFont = JomhuriaFontFamily
     if (isHorizontal) {
         Row(
             modifier = modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start
         ) {
+
             Text(
                 text = "BillBuddy",
-                style = MaterialTheme.typography.displayLarge,
-                color = Pink40,
-                modifier = Modifier
-                    .shadow(elevation = 50.dp, shape = RoundedCornerShape(8.dp))
-                    .padding(end = 20.dp)
+                fontFamily = jomhuriaFont,
+                fontSize = 100.sp,
+                color = WhiteTitle,
+                modifier = Modifier.shadow(elevation = 60.dp, shape = RoundedCornerShape(30.dp))
             )
 //            Text(
 //                text = "IT'S HERE",
@@ -48,14 +51,15 @@ fun AppBranding(
         ) {
             Text(
                 text = "BillBuddy",
-                style = MaterialTheme.typography.displayLarge,
-                color = Pink40,
-                modifier = Modifier.shadow(elevation = 50.dp, shape = RoundedCornerShape(20.dp))
+                fontFamily = jomhuriaFont,
+                fontSize = 100.sp,
+                color = WhiteTitle,
+                modifier = Modifier.shadow(elevation = 60.dp, shape = RoundedCornerShape(30.dp))
             )
             Text(
                 text = "IT'S HERE",
                 style = MaterialTheme.typography.displayMedium,
-                color = Pink40,
+                color = WhiteTitle,
                 textAlign = TextAlign.Center
             )
         }

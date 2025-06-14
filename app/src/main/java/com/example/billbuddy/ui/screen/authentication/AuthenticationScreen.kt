@@ -2,24 +2,24 @@ package com.example.billbuddy.ui.screen.authentication
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.billbuddy.R
+import com.example.billbuddy.ui.components.AppFilledButton
+import com.example.billbuddy.ui.theme.JomhuriaFontFamily
+import com.example.billbuddy.ui.theme.PinkBackground
+import com.example.billbuddy.ui.theme.White
+import com.example.billbuddy.ui.theme.WhiteTitle
 
 @Composable
 fun AuthenticationScreen(
@@ -27,19 +27,12 @@ fun AuthenticationScreen(
     onRegisterClick: () -> Unit
 ) {
     // Font kustom
-    val jomhuriaFont = FontFamily(Font(R.font.jomhuria_regular))
-    val kadwaFont = FontFamily(Font(R.font.kadwa_regular))
-
-    // Warna
-    val backgroundColor = Color(0xFFF7ACB8) // Pink background
-    val buttonColor = Color(0xFFF4BCC5) // Pink button
-    val buttonStrokeColor = Color(0xFFF397AE) // Pink stroke
-    val titleColor = Color(0xFFF4F4F4) // White title
+    val jomhuriaFont = JomhuriaFontFamily
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(backgroundColor),
+            .background(PinkBackground),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -49,65 +42,36 @@ fun AuthenticationScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top
         ) {
-            // Spacer untuk memberi ruang di atas
             Spacer(modifier = Modifier.height(120.dp))
 
-            // Judul "BillBuddy" dengan efek drop shadow
             Text(
                 text = "BillBuddy",
                 fontFamily = jomhuriaFont,
                 fontSize = 100.sp,
-                color = titleColor,
-                modifier = Modifier
-                    .shadow(elevation =60.dp, shape = RoundedCornerShape(30.dp)),
+                color = WhiteTitle,
+                modifier = Modifier.shadow(elevation = 60.dp, shape = RoundedCornerShape(30.dp))
             )
 
-            // Spacer untuk jarak
             Spacer(modifier = Modifier.height(150.dp))
 
-            // Button "Login" dengan efek drop shadow
-            Button(
+            AppFilledButton(
                 onClick = onLoginClick,
-                modifier = Modifier
-                    .fillMaxWidth(0.65f)
-                    .height(60.dp)
-                    .shadow(elevation = 15.dp, shape = RoundedCornerShape(60.dp))
-                    .border(2.dp, buttonStrokeColor, RoundedCornerShape(60.dp)),
-                colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
-                shape = RoundedCornerShape(60.dp)
-            ) {
-                Text(
-                    text = "Login",
-                    fontFamily = kadwaFont,
-                    fontSize = 25.sp,
-                    color = Color.White
-                )
-            }
+                text = "Login",
+                textColor = White,
+                modifier = Modifier.fillMaxWidth(0.65f)
+            )
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // Button "Register" dengan efek drop shadow
-            Button(
+            AppFilledButton(
                 onClick = onRegisterClick,
-                modifier = Modifier
-                    .fillMaxWidth(0.65f)
-                    .height(60.dp)
-                    .shadow(elevation = 15.dp, shape = RoundedCornerShape(60.dp))
-                    .border(2.dp, buttonStrokeColor, RoundedCornerShape(60.dp)),
-                colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
-                shape = RoundedCornerShape(60.dp)
-            ) {
-                Text(
-                    text = "Register",
-                    fontFamily = kadwaFont,
-                    fontSize = 25.sp,
-                    color = Color.White
-                )
-            }
+                text = "Register",
+                textColor = White,
+                modifier = Modifier.fillMaxWidth(0.65f)
+            )
 
             Spacer(modifier = Modifier.weight(1f))
 
-            // Gambar di bagian bawah
             Image(
                 painter = painterResource(id = R.drawable.billbuddy_characters),
                 contentDescription = "BillBuddy Characters",

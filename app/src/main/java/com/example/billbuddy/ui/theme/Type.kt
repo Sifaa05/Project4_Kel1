@@ -18,21 +18,21 @@ val Typography = Typography(
         fontWeight = FontWeight.Bold,
         fontSize = 30.sp, // Sesuai ukuran asli untuk header dan "Active Events"
         lineHeight = 28.sp,
-        letterSpacing = 0.sp
+        letterSpacing = 0.5.sp
     ),
     displayLarge = TextStyle(
         fontFamily = JomhuriaFontFamily,
         fontWeight = FontWeight.Bold,
         fontSize = 90.sp, // Sesuai ukuran asli untuk "BillBuddy"
         lineHeight = 96.sp,
-        letterSpacing = 0.sp
+        letterSpacing = 0.5.sp
     ),
     displayMedium = TextStyle(
         fontFamily = JomhuriaFontFamily,
         fontWeight = FontWeight.Bold,
         fontSize = 40.sp, // Sesuai ukuran asli untuk "IT'S HERE"
         lineHeight = 40.sp,
-        letterSpacing = 0.sp
+        letterSpacing = 0.5.sp
     ),
     labelSmall = TextStyle(
         fontFamily = RobotoFontFamily,
