@@ -14,6 +14,7 @@ firebaseBom = "33.12.0"
 coreTelecom = "1.0.0-beta01"
 navigationRuntimeKtx = "2.8.9"
 firebaseAuthKtx = "23.2.0"
+roomCommonJvm = "2.7.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -38,6 +39,7 @@ firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore
 androidx-core-telecom = { group = "androidx.core", name = "core-telecom", version.ref = "coreTelecom" }
 androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
 firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
+androidx-room-common-jvm = { group = "androidx.room", name = "room-common-jvm", version.ref = "roomCommonJvm" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

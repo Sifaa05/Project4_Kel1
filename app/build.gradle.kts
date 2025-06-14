@@ -58,6 +58,7 @@ dependencies {
     implementation(libs.androidx.core.telecom)
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.firebase.auth.ktx)
+    implementation(libs.androidx.room.common.jvm)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
@@ -74,4 +75,5 @@ dependencies {
     implementation ("com.google.firebase:firebase-firestore-ktx:24.10.0")
     //implementation ("com.google.firebase:firebase-auth-ktx:23.3.1")
     implementation ("androidx.compose.material:material-icons-extended:1.6.8")
+    implementation("io.coil-kt:coil-compose:2.4.0")
 }

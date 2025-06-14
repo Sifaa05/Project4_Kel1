@@ -37,6 +37,8 @@ import com.example.billbuddy.ui.components.AppTextButton
 import com.example.billbuddy.ui.components.CommonNavigationBar
 import com.example.billbuddy.ui.components.CommonEventCard
 import kotlinx.coroutines.launch
+import com.example.billbuddy.model.CurrentUser
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
