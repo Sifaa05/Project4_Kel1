@@ -16,6 +16,7 @@ import com.example.billbuddy.ui.screen.authentication.AuthenticationScreen
 import com.example.billbuddy.ui.screen.authentication.LoginScreen
 import com.example.billbuddy.ui.screen.authentication.RegisterScreen
 import com.example.billbuddy.ui.screen.authentication.VerificationScreen
+import com.example.billbuddy.ui.screen.authentication.ForgotPasswordScreen
 import com.example.billbuddy.ui.screen.EventDetailScreen
 import com.example.billbuddy.ui.screen.HomeScreen
 import com.example.billbuddy.ui.screen.InputEventScreen
@@ -101,6 +102,21 @@ fun AppNavHost(
                 },
                 onForgotPasswordClick = {
                     navController.navigate(NavRoutes.ForgotPassword.route)
+                }
+            )
+        }
+        composable(NavRoutes.ForgotPassword.route) {
+            ForgotPasswordScreen(
+                onResetPasswordClick = { email -> },
+                onBackClick = {
+                    navController.navigate(NavRoutes.Login.route) {
+                        popUpTo(NavRoutes.ForgotPassword.route) { inclusive = true }
+                    }
+                },
+                onNavigateBack = {
+                    navController.navigate(NavRoutes.Login.route) {
+                        popUpTo(NavRoutes.ForgotPassword.route) { inclusive = true }
+                    }
                 }
             )
         }

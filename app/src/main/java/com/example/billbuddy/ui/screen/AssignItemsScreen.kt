@@ -25,6 +25,9 @@ import com.example.billbuddy.ui.components.AppFilledButton
 import com.example.billbuddy.ui.components.AppIconButton
 import com.example.billbuddy.ui.components.CommonNavigationBar
 import com.example.billbuddy.util.Tuple4
+import com.example.billbuddy.ui.theme.PinkButton
+import com.example.billbuddy.ui.theme.PinkButtonStroke
+import com.example.billbuddy.ui.theme.White
 
 @Composable
 fun AssignItemsScreen(
@@ -418,9 +421,16 @@ fun AssignItemsScreen(
                     }
                 },
                 text = "Next",
-                containerColor = buttonColor,
-                textColor = Color.White,
-                modifier = Modifier.fillMaxWidth()
+                containerColor = PinkButton,
+                textColor = White,
+                modifier = Modifier.fillMaxWidth(),
+                height = 60.dp,
+                fontSize = 25,
+                elevation = 15.dp,
+                cornerRadius = 60.dp,
+                borderWidth = 2.dp,
+                fontWeight = FontWeight.Normal,
+                borderColor = PinkButtonStroke
             )
         }
     }

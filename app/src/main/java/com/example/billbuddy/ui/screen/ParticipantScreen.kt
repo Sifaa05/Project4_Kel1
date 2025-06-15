@@ -26,7 +26,14 @@ import com.example.billbuddy.ui.viewModel.MainViewModel
 import com.example.billbuddy.ui.components.AppFilledButton
 import com.example.billbuddy.ui.components.AppIconButton
 import com.example.billbuddy.ui.components.CommonNavigationBar
+import com.example.billbuddy.ui.components.AppBranding
 import com.example.billbuddy.util.Tuple4
+import com.example.billbuddy.ui.theme.PinkBackground
+import com.example.billbuddy.ui.theme.PinkButton
+import com.example.billbuddy.ui.theme.DarkGreyText
+import com.example.billbuddy.ui.theme.PinkTua
+import com.example.billbuddy.ui.theme.White
+import com.example.billbuddy.ui.theme.PinkButtonStroke
 
 @Composable
 fun ParticipantScreen(
@@ -43,10 +50,10 @@ fun ParticipantScreen(
     }
 
     // Warna sesuai desain
-    val backgroundColor = Color(0xFFFFDCDC) // Latar pink
-    val buttonColor = Color(0xFFFFB6C1) // Warna tombol pink
-    val textColor = Color(0xFF4A4A4A) // Warna teks abu-abu tua
-    val paidButtonColor = Color(0xFF6A5ACD) // Warna tombol Mark Unpaid (ungu)
+    val backgroundColor = PinkBackground
+    val buttonColor = PinkButton
+    val textColor = DarkGreyText
+    val paidButtonColor = PinkTua
 
     Scaffold(
         bottomBar = {
@@ -96,12 +103,17 @@ fun ParticipantScreen(
                 onClick = { navController.navigate(NavRoutes.AddBuddy.createRoute(eventId)) },
                 text = "Add Buddy",
                 containerColor = buttonColor,
-                textColor = Color.White,
+                textColor = White,
                 icon = Icons.Default.Add,
-                iconTint = Color.White,
+                iconTint = White,
                 modifier = Modifier.fillMaxWidth(),
-                //fontSize = 18f,
-                height = 56.dp
+                height = 56.dp,
+                fontSize = 16, // Tambahkan fontSize untuk konsistensi
+                elevation = 4.dp,
+                cornerRadius = 8.dp,
+                borderWidth = 1.dp,
+                fontWeight = FontWeight.Bold,
+                borderColor = PinkButtonStroke
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -183,12 +195,17 @@ fun ParticipantScreen(
                                         },
                                         text = if (participant.paid) "Mark Unpaid" else "Mark Paid",
                                         containerColor = if (participant.paid) paidButtonColor else Color.Gray,
-                                        textColor = Color.White,
+                                        textColor = White,
                                         modifier = Modifier
                                             .height(36.dp)
                                             .padding(end = 8.dp),
-                                        //fontSize = 12f,
-                                        height = 36.dp
+                                        fontSize = 12, // Tambahkan fontSize untuk konsistensi
+                                        height = 36.dp,
+                                        elevation = 2.dp,
+                                        cornerRadius = 4.dp,
+                                        borderWidth = 1.dp,
+                                        fontWeight = FontWeight.Medium,
+                                        borderColor = PinkButtonStroke
                                     )
                                     // Tombol Detail Bill
                                     AppFilledButton(
@@ -197,10 +214,15 @@ fun ParticipantScreen(
                                         },
                                         text = "Detail Bill",
                                         containerColor = buttonColor,
-                                        textColor = Color.White,
+                                        textColor = White,
                                         modifier = Modifier.height(36.dp),
-                                        //fontSize = 12f,
-                                        height = 36.dp
+                                        fontSize = 12, // Tambahkan fontSize untuk konsistensi
+                                        height = 36.dp,
+                                        elevation = 2.dp,
+                                        cornerRadius = 4.dp,
+                                        borderWidth = 1.dp,
+                                        fontWeight = FontWeight.Medium,
+                                        borderColor = PinkButtonStroke
                                     )
                                 }
                             }

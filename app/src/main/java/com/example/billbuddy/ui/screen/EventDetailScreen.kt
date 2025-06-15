@@ -27,6 +27,12 @@ import com.example.billbuddy.ui.components.CommonNavigationBar
 import com.example.billbuddy.ui.components.AppIconButton
 import com.example.billbuddy.ui.components.AppSmallTextButton
 import com.example.billbuddy.ui.components.AppFilledButton
+import com.example.billbuddy.ui.theme.PinkBackground
+import com.example.billbuddy.ui.theme.PinkButton
+import com.example.billbuddy.ui.theme.PinkButtonStroke
+import com.example.billbuddy.ui.theme.DarkGreyText
+import com.example.billbuddy.ui.theme.RedButton
+import com.example.billbuddy.ui.theme.White
 
 @Composable
 fun EventDetailScreen(
@@ -47,10 +53,10 @@ fun EventDetailScreen(
     val showDeleteDialog = remember { mutableStateOf(false) }
 
     // Warna sesuai desain
-    val backgroundColor = Color(0xFFFFDCDC) // Latar pink
-    val buttonColor = Color(0xFFFFB6C1) // Warna tombol pink
-    val textColor = Color(0xFF4A4A4A) // Warna teks abu-abu tua
-    val deleteButtonColor = Color(0xFFFF4444) // Warna tombol hapus (merah)
+    val backgroundColor = PinkBackground // Latar pink
+    val buttonColor = PinkButton // Warna tombol pink
+    val textColor = DarkGreyText // Warna teks abu-abu tua
+    val deleteButtonColor = RedButton // Warna tombol hapus (merah)
 
     // Dialog untuk konfirmasi hapus
     if (showDeleteDialog.value) {
@@ -335,9 +341,16 @@ fun EventDetailScreen(
                     }
                 },
                 text = "View Participants",
-                containerColor = buttonColor,
-                textColor = Color.White,
-                modifier = Modifier.fillMaxWidth()
+                containerColor = PinkButton,
+                textColor = White,
+                modifier = Modifier.fillMaxWidth(),
+                height = 60.dp,
+                fontSize = 25,
+                elevation = 15.dp,
+                cornerRadius = 60.dp,
+                borderWidth = 2.dp,
+                fontWeight = FontWeight.Normal,
+                borderColor = PinkButtonStroke
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -346,9 +359,16 @@ fun EventDetailScreen(
             AppFilledButton(
                 onClick = { showDeleteDialog.value = true },
                 text = "Delete Event",
-                containerColor = deleteButtonColor,
-                textColor = Color.White,
-                modifier = Modifier.fillMaxWidth()
+                containerColor = RedButton,
+                textColor = White,
+                modifier = Modifier.fillMaxWidth(),
+                height = 60.dp,
+                fontSize = 25,
+                elevation = 15.dp,
+                cornerRadius = 60.dp,
+                borderWidth = 2.dp,
+                fontWeight = FontWeight.Normal,
+                borderColor = PinkButtonStroke
             )
         }
     }

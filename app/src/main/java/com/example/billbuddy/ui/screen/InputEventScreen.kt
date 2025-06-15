@@ -24,6 +24,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavController
 import com.example.billbuddy.repository.SplitBillRepository
 import com.example.billbuddy.repository.UserRepository
@@ -36,6 +37,11 @@ import com.example.billbuddy.ui.components.CommonNavigationBar
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.util.UUID
+import com.example.billbuddy.ui.theme.PinkBackground
+import com.example.billbuddy.ui.theme.PinkButton
+import com.example.billbuddy.ui.theme.DarkGreyText
+import com.example.billbuddy.ui.theme.White
+import com.example.billbuddy.ui.theme.PinkButtonStroke
 
 @Composable
 fun InputEventScreen(
@@ -101,9 +107,9 @@ fun InputEventScreen(
         }
     }
 
-    val backgroundColor = Color(0xFFFFDCDC)
-    val buttonColor = Color(0xFFFFB6C1)
-    val textColor = Color(0xFF4A4A4A)
+    val backgroundColor = PinkBackground
+    val buttonColor = PinkButton
+    val textColor = DarkGreyText
 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
@@ -483,11 +489,18 @@ fun InputEventScreen(
                     }
                 },
                 text = "Make Bill!",
-                containerColor = buttonColor,
-                textColor = Color.White,
+                containerColor = PinkButton,
+                textColor = White,
                 icon = Icons.Default.ArrowForward,
-                iconTint = Color.White,
-                modifier = Modifier.fillMaxWidth()
+                iconTint = White,
+                modifier = Modifier.fillMaxWidth(),
+                height = 60.dp,
+                fontSize = 25,
+                elevation = 15.dp,
+                cornerRadius = 60.dp,
+                borderWidth = 2.dp,
+                fontWeight = FontWeight.Normal,
+                borderColor = PinkButtonStroke
             )
 
             Spacer(modifier = Modifier.height(16.dp))

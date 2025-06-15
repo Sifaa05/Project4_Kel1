@@ -12,8 +12,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.unit.sp
-import com.example.billbuddy.ui.theme.Pink40
-import com.example.billbuddy.ui.theme.Pink80
+import com.example.billbuddy.ui.theme.WhiteTitle
+import com.example.billbuddy.ui.theme.PinkBackground
+import com.example.billbuddy.ui.theme.PinkButton
+import com.example.billbuddy.ui.theme.PinkButtonStroke
+import com.example.billbuddy.ui.theme.WhiteTitle
+
 
 @Composable
 fun AppBranding(
@@ -29,7 +33,7 @@ fun AppBranding(
             Text(
                 text = "BillBuddy",
                 style = MaterialTheme.typography.displayLarge,
-                color = Pink40,
+                color = PinkButtonStroke,
                 modifier = Modifier
                     .shadow(elevation = 50.dp, shape = RoundedCornerShape(8.dp))
                     .padding(end = 20.dp)
@@ -49,13 +53,13 @@ fun AppBranding(
             Text(
                 text = "BillBuddy",
                 style = MaterialTheme.typography.displayLarge,
-                color = Pink40,
+                color = PinkButtonStroke,
                 modifier = Modifier.shadow(elevation = 50.dp, shape = RoundedCornerShape(20.dp))
             )
             Text(
                 text = "IT'S HERE",
                 style = MaterialTheme.typography.displayMedium,
-                color = Pink40,
+                color = PinkButtonStroke,
                 textAlign = TextAlign.Center
             )
         }

@@ -19,7 +19,7 @@ import androidx.navigation.NavController
 import com.example.billbuddy.navigation.NavRoutes
 import com.example.billbuddy.ui.viewModel.MainViewModel
 import com.example.billbuddy.ui.components.*
-import com.example.billbuddy.ui.theme.Pink40
+import com.example.billbuddy.ui.theme.PinkButtonStroke
 import com.example.billbuddy.ui.components.AppFloatingActionButton
 import com.example.billbuddy.ui.components.CommonNavigationBar
 
@@ -79,7 +79,7 @@ fun HomeScreen(
             Text(
                 text = "Active Events",
                 style = MaterialTheme.typography.titleLarge,
-                color = Pink40,
+                color = PinkButtonStroke,
                 fontWeight = FontWeight.ExtraBold,
                 modifier = Modifier.shadow(elevation = 30.dp)
             )
