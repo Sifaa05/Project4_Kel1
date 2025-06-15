@@ -11,13 +11,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.billbuddy.R
 import com.example.billbuddy.ui.components.AppFilledButton
 import com.example.billbuddy.ui.theme.JomhuriaFontFamily
 import com.example.billbuddy.ui.theme.PinkBackground
+import com.example.billbuddy.ui.theme.PinkButtonStroke
 import com.example.billbuddy.ui.theme.White
 import com.example.billbuddy.ui.theme.WhiteTitle
 
@@ -58,7 +58,8 @@ fun AuthenticationScreen(
                 onClick = onLoginClick,
                 text = "Login",
                 textColor = White,
-                modifier = Modifier.fillMaxWidth(0.65f)
+                modifier = Modifier.fillMaxWidth(0.65f),
+                borderColor = PinkButtonStroke
             )
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -67,7 +68,8 @@ fun AuthenticationScreen(
                 onClick = onRegisterClick,
                 text = "Register",
                 textColor = White,
-                modifier = Modifier.fillMaxWidth(0.65f)
+                modifier = Modifier.fillMaxWidth(0.65f),
+                borderColor = PinkButtonStroke
             )
 
             Spacer(modifier = Modifier.weight(1f))

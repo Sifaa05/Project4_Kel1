@@ -28,7 +28,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.billbuddy.ui.theme.DarkGreyText
 import com.example.billbuddy.ui.theme.KadwaFontFamily
 import com.example.billbuddy.ui.theme.PinkButton
 import com.example.billbuddy.ui.theme.PinkButtonStroke
@@ -147,7 +146,8 @@ fun AppFilledButton(
     elevation: Dp = 15.dp,
     cornerRadius: Dp = 60.dp,
     borderWidth: Dp = 2.dp,
-    fontWeight: FontWeight = FontWeight.Normal
+    fontWeight: FontWeight = FontWeight.Normal,
+    borderColor: Color
 ) {
     Button(
         onClick = onClick,
@@ -234,16 +234,17 @@ fun SortButton(
             buttonScale = 1f
         },
         text = sortText,
-        textColor = White,
         containerColor = PinkButton,
-        icon = Icons.Default.Sort,
-        iconTint = White,
+        textColor = White,
         modifier = modifier
             .scale(scale)
             .semantics { contentDescription = sortDescription },
+        icon = Icons.Default.Sort,
+        iconTint = White,
         height = 48.dp,
-        cornerRadius = 24.dp,
+        fontFamily = KadwaFontFamily,
         fontSize = 14,
-        fontFamily = KadwaFontFamily
+        cornerRadius = 24.dp,
+        borderColor = PinkButtonStroke
     )
 }

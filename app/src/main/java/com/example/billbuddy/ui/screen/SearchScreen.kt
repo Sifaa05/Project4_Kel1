@@ -70,6 +70,7 @@ fun SearchScreen(
             // Header
             HomeHeader(
                 navController = navController,
+                viewModel = viewModel,
                 showBackButton = true
             )
 

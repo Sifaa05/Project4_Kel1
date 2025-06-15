@@ -21,6 +21,7 @@ import com.example.billbuddy.ui.components.*
 import com.example.billbuddy.ui.components.AppFloatingActionButton
 import com.example.billbuddy.ui.components.CommonNavigationBar
 import com.example.billbuddy.ui.components.CommonEventCard
+import com.example.billbuddy.ui.theme.DarkGreyText
 import com.example.billbuddy.ui.theme.PinkBackground
 import com.example.billbuddy.ui.theme.White
 import kotlinx.coroutines.launch
@@ -68,7 +69,7 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Header
-            HomeHeader(navController = navController)
+            HomeHeader(navController = navController, viewModel = viewModel,)
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -81,7 +82,7 @@ fun HomeScreen(
             Text(
                 text = "Active Events",
                 style = MaterialTheme.typography.displayMedium,
-                //color = PinkBackground,
+                color = DarkGreyText,
                 //fontWeight = FontWeight.ExtraBold,
                 //modifier = Modifier.shadow(elevation = 30.dp)
             )

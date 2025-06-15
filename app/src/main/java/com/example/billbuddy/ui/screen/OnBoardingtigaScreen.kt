@@ -4,22 +4,25 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.billbuddy.R
 import com.example.billbuddy.navigation.NavRoutes
-import com.example.billbuddy.ui.theme.BillBuddyTheme
+import com.example.billbuddy.ui.components.AppBranding
+import com.example.billbuddy.ui.components.AppFilledButton
+import com.example.billbuddy.ui.theme.*
 
 @Composable
 fun OnboardingTigaScreen(
@@ -27,81 +30,89 @@ fun OnboardingTigaScreen(
     sharedPreferences: android.content.SharedPreferences,
     modifier: Modifier = Modifier
 ) {
-    BillBuddyTheme {
-        Box(
-            modifier = modifier
+    Scaffold(
+        modifier = modifier.fillMaxSize()
+    ) { padding ->
+        Column(
+            modifier = Modifier
                 .fillMaxSize()
-                .background(Color(0xFFFFDCDC))
+                .background(MaterialTheme.colorScheme.background)
+                .padding(padding)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween
         ) {
+            // Branding
+            AppBranding(isHorizontal = true)
+
+            // Konten utama
             Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.weight(1f)
             ) {
                 // Gambar
                 Image(
                     painter = painterResource(id = R.drawable.onboarding_tiga),
                     contentDescription = "Onboarding 3 Illustration",
                     modifier = Modifier
-                        .width(200.dp)
-                        .height(200.dp)
+                        .size(200.dp)
+                        .background(CardBackground, RoundedCornerShape(8.dp))
+                        //.shadow(elevation = 5.dp, shape = RoundedCornerShape(8.dp))
+                        .padding(16.dp)
                 )
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-                // Kotak putih
-                Box(
+                // Kartu konten
+                Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(
-                            color = Color.White.copy(alpha = 0.9f),
-                            shape = RoundedCornerShape(32.dp)
-                        )
-                        .padding(vertical = 24.dp, horizontal = 16.dp)
+                        .shadow(elevation = 10.dp, shape = RoundedCornerShape(16.dp)),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = CardBackground)
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
                     ) {
                         Text(
                             text = "Enjoy the Event, Not the Count!",
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF8B1E3F),
+                            style = MaterialTheme.typography.displayMedium,
+                            color = PinkButtonStroke,
+                            fontFamily = KhulaExtrabold,
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = "Focus on enjoying the moment, let BillBuddy take care of the sharing. From now on, share without drama!",
-                            fontSize = 16.sp,
-                            color = Color.Gray,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = DarkGreyText,
+                            fontFamily = RobotoFontFamily,
                             textAlign = TextAlign.Center
                         )
                         Spacer(modifier = Modifier.height(16.dp))
-                        Button(
+                        AppFilledButton(
                             onClick = {
-                                // Simpan status onboarding selesai
                                 sharedPreferences.edit().putBoolean("isOnboardingCompleted", true).apply()
-                                // Navigasi ke AuthenticationScreen
                                 navController.navigate(NavRoutes.Authentication.route) {
                                     popUpTo(NavRoutes.OnboardingTiga.route) { inclusive = true }
                                 }
                             },
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFF48FB1)),
-                            shape = RoundedCornerShape(32.dp),
+                            text = "Get Started",
+                            containerColor = PinkButton,
+                            textColor = White,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(50.dp)
-                        ) {
-                            Text(
-                                text = "Get Started",
-                                fontSize = 18.sp,
-                                color = Color.White
-                            )
-                        }
+                                .height(60.dp),
+                            fontSize = 20,
+                            cornerRadius = 60.dp,
+                            borderWidth = 2.dp,
+                            borderColor = PinkButtonStroke
+                        )
                     }
                 }
             }

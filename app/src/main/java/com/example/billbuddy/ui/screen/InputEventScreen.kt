@@ -10,16 +10,16 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -30,9 +30,13 @@ import com.example.billbuddy.repository.UserRepository
 import com.example.billbuddy.data.Item
 import com.example.billbuddy.data.Participant
 import com.example.billbuddy.navigation.NavRoutes
+import com.example.billbuddy.ui.components.AppBranding
 import com.example.billbuddy.ui.components.AppFilledButton
 import com.example.billbuddy.ui.components.AppIconButton
 import com.example.billbuddy.ui.components.CommonNavigationBar
+import com.example.billbuddy.ui.components.HomeHeader
+import com.example.billbuddy.ui.theme.*
+import com.example.billbuddy.ui.viewModel.MainViewModel
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.util.UUID
@@ -41,6 +45,7 @@ import java.util.UUID
 fun InputEventScreen(
     navController: NavController,
     repository: SplitBillRepository,
+    viewModel: MainViewModel,
     scannedBillDataJson: String? = null
 ) {
     val userRepository = remember { UserRepository() }
@@ -52,6 +57,7 @@ fun InputEventScreen(
     var unitPrice by remember { mutableStateOf("") }
     var serviceFee by remember { mutableStateOf("") }
     var tax by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(true) }
 
     val items = remember {
         mutableStateListOf<Item>()
@@ -62,11 +68,13 @@ fun InputEventScreen(
             onSuccess = { user ->
                 creatorName = user.name ?: "Anonymous"
                 creatorId = user.userId ?: "Unknown"
+                isLoading = false
             },
             onFailure = { exception ->
                 println("Error fetching user profile: ${exception.message}")
                 creatorName = "Anonymous"
                 creatorId = "Unknown"
+                isLoading = false
             }
         )
     }
@@ -101,10 +109,6 @@ fun InputEventScreen(
         }
     }
 
-    val backgroundColor = Color(0xFFFFDCDC)
-    val buttonColor = Color(0xFFFFB6C1)
-    val textColor = Color(0xFF4A4A4A)
-
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         bottomBar = {
@@ -118,216 +122,418 @@ fun InputEventScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(backgroundColor)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(padding)
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                AppIconButton(
-                    onClick = { navController.popBackStack() },
-                    icon = Icons.Default.ArrowBack,
-                    contentDescription = "Back",
-                    tint = Color.White,
-                    modifier = Modifier
-                        .background(buttonColor, shape = RoundedCornerShape(50))
-                        .size(40.dp)
-                )
-                Spacer(modifier = Modifier.width(16.dp))
-                Text(
-                    text = "Input Bill",
-                    fontSize = 24.sp,
-                    color = textColor
-                )
-            }
+            // Header
+            HomeHeader(
+                navController = navController,
+                viewModel = viewModel,
+                showBackButton = true
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Judul
             Text(
-                text = "Creator Name: $creatorName",
-                fontSize = 16.sp,
-                color = textColor,
-                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
-            )
-            Text(
-                text = "Creator ID: $creatorId",
-                fontSize = 16.sp,
-                color = textColor,
-                modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
+                text = "Input Bill",
+                style = MaterialTheme.typography.displayLarge,
+                color = PinkButtonStroke,
+                fontFamily = KhulaExtrabold
             )
 
-            OutlinedTextField(
-                value = eventName,
-                onValueChange = { eventName = it },
-                label = { Text("Event Name") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Konten utama
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.CenterHorizontally)
                 )
-            )
-
-            OutlinedTextField(
-                value = itemName,
-                onValueChange = { itemName = it },
-                label = { Text("Item Name") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                )
-            )
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+            } else {
+                // Informasi Creator
                 Text(
-                    text = "Quantity",
-                    color = textColor,
-                    fontSize = 16.sp
+                    text = "Creator Name: $creatorName",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = DarkGreyText,
+                    fontFamily = RobotoFontFamily,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
                 )
+                Text(
+                    text = "Creator ID: $creatorId",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = DarkGreyText,
+                    fontFamily = RobotoFontFamily,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp)
+                )
+
+                // Text Field Event Name
+                OutlinedTextField(
+                    value = eventName,
+                    onValueChange = { eventName = it },
+                    label = { Text("Event Name", style = MaterialTheme.typography.labelSmall, fontFamily = RobotoFontFamily) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(TextFieldBackground, RoundedCornerShape(50.dp))
+                        .shadow(elevation = 1.dp, shape = RoundedCornerShape(50.dp))
+                        .padding(vertical = 0.dp),
+                    shape = RoundedCornerShape(40.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = TextFieldBackground,
+                        unfocusedContainerColor = TextFieldBackground,
+                        focusedIndicatorColor = PinkButtonStroke,
+                        unfocusedIndicatorColor = DarkGreyText,
+                        focusedLabelColor = PinkButtonStroke,
+                        unfocusedLabelColor = DarkGreyText
+                    )
+                )
+
+                // Text Field Item Name
+                OutlinedTextField(
+                    value = itemName,
+                    onValueChange = { itemName = it },
+                    label = { Text("Item Name", style = MaterialTheme.typography.labelSmall, fontFamily = RobotoFontFamily) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(TextFieldBackground, RoundedCornerShape(50.dp))
+                        .shadow(elevation = 1.dp, shape = RoundedCornerShape(50.dp))
+                        .padding(vertical = 0.dp),
+                    shape = RoundedCornerShape(40.dp),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = TextFieldBackground,
+                        unfocusedContainerColor = TextFieldBackground,
+                        focusedIndicatorColor = PinkButtonStroke,
+                        unfocusedIndicatorColor = DarkGreyText,
+                        focusedLabelColor = PinkButtonStroke,
+                        unfocusedLabelColor = DarkGreyText
+                    )
+                )
+
+                // Quantity
                 Row(
-                    verticalAlignment = Alignment.CenterVertically
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    AppIconButton(
-                        onClick = { if (quantity > 1) quantity-- },
-                        icon = Icons.Default.Remove,
-                        contentDescription = "Decrease Quantity",
-                        tint = Color.White,
-                        modifier = Modifier
-                            .background(buttonColor, shape = RoundedCornerShape(50))
-                            .size(40.dp)
-                    )
                     Text(
-                        text = quantity.toString(),
-                        color = textColor,
-                        fontSize = 16.sp,
-                        modifier = Modifier.padding(horizontal = 16.dp)
+                        text = "Quantity",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = DarkGreyText,
+                        fontFamily = RobotoFontFamily
                     )
-                    AppIconButton(
-                        onClick = { quantity++ },
-                        icon = Icons.Default.Add,
-                        contentDescription = "Increase Quantity",
-                        tint = Color.White,
-                        modifier = Modifier
-                            .background(buttonColor, shape = RoundedCornerShape(50))
-                            .size(40.dp)
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        AppIconButton(
+                            onClick = { if (quantity > 1) quantity-- },
+                            icon = Icons.Default.Remove,
+                            contentDescription = "Decrease Quantity",
+                            tint = White,
+                            modifier = Modifier
+                                .background(PinkButton, shape = RoundedCornerShape(20.dp))
+                                .size(32.dp)
+                        )
+                        Text(
+                            text = quantity.toString(),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = DarkGreyText,
+                            fontFamily = RobotoFontFamily,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                        AppIconButton(
+                            onClick = { quantity++ },
+                            icon = Icons.Default.Add,
+                            contentDescription = "Increase Quantity",
+                            tint = White,
+                            modifier = Modifier
+                                .background(PinkButton, shape = RoundedCornerShape(20.dp))
+                                .size(32.dp)
+                        )
+                    }
                 }
-            }
 
-            OutlinedTextField(
-                value = unitPrice,
-                onValueChange = { unitPrice = it },
-                label = { Text("Unit Price") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                shape = RoundedCornerShape(16.dp),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                )
-            )
-
-            OutlinedTextField(
-                value = serviceFee,
-                onValueChange = { serviceFee = it },
-                label = { Text("Service Fee") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                shape = RoundedCornerShape(16.dp),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                )
-            )
-
-            OutlinedTextField(
-                value = tax,
-                onValueChange = { tax = it },
-                label = { Text("Tax") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                shape = RoundedCornerShape(16.dp),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.White,
-                    unfocusedContainerColor = Color.White,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                )
-            )
-
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.End
-            ) {
-                if (isEditing) {
-                    AppIconButton(
-                        onClick = {
-                            isEditing = false
-                            editingItemId = null
-                            itemName = ""
-                            quantity = 1
-                            unitPrice = ""
-                        },
-                        icon = Icons.Default.Cancel,
-                        contentDescription = "Cancel Edit",
-                        tint = Color.White,
-                        modifier = Modifier
-                            .background(Color.Red, shape = RoundedCornerShape(50))
-                            .size(40.dp)
+                // Text Field Unit Price
+                OutlinedTextField(
+                    value = unitPrice,
+                    onValueChange = { unitPrice = it },
+                    label = { Text("Unit Price", style = MaterialTheme.typography.labelSmall, fontFamily = RobotoFontFamily) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(TextFieldBackground, RoundedCornerShape(50.dp))
+                        .shadow(elevation = 1.dp, shape = RoundedCornerShape(50.dp))
+                        .padding(vertical = 0.dp),
+                    shape = RoundedCornerShape(40.dp),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = TextFieldBackground,
+                        unfocusedContainerColor = TextFieldBackground,
+                        focusedIndicatorColor = PinkButtonStroke,
+                        unfocusedIndicatorColor = DarkGreyText,
+                        focusedLabelColor = PinkButtonStroke,
+                        unfocusedLabelColor = DarkGreyText
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
-                }
-                AppIconButton(
-                    onClick = {
-                        if (itemName.isNotEmpty() && quantity > 0 && unitPrice.isNotEmpty()) {
-                            val unitPriceValue = unitPrice.toLongOrNull() ?: 0
-                            val totalPriceValue = unitPriceValue * quantity
-                            if (isEditing && editingItemId != null) {
-                                val index = items.indexOfFirst { it.itemId == editingItemId }
-                                if (index != -1) {
-                                    items[index] = Item(
-                                        itemId = editingItemId!!,
-                                        name = itemName,
-                                        quantity = quantity,
-                                        unitPrice = unitPriceValue,
-                                        totalPrice = totalPriceValue
-                                    )
-                                }
+                )
+
+                // Text Field Service Fee
+                OutlinedTextField(
+                    value = serviceFee,
+                    onValueChange = { serviceFee = it },
+                    label = { Text("Service Fee", style = MaterialTheme.typography.labelSmall, fontFamily = RobotoFontFamily) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(TextFieldBackground, RoundedCornerShape(50.dp))
+                        .shadow(elevation = 1.dp, shape = RoundedCornerShape(50.dp))
+                        .padding(vertical = 0.dp),
+                    shape = RoundedCornerShape(40.dp),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = TextFieldBackground,
+                        unfocusedContainerColor = TextFieldBackground,
+                        focusedIndicatorColor = PinkButtonStroke,
+                        unfocusedIndicatorColor = DarkGreyText,
+                        focusedLabelColor = PinkButtonStroke,
+                        unfocusedLabelColor = DarkGreyText
+                    )
+                )
+
+                // Text Field Tax
+                OutlinedTextField(
+                    value = tax,
+                    onValueChange = { tax = it },
+                    label = { Text("Tax", style = MaterialTheme.typography.labelSmall, fontFamily = RobotoFontFamily) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(TextFieldBackground, RoundedCornerShape(50.dp))
+                        .shadow(elevation = 1.dp, shape = RoundedCornerShape(50.dp))
+                        .padding(vertical = 0.dp),
+                    shape = RoundedCornerShape(40.dp),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = TextFieldBackground,
+                        unfocusedContainerColor = TextFieldBackground,
+                        focusedIndicatorColor = PinkButtonStroke,
+                        unfocusedIndicatorColor = DarkGreyText,
+                        focusedLabelColor = PinkButtonStroke,
+                        unfocusedLabelColor = DarkGreyText
+                    )
+                )
+
+                // Tombol Add/Cancel Edit
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    if (isEditing) {
+                        AppFilledButton(
+                            onClick = {
                                 isEditing = false
                                 editingItemId = null
+                                itemName = ""
+                                quantity = 1
+                                unitPrice = ""
+                            },
+                            text = "",
+                            containerColor = PinkTua,
+                            textColor = White,
+                            icon = Icons.Default.Cancel,
+                            iconTint = White,
+                            modifier = Modifier
+                                .size(40.dp)
+                                .shadow(elevation = 10.dp, shape = RoundedCornerShape(20.dp)),
+                            height = 40.dp,
+                            fontSize = 12,
+                            cornerRadius = 20.dp,
+                            borderWidth = 2.dp,
+                            borderColor = PinkButtonStroke
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+                    AppFilledButton(
+                        onClick = {
+                            if (itemName.isNotEmpty() && quantity > 0 && unitPrice.isNotEmpty()) {
+                                val unitPriceValue = unitPrice.toLongOrNull() ?: 0
+                                val totalPriceValue = unitPriceValue * quantity
+                                if (isEditing && editingItemId != null) {
+                                    val index = items.indexOfFirst { it.itemId == editingItemId }
+                                    if (index != -1) {
+                                        items[index] = Item(
+                                            itemId = editingItemId!!,
+                                            name = itemName,
+                                            quantity = quantity,
+                                            unitPrice = unitPriceValue,
+                                            totalPrice = totalPriceValue
+                                        )
+                                        snackbarMessage = "Item ${itemName} updated"
+                                    }
+                                    isEditing = false
+                                    editingItemId = null
+                                } else {
+                                    items.add(
+                                        Item(
+                                            itemId = UUID.randomUUID().toString(),
+                                            name = itemName,
+                                            quantity = quantity,
+                                            unitPrice = unitPriceValue,
+                                            totalPrice = totalPriceValue
+                                        )
+                                    )
+                                    snackbarMessage = "Item ${itemName} added"
+                                }
+                                itemName = ""
+                                quantity = 1
+                                unitPrice = ""
                             } else {
+                                snackbarMessage = "Please fill in all item fields"
+                            }
+                        },
+                        text = "",
+                        containerColor = PinkButton,
+                        textColor = White,
+                        icon = Icons.Default.Add,
+                        iconTint = White,
+                        modifier = Modifier
+                            .size(40.dp)
+                            .shadow(elevation = 1.dp, shape = RoundedCornerShape(20.dp)),
+                        height = 40.dp,
+                        fontSize = 12,
+                        cornerRadius = 20.dp,
+                        borderWidth = 2.dp,
+                        borderColor = PinkButtonStroke
+                    )
+                }
+
+                // Daftar Item
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 200.dp)
+                        .padding(vertical = 8.dp)
+                        .shadow(elevation = 10.dp, shape = RoundedCornerShape(8.dp)),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = CardDefaults.cardColors(containerColor = CardBackground)
+                ) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    ) {
+                        if (items.isEmpty()) {
+                            item {
+                                Text(
+                                    text = "Belum ada item ditambahkan",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = DarkGreyText,
+                                    fontFamily = RobotoFontFamily,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(8.dp),
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                        } else {
+                            items(items) { item ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "${item.name} (x${item.quantity})",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = DarkGreyText,
+                                        fontFamily = RobotoFontFamily,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    Text(
+                                        text = "Rp ${item.totalPrice}",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = DarkGreyText,
+                                        fontFamily = RobotoFontFamily
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    AppFilledButton(
+                                        onClick = {
+                                            isEditing = true
+                                            editingItemId = item.itemId
+                                            itemName = item.name
+                                            quantity = item.quantity
+                                            unitPrice = item.unitPrice.toString()
+                                        },
+                                        text = "",
+                                        containerColor = PinkButton,
+                                        textColor = White,
+                                        icon = Icons.Default.Edit,
+                                        iconTint = White,
+                                        modifier = Modifier
+                                            .size(32.dp)
+                                            .shadow(elevation = 10.dp, shape = RoundedCornerShape(20.dp)),
+                                        height = 32.dp,
+                                        fontSize = 12,
+                                        cornerRadius = 20.dp,
+                                        borderWidth = 2.dp,
+                                        borderColor = PinkButtonStroke
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    AppFilledButton(
+                                        onClick = {
+                                            items.removeIf { it.itemId == item.itemId }
+                                            if (isEditing && editingItemId == item.itemId) {
+                                                isEditing = false
+                                                editingItemId = null
+                                                itemName = ""
+                                                quantity = 1
+                                                unitPrice = ""
+                                            }
+                                            snackbarMessage = "Item ${item.name} deleted"
+                                        },
+                                        text = "",
+                                        containerColor = PinkTua,
+                                        textColor = White,
+                                        icon = Icons.Default.Delete,
+                                        iconTint = White,
+                                        modifier = Modifier
+                                            .size(32.dp)
+                                            .shadow(elevation = 10.dp, shape = RoundedCornerShape(20.dp)),
+                                        height = 32.dp,
+                                        fontSize = 12,
+                                        cornerRadius = 20.dp,
+                                        borderWidth = 2.dp,
+                                        borderColor = PinkButtonStroke
+                                    )
+                                }
+                                Divider(
+                                    color = BlackText.copy(alpha = 0.2f),
+                                    thickness = 1.dp,
+                                    modifier = Modifier.padding(vertical = 4.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Tombol Make Bill
+                AppFilledButton(
+                    onClick = {
+                        if (creatorName.isNotEmpty() && creatorId.isNotEmpty() && eventName.isNotEmpty()) {
+                            if (itemName.isNotEmpty() && quantity > 0 && unitPrice.isNotEmpty() && !isEditing) {
+                                val unitPriceValue = unitPrice.toLongOrNull() ?: 0
+                                val totalPriceValue = unitPriceValue * quantity
                                 items.add(
                                     Item(
                                         itemId = UUID.randomUUID().toString(),
@@ -337,160 +543,61 @@ fun InputEventScreen(
                                         totalPrice = totalPriceValue
                                     )
                                 )
+                                snackbarMessage = "Item ${itemName} added"
+                                itemName = ""
+                                quantity = 1
+                                unitPrice = ""
                             }
-                            itemName = ""
-                            quantity = 1
-                            unitPrice = ""
+                            if (items.isNotEmpty()) {
+                                repository.createSplitEvent(
+                                    creatorId = creatorId,
+                                    creatorName = creatorName,
+                                    eventName = eventName,
+                                    items = items,
+                                    participants = listOf(
+                                        Participant(
+                                            id = creatorId,
+                                            name = creatorName,
+                                            userId = creatorId,
+                                            amount = 0,
+                                            paid = false,
+                                            isCreator = true
+                                        )
+                                    ),
+                                    splitType = "event",
+                                    taxAmount = tax.toLongOrNull() ?: 0,
+                                    serviceFee = serviceFee.toLongOrNull() ?: 0,
+                                    onSuccess = { eventId ->
+                                        if (eventId.isNotEmpty()) {
+                                            navController.navigate(NavRoutes.EventDetail.createRoute(eventId))
+                                        } else {
+                                            snackbarMessage = "Failed to create event: Invalid event ID"
+                                        }
+                                    },
+                                    onFailure = { exception ->
+                                        snackbarMessage = "Failed to create event: ${exception.message}"
+                                    }
+                                )
+                            } else {
+                                snackbarMessage = "Please add at least 1 item"
+                            }
                         } else {
-                            snackbarMessage = "Please fill in all item fields"
+                            snackbarMessage = "Please fill in all required fields (Creator Name, Creator ID, Event Name)"
                         }
                     },
-                    icon = Icons.Default.Add,
-                    contentDescription = if (isEditing) "Save Changes" else "Add Item",
-                    tint = Color.White,
-                    modifier = Modifier
-                        .background(buttonColor, shape = RoundedCornerShape(50))
-                        .size(40.dp)
+                    text = "Make Bill!",
+                    containerColor = PinkButton,
+                    textColor = White,
+                    icon = Icons.Default.ArrowForward,
+                    iconTint = White,
+                    modifier = Modifier.fillMaxWidth(),
+                    height = 60.dp,
+                    fontSize = 20,
+                    cornerRadius = 60.dp,
+                    borderWidth = 2.dp,
+                    borderColor = PinkButtonStroke
                 )
             }
-
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 200.dp)
-                    .padding(vertical = 8.dp)
-            ) {
-                if (items.isEmpty()) {
-                    item {
-                        Text(
-                            text = "Belum ada item ditambahkan",
-                            color = textColor,
-                            fontSize = 16.sp,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp),
-                            textAlign = TextAlign.Center
-                        )
-                    }
-                } else {
-                    items(items) { item ->
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp),
-                            shape = RoundedCornerShape(8.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White)
-                        ) {
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(8.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text(
-                                    text = "${item.name} (x${item.quantity})",
-                                    color = textColor,
-                                    fontSize = 16.sp
-                                )
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = "Rp ${item.totalPrice}",
-                                        color = textColor,
-                                        fontSize = 16.sp
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    AppIconButton(
-                                        onClick = {
-                                            isEditing = true
-                                            editingItemId = item.itemId
-                                            itemName = item.name
-                                            quantity = item.quantity
-                                            unitPrice = item.unitPrice.toString()
-                                        },
-                                        icon = Icons.Default.Edit,
-                                        contentDescription = "Edit Item",
-                                        tint = Color.White,
-                                        modifier = Modifier
-                                            .background(Color(0xFF4CAF50), shape = RoundedCornerShape(50))
-                                            .size(32.dp)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            AppFilledButton(
-                onClick = {
-                    if (creatorName.isNotEmpty() && creatorId.isNotEmpty() && eventName.isNotEmpty()) {
-                        if (itemName.isNotEmpty() && quantity > 0 && unitPrice.isNotEmpty() && !isEditing) {
-                            val unitPriceValue = unitPrice.toLongOrNull() ?: 0
-                            val totalPriceValue = unitPriceValue * quantity
-                            items.add(
-                                Item(
-                                    itemId = UUID.randomUUID().toString(),
-                                    name = itemName,
-                                    quantity = quantity,
-                                    unitPrice = unitPriceValue,
-                                    totalPrice = totalPriceValue
-                                )
-                            )
-                            itemName = ""
-                            quantity = 1
-                            unitPrice = ""
-                        }
-                        if (items.isNotEmpty()) {
-                            repository.createSplitEvent(
-                                creatorId = creatorId,
-                                creatorName = creatorName,
-                                eventName = eventName,
-                                items = items,
-                                participants = listOf(
-                                    Participant(
-                                        id = creatorId,
-                                        name = creatorName,
-                                        userId = creatorId,
-                                        amount = 0,
-                                        paid = false,
-                                        isCreator = true
-                                    )
-                                ),
-                                splitType = "event",
-                                taxAmount = tax.toLongOrNull() ?: 0,
-                                serviceFee = serviceFee.toLongOrNull() ?: 0,
-                                onSuccess = { eventId ->
-                                    if (eventId.isNotEmpty()) {
-                                        navController.navigate(NavRoutes.EventDetail.createRoute(eventId))
-                                    } else {
-                                        snackbarMessage = "Failed to create event: Invalid event ID"
-                                    }
-                                },
-                                onFailure = { exception ->
-                                    snackbarMessage = "Failed to create event: ${exception.message}"
-                                }
-                            )
-                        } else {
-                            snackbarMessage = "Please add at least 1 item"
-                        }
-                    } else {
-                        snackbarMessage = "Please fill in all required fields (Creator Name, Creator ID, Event Name)"
-                    }
-                },
-                text = "Make Bill!",
-                containerColor = buttonColor,
-                textColor = Color.White,
-                icon = Icons.Default.ArrowForward,
-                iconTint = Color.White,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

@@ -6,10 +6,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Link
-import androidx.compose.material.icons.filled.Receipt
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -19,24 +15,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.billbuddy.data.EventData
 import com.example.billbuddy.data.Participant
-import com.example.billbuddy.navigation.NavRoutes
-import com.example.billbuddy.ui.components.*
+import com.example.billbuddy.ui.components.AppBranding
+import com.example.billbuddy.ui.components.CommonNavigationBar
+import com.example.billbuddy.ui.components.HomeHeader
 import com.example.billbuddy.ui.theme.*
 import com.example.billbuddy.ui.viewModel.MainViewModel
 
-data class ParticipantBill(
-    val subtotal: Long,
-    val serviceFee: Long,
-    val tax: Long,
-    val total: Long
-)
-
 @Composable
-fun ParticipantScreen(
+fun SharedBillScreen(
     eventId: String,
     viewModel: MainViewModel,
     navController: NavController
@@ -52,35 +41,40 @@ fun ParticipantScreen(
         isLoading = false
     }
 
-    Scaffold(
-        bottomBar = {
-            CommonNavigationBar(
-                navController = navController,
-                selectedScreen = "List"
-            )
-        },
-        modifier = Modifier.fillMaxSize()
-    ) { padding ->
+//    Scaffold(
+//        bottomBar = {
+//            CommonNavigationBar(
+//                navController = navController,
+//                selectedScreen = "List"
+//            )
+//        },
+//        modifier = Modifier.fillMaxSize()
+//    )
+    //{ padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
-                .padding(padding)
+                //.padding(padding)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Header
-            HomeHeader(
-                navController = navController,
-                viewModel = viewModel,
-                showBackButton = true
-            )
+//            HomeHeader(
+//                navController = navController,
+//                showBackButton = true
+//            )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Branding
+            AppBranding(isHorizontal = true)
+
+            Spacer(modifier = Modifier.height(10.dp))
 
             // Judul
             Text(
-                text = "Participants",
+                text = "Shared Bill",
                 style = MaterialTheme.typography.displayLarge,
                 color = PinkButtonStroke
             )
@@ -152,73 +146,24 @@ fun ParticipantScreen(
                                 ) {
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Row {
-                                            if (participant.isCreator) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Star,
-                                                    contentDescription = "Creator",
-                                                    tint = PinkButtonStroke,
-                                                    modifier = Modifier.size(20.dp)
-                                                )
-                                                Spacer(modifier = Modifier.width(4.dp))
-                                            }
-                                            Text(
-                                                text = "${participant.name}", //(Paid: ${participant.paid})",
-                                                style = MaterialTheme.typography.bodyLarge,
-                                                fontWeight = FontWeight.Bold,
-                                                color = DarkGreyText,
-                                                fontFamily = KadwaFontFamily
+                                        if (participant.isCreator) {
+                                            Icon(
+                                                imageVector = Icons.Default.Star,
+                                                contentDescription = "Creator",
+                                                tint = PinkButtonStroke,
+                                                modifier = Modifier.size(20.dp)
                                             )
+                                            Spacer(modifier = Modifier.width(4.dp))
                                         }
-                                        Row {
-                                            AppFilledButton(
-                                                onClick = {
-                                                    viewModel.updatePaymentStatus(
-                                                        event.eventId,
-                                                        participant.id,
-                                                        !participant.paid
-                                                    )
-                                                },
-                                                text = if (participant.paid) "Unpaid" else "Paid",
-                                                containerColor = if (participant.paid) PinkTua else PinkButton,
-                                                textColor = White,
-                                                icon = Icons.Default.Check,
-                                                iconTint = White,
-                                                modifier = Modifier
-                                                    .height(50.dp)
-                                                    .widthIn(min = 0.dp)
-                                                    .padding(end = 3.dp),
-                                                fontSize = 12,
-                                                cornerRadius = 20.dp,
-                                                borderWidth = 2.dp,
-                                                borderColor = PinkButtonStroke
-                                            )
-                                            AppFilledButton(
-                                                onClick = {
-                                                    navController.navigate(
-                                                        NavRoutes.ParticipantBillDetail.createRoute(
-                                                            eventId,
-                                                            participant.id
-                                                        )
-                                                    )
-                                                },
-                                                text = "Detail",
-                                                containerColor = PinkButton,
-                                                textColor = White,
-                                                icon = Icons.Default.Receipt,
-                                                iconTint = White,
-                                                modifier = Modifier
-                                                    .height(50.dp)
-                                                    .widthIn(min = 0.dp),
-                                                fontSize = 12,
-                                                cornerRadius = 20.dp,
-                                                borderWidth = 2.dp,
-                                                borderColor = PinkButtonStroke
-                                            )
-                                        }
+                                        Text(
+                                            text = "${participant.name}",
+                                            style = MaterialTheme.typography.bodyLarge,
+                                            fontWeight = FontWeight.Bold,
+                                            color = DarkGreyText,
+                                            fontFamily = KadwaFontFamily
+                                        )
                                     }
 
                                     Spacer(modifier = Modifier.height(8.dp))
@@ -319,46 +264,6 @@ fun ParticipantScreen(
                                 }
                             }
                         }
-                        // Tombol Add Buddy dan Generate Link di bawah daftar peserta
-                        item {
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                AppFilledButton(
-                                    onClick = { navController.navigate(NavRoutes.AddBuddy.createRoute(eventId)) },
-                                    text = "Add Buddy",
-                                    containerColor = TextFieldBackground,
-                                    textColor = White,
-                                    icon = Icons.Default.Add,
-                                    iconTint = White,
-                                    modifier = Modifier.weight(1f),
-                                    height = 60.dp,
-                                    fontSize = 20,
-                                    cornerRadius = 60.dp,
-                                    borderWidth = 2.dp,
-                                    borderColor = PinkButtonStroke
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                AppFilledButton(
-                                    onClick = {
-                                        navController.navigate(NavRoutes.SharedBill.createRoute(eventId))
-                                    }, // Rute kosong
-                                    text = "Generate Link",
-                                    containerColor = TextFieldBackground,
-                                    textColor = White,
-                                    icon = Icons.Default.Link,
-                                    iconTint = White,
-                                    modifier = Modifier.weight(1f),
-                                    height = 60.dp,
-                                    fontSize = 20,
-                                    cornerRadius = 60.dp,
-                                    borderWidth = 2.dp,
-                                    borderColor = PinkButtonStroke
-                                )
-                            }
-                        }
                     }
                 } ?: Text(
                     text = "No participants found",
@@ -368,30 +273,5 @@ fun ParticipantScreen(
                 )
             }
         }
-    }
-}
-
-@Composable
-fun calculateParticipantBill(
-    participant: Participant,
-    event: EventData,
-    itemSelectionCount: Map<String, Int>,
-    participantCount: Int
-): ParticipantBill {
-    // Hitung subtotal berdasarkan item yang dipilih oleh participant
-    val subtotal = event.items
-        .filter { participant.itemsAssigned?.contains(it.itemId) == true }
-        .sumOf { item ->
-            val participantsForItem = itemSelectionCount[item.itemId] ?: 1
-            (item.totalPrice / participantsForItem).toLong()
-        }
-
-    // Hitung service fee dan tax berdasarkan jumlah participant
-    val serviceFee = if (participantCount > 0) event.serviceFee / participantCount else 0L
-    val tax = if (participantCount > 0) event.taxAmount / participantCount else 0L
-
-    // Hitung total
-    val total = subtotal + serviceFee + tax
-
-    return ParticipantBill(subtotal, serviceFee, tax, total)
+    //}
 }

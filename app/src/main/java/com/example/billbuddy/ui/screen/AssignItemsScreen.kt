@@ -2,28 +2,32 @@ package com.example.billbuddy.ui.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Percent
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.billbuddy.navigation.NavRoutes
-import com.example.billbuddy.ui.viewModel.MainViewModel
+import com.example.billbuddy.ui.components.AppBranding
 import com.example.billbuddy.ui.components.AppFilledButton
-import com.example.billbuddy.ui.components.AppIconButton
 import com.example.billbuddy.ui.components.CommonNavigationBar
+import com.example.billbuddy.ui.components.HomeHeader
+import com.example.billbuddy.ui.theme.*
+import com.example.billbuddy.ui.viewModel.MainViewModel
 import com.example.billbuddy.util.Tuple4
 
 @Composable
@@ -33,19 +37,15 @@ fun AssignItemsScreen(
     navController: NavController,
     viewModel: MainViewModel
 ) {
-    // Warna sesuai desain
-    val backgroundColor = Color(0xFFFFDCDC) // Latar pink
-    val buttonColor = Color(0xFFFFB6C1) // Warna tombol pink
-    val textColor = Color(0xFF4A4A4A) // Warna teks abu-abu tua
-    val divideEvenlyColor = Color(0xFF6A5ACD) // Warna ungu untuk tombol divide evenly saat aktif
-
     // Ambil data event dari ViewModel
     val eventData by viewModel.eventData.observeAsState()
     val error by viewModel.error.observeAsState()
+    var isLoading by remember { mutableStateOf(true) }
 
     // Ambil detail event saat layar dimuat
     LaunchedEffect(eventId) {
         viewModel.getEventDetails(eventId)
+        isLoading = false
     }
 
     // Decode daftar teman yang dipilih
@@ -112,7 +112,6 @@ fun AssignItemsScreen(
                 }
                 selectedItemsForMembers[member.id] = itemsMap
             }
-            val totalItems = event.items.size
             val totalAmount = event.totalAmount
             val serviceFee = event.serviceFee
             val taxAmount = event.taxAmount
@@ -159,239 +158,315 @@ fun AssignItemsScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(backgroundColor)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(padding)
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Header dengan tombol close dan tombol divide evenly
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Add Items for ${currentMember?.name ?: "Member"}",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = textColor
-                )
-                Spacer(modifier = Modifier.weight(1f))
-                // Tombol Divide Evenly (bulatan)
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(
-                            if (divideEvenly.value) divideEvenlyColor else Color.Gray,
-                            shape = CircleShape
-                        )
-                        .clickable { divideEvenly.value = !divideEvenly.value },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "%",
-                        fontSize = 18.sp,
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                // Tombol Close
-                AppIconButton(
-                    onClick = { navController.popBackStack() },
-                    icon = Icons.Default.Close,
-                    contentDescription = "Close",
-                    tint = Color.Black
-                )
-            }
+            // Header
+            HomeHeader(
+                navController = navController,
+                viewModel = viewModel,
+                showBackButton = true
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Daftar semua member
-            localEventData?.let { event ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    allMembers.forEachIndexed { index, member ->
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier
-                                .clickable {
-                                    currentMemberIndex.value = index
-                                    divideEvenly.value = false // Reset divide evenly saat ganti member
-                                }
-                        ) {
-                            Box(
+            // Judul
+            Text(
+                text = "Add Items for ${currentMember?.name ?: "Member"}",
+                style = MaterialTheme.typography.displayMedium,
+                color = PinkButtonStroke,
+                fontFamily = KhulaExtrabold
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Tombol Divide Evenly
+            AppFilledButton(
+                onClick = { divideEvenly.value = !divideEvenly.value },
+                text = "Divide Evenly",
+                containerColor = if (divideEvenly.value) PinkTua else DarkGreyText,
+                textColor = White,
+                icon = Icons.Default.Percent,
+                iconTint = White,
+                modifier = Modifier
+                    .width(160.dp)
+                    .height(40.dp),
+                fontSize = 16,
+                cornerRadius = 20.dp,
+                borderWidth = 2.dp,
+                borderColor = PinkButtonStroke
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Konten utama
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .align(Alignment.CenterHorizontally)
+                )
+            } else if (error != null) {
+                Text(
+                    text = "Error: $error",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.error,
+                    fontFamily = RobotoFontFamily,
+                    modifier = Modifier.padding(16.dp)
+                )
+            } else {
+                localEventData?.let { event ->
+                    // Daftar semua member
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState()),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        allMembers.forEachIndexed { index, member ->
+                            Card(
                                 modifier = Modifier
-                                    .size(40.dp)
-                                    .background(
-                                        if (currentMemberIndex.value == index) buttonColor else Color.Gray,
-                                        RoundedCornerShape(8.dp)
-                                    ),
-                                contentAlignment = Alignment.Center
+                                    .width(80.dp)
+                                    .clickable {
+                                        currentMemberIndex.value = index
+                                        divideEvenly.value = false // Reset divide evenly saat ganti member
+                                    }
+                                    .shadow(elevation = 5.dp, shape = RoundedCornerShape(8.dp)),
+                                shape = RoundedCornerShape(8.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = if (currentMemberIndex.value == index) PinkButton else CardBackground
+                                )
                             ) {
-                                Text(text = "👤", fontSize = 20.sp)
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier.padding(8.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Person,
+                                        contentDescription = "Member ${member.name}",
+                                        tint = if (currentMemberIndex.value == index) White else DarkGreyText,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = member.name.take(8) + if (member.name.length > 8) "..." else "",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = if (currentMemberIndex.value == index) White else DarkGreyText,
+                                        fontFamily = RobotoFontFamily
+                                    )
+                                }
                             }
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = member.name,
-                                fontSize = 12.sp,
-                                color = textColor
-                            )
                         }
                     }
-                }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                // Daftar item
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                ) {
-                    items(event.items) { item ->
-                        Row(
+                    // Daftar item
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .shadow(elevation = 10.dp, shape = RoundedCornerShape(8.dp)),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = CardDefaults.cardColors(containerColor = CardBackground)
+                    ) {
+                        LazyColumn(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
+                                .padding(16.dp)
                         ) {
-                            Checkbox(
-                                checked = selectedItemsForMembers[currentMember?.id]?.get(item.itemId) ?: false,
-                                onCheckedChange = { isChecked ->
-                                    val itemsMap = selectedItemsForMembers[currentMember?.id] ?: mutableMapOf()
-                                    itemsMap[item.itemId] = isChecked
-                                    selectedItemsForMembers[currentMember?.id ?: ""] = itemsMap
-                                    if (isChecked) {
-                                        divideEvenly.value = false // Matikan divide evenly jika kustom
+                            items(event.items) { item ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Checkbox(
+                                        checked = selectedItemsForMembers[currentMember?.id]?.get(item.itemId) ?: false,
+                                        onCheckedChange = { isChecked ->
+                                            val itemsMap = selectedItemsForMembers[currentMember?.id] ?: mutableMapOf()
+                                            itemsMap[item.itemId] = isChecked
+                                            selectedItemsForMembers[currentMember?.id ?: ""] = itemsMap
+                                            if (isChecked) {
+                                                divideEvenly.value = false // Matikan divide evenly jika kustom
+                                            }
+                                        },
+                                        enabled = !divideEvenly.value,
+                                        colors = CheckboxDefaults.colors(
+                                            checkedColor = PinkButton,
+                                            uncheckedColor = DarkGreyText
+                                        )
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Column(
+                                        modifier = Modifier.weight(1f)
+                                    ) {
+                                        Text(
+                                            text = item.name,
+                                            style = MaterialTheme.typography.labelSmall,
+                                            fontWeight = FontWeight.Bold,
+                                            color = DarkGreyText,
+                                            fontFamily = RobotoFontFamily
+                                        )
+                                        Text(
+                                            text = "Rp ${item.unitPrice}",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = DarkGreyText,
+                                            fontFamily = RobotoFontFamily
+                                        )
                                     }
-                                },
-                                enabled = !divideEvenly.value, // Nonaktifkan jika divide evenly aktif
-                                colors = CheckboxDefaults.colors(
-                                    checkedColor = buttonColor,
-                                    uncheckedColor = textColor
-                                )
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Column(
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Text(
-                                    text = item.name,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = textColor
-                                )
-                                Text(
-                                    text = "Rp ${item.unitPrice}",
-                                    fontSize = 14.sp,
-                                    color = textColor
+                                    Text(
+                                        text = "${item.quantity}x",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = DarkGreyText,
+                                        fontFamily = RobotoFontFamily
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = "Rp ${item.totalPrice}",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = DarkGreyText,
+                                        fontFamily = RobotoFontFamily
+                                    )
+                                }
+                                Divider(
+                                    color = BlackText.copy(alpha = 0.2f),
+                                    thickness = 1.dp,
+                                    modifier = Modifier.padding(vertical = 4.dp)
                                 )
                             }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    // Subtotal, Service Fee, Tax, Total
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .shadow(elevation = 10.dp, shape = RoundedCornerShape(8.dp)),
+                        shape = RoundedCornerShape(8.dp),
+                        colors = CardDefaults.cardColors(containerColor = CardBackground)
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        ) {
                             Text(
-                                text = "${item.quantity}x",
-                                fontSize = 16.sp,
-                                color = textColor
+                                text = "Bill Details",
+                                style = MaterialTheme.typography.bodyLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = PinkButtonStroke,
+                                fontFamily = KadwaFontFamily
                             )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "Rp ${item.totalPrice}",
-                                fontSize = 16.sp,
-                                color = textColor
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = "Subtotal",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = DarkGreyText,
+                                    fontFamily = RobotoFontFamily
+                                )
+                                Text(
+                                    text = "Rp $subtotal",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = DarkGreyText,
+                                    fontFamily = RobotoFontFamily
+                                )
+                            }
+                            Divider(
+                                color = BlackText.copy(alpha = 0.2f),
+                                thickness = 1.dp,
+                                modifier = Modifier.padding(vertical = 4.dp)
                             )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = "Service Fee",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = DarkGreyText,
+                                    fontFamily = RobotoFontFamily
+                                )
+                                Text(
+                                    text = "Rp $participantServiceFee",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = DarkGreyText,
+                                    fontFamily = RobotoFontFamily
+                                )
+                            }
+                            Divider(
+                                color = BlackText.copy(alpha = 0.2f),
+                                thickness = 1.dp,
+                                modifier = Modifier.padding(vertical = 4.dp)
+                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = "Tax",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = DarkGreyText,
+                                    fontFamily = RobotoFontFamily
+                                )
+                                Text(
+                                    text = "Rp $participantTax",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = DarkGreyText,
+                                    fontFamily = RobotoFontFamily
+                                )
+                            }
+                            Divider(
+                                color = BlackText.copy(alpha = 0.2f),
+                                thickness = 1.dp,
+                                modifier = Modifier.padding(vertical = 4.dp)
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp)
+                                    .background(PinkBackground.copy(alpha = 0.1f), RoundedCornerShape(8.dp))
+                                    .padding(8.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Row {
+                                    Text(
+                                        text = "Total",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        color = PinkButtonStroke,
+                                        fontFamily = KhulaExtrabold
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = "(${allMembers.size})",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        color = DarkGreyText,
+                                        fontFamily = RobotoFontFamily
+                                    )
+                                }
+                                Text(
+                                    text = "Rp $total",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = PinkButtonStroke,
+                                    fontFamily = KhulaExtrabold
+                                )
+                            }
                         }
                     }
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // Subtotal, Service Fee, Tax, Total
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = "SUBTOTAL",
-                        fontSize = 16.sp,
-                        color = textColor
-                    )
-                    Text(
-                        text = "Rp $subtotal",
-                        fontSize = 16.sp,
-                        color = textColor
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = "Service Fee",
-                        fontSize = 16.sp,
-                        color = textColor
-                    )
-                    Text(
-                        text = "Rp $participantServiceFee",
-                        fontSize = 16.sp,
-                        color = textColor
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = "Tax",
-                        fontSize = 16.sp,
-                        color = textColor
-                    )
-                    Text(
-                        text = "Rp $participantTax",
-                        fontSize = 16.sp,
-                        color = textColor
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Row {
-                        Text(
-                            text = "TOTAL",
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = textColor
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "(${allMembers.size})",
-                            fontSize = 18.sp,
-                            color = textColor
-                        )
-                    }
-                    Text(
-                        text = "Rp $total",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = textColor
-                    )
-                }
-            } ?: error?.let {
-                Text(
-                    text = "Error: $it",
-                    color = MaterialTheme.colorScheme.error
-                )
-            } ?: Text(text = "Loading event details...")
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -399,28 +474,28 @@ fun AssignItemsScreen(
             AppFilledButton(
                 onClick = {
                     if (eventId.isNotEmpty()) {
-                        // Simpan semua perubahan untuk semua member
                         allMembers.forEach { member ->
                             val itemsAssigned = selectedItemsForMembers[member.id]?.filter { it.value }?.keys?.toList() ?: emptyList()
                             if (member.isExisting) {
-                                // Update participant yang sudah ada
                                 viewModel.updateParticipantItems(eventId, member.id, itemsAssigned)
                             } else {
-                                // Tambah teman baru sebagai participant
                                 viewModel.addParticipant(eventId, member.name, itemsAssigned)
                             }
                         }
-                        // Navigasi ke ParticipantScreen
                         navController.navigate(NavRoutes.Participant.createRoute(eventId))
                     } else {
-                        // Log error untuk debugging
                         println("Error: eventId is empty")
                     }
                 },
                 text = "Next",
-                containerColor = buttonColor,
-                textColor = Color.White,
-                modifier = Modifier.fillMaxWidth()
+                containerColor = PinkButton,
+                textColor = White,
+                modifier = Modifier.fillMaxWidth(),
+                height = 60.dp,
+                fontSize = 20,
+                cornerRadius = 60.dp,
+                borderWidth = 2.dp,
+                borderColor = PinkButtonStroke
             )
         }
     }

@@ -182,7 +182,8 @@ fun LoginScreen(
                 fontSize = 18,
                 elevation = 4.dp,
                 cornerRadius = 25.dp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                borderColor = PinkButtonStroke
             )
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -196,7 +197,8 @@ fun LoginScreen(
                 fontSize = 18,
                 elevation = 4.dp,
                 cornerRadius = 25.dp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                borderColor = PinkButtonStroke
             )
 
             Spacer(modifier = Modifier.weight(1f))

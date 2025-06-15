@@ -204,19 +204,6 @@ class MainViewModel : ViewModel() {
         _sortOption.value = option
     }
 
-//    private val _userProfile = MutableLiveData<UserProfile?>()
-//    val userProfile: LiveData<UserProfile?> get() = _userProfile
-//
-//    fun getUserProfile() {
-//        repository.getUserProfile(
-//            onSuccess = { profile ->
-//                _userProfile.value = profile
-//            },
-//            onFailure = { e ->
-//                _error.value = e.message
-//            }
-//        )
-//    }
     fun getUserProfile(onSuccess: (User) -> Unit = {}) {
         userRepository.getUserProfile(
             onSuccess = { user ->

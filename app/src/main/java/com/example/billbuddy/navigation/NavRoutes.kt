@@ -1,7 +1,6 @@
 package com.example.billbuddy.navigation
 
 sealed class NavRoutes(val route: String) {
-    object SplashScreen : NavRoutes("splash_screen")
     object OnboardingSatu : NavRoutes("onboarding_satu_screen")
     object OnboardingDua : NavRoutes("onboarding_dua_screen") // Tambahkan rute ini
     object OnboardingTiga : NavRoutes("onboarding_tiga_screen")
@@ -10,6 +9,7 @@ sealed class NavRoutes(val route: String) {
     object ListEvent : NavRoutes("list_event_screen")
     object Profile : NavRoutes("profile_screen")
     object Search : NavRoutes("search_screen")
+    object Notification : NavRoutes("notification")
     object InputEvent : NavRoutes("input_event?scannedBillDataJson={scannedBillDataJson}") {
         fun createRoute(scannedBillDataJson: String): String {
             return "input_event?scannedBillDataJson=$scannedBillDataJson"
@@ -42,4 +42,8 @@ sealed class NavRoutes(val route: String) {
     object Register : NavRoutes("register_screen")
 
     object ForgotPassword : NavRoutes("forgot_password_screen")
+
+    object SharedBill : NavRoutes("sharedBill/{eventId}") {
+        fun createRoute(eventId: String) = "sharedBill/$eventId"
+    }
 }

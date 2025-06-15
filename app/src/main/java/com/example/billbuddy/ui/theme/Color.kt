@@ -13,3 +13,4 @@ val TextFieldBackground = Color(0xFFE2C2C2) // Pink muda untuk latar belakang te
 val BlackText = Color(0xFF000000) // Hitam untuk teks dan label
 val ButtonText = Color(0xFF171717) // Abu-abu gelap untuk teks tombol
 val CardBackground = Color(0xFFFFFFFF).copy(alpha = 0.95f) // Putih dengan transparansi untuk layer kartu
+val PinkTua = Color(0xFFD81B60)

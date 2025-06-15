@@ -13,6 +13,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.billbuddy.data.EventData
+import com.example.billbuddy.ui.theme.BlackText
+import com.example.billbuddy.ui.theme.DarkGreyText
+import com.example.billbuddy.ui.theme.White
 import java.text.SimpleDateFormat
 import java.util.Locale
 
@@ -29,7 +32,7 @@ fun CommonEventCard(
             .fillMaxWidth()
             .padding(vertical = 4.dp),
         shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondary)
     ) {
         Row(
             modifier = Modifier
@@ -56,9 +59,9 @@ fun CommonEventCard(
             ) {
                 Text(
                     text = event.eventName,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = textColor
+                    color = BlackText
                 )
                 if (showDetails) {
                     Text(
@@ -84,7 +87,7 @@ fun CommonEventCard(
             AppSmallTextButton(
                 onClick = onClick,
                 text = "Cek Detail",
-                textColor = buttonColor
+                textColor = White
             )
         }
     }

@@ -213,6 +213,7 @@ fun ScanScreen(
         ) {
             HomeHeader(
                 navController = navController,
+                viewModel = viewModel,
                 showBackButton = true
             )
 
@@ -265,7 +266,7 @@ fun ScanScreen(
 
                         Text(
                             text = "Choose Scan Method",
-                            style = MaterialTheme.typography.bodyLarge,
+                            style = MaterialTheme.typography.displayLarge,
                             fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
                             color = DarkGreyText,
                             modifier = Modifier.padding(bottom = 16.dp)
@@ -293,17 +294,18 @@ fun ScanScreen(
                                         cameraButtonScale = 1f
                                     },
                                     text = "",
-                                    textColor = White,
                                     containerColor = PinkButton,
-                                    icon = Icons.Default.CameraAlt,
-                                    iconTint = White,
+                                    textColor = White,
                                     modifier = Modifier
                                         .size(80.dp)
                                         .scale(cameraButtonScale)
                                         .animateContentSize(),
+                                    icon = Icons.Default.CameraAlt,
+                                    iconTint = White,
                                     height = 80.dp,
+                                    fontSize = 0,
                                     cornerRadius = 20.dp,
-                                    fontSize = 0
+                                    borderColor = PinkButtonStroke
                                 )
                                 Text(
                                     text = "Scan With Camera",
@@ -326,17 +328,18 @@ fun ScanScreen(
                                         galleryButtonScale = 1f
                                     },
                                     text = "",
-                                    textColor = White,
                                     containerColor = PinkButton,
-                                    icon = Icons.Default.PhotoLibrary,
-                                    iconTint = White,
+                                    textColor = White,
                                     modifier = Modifier
                                         .size(80.dp)
                                         .scale(galleryButtonScale)
                                         .animateContentSize(),
+                                    icon = Icons.Default.PhotoLibrary,
+                                    iconTint = White,
                                     height = 80.dp,
+                                    fontSize = 0,
                                     cornerRadius = 20.dp,
-                                    fontSize = 0
+                                    borderColor = PinkButtonStroke
                                 )
                                 Text(
                                     text = "Import From Gallery",

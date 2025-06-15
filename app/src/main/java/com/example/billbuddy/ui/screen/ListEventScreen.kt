@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.billbuddy.navigation.NavRoutes
 import com.example.billbuddy.ui.components.*
+import com.example.billbuddy.ui.theme.DarkGreyText
 import com.example.billbuddy.ui.theme.PinkButtonStroke
 import com.example.billbuddy.ui.viewModel.MainViewModel
 import com.example.billbuddy.ui.viewModel.SortOption
@@ -67,7 +68,7 @@ fun ListEventScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            HomeHeader(navController = navController)
+            HomeHeader(navController = navController, viewModel = viewModel,)
             Spacer(modifier = Modifier.height(16.dp))
             AppBranding(isHorizontal = true)
             Spacer(modifier = Modifier.height(16.dp))
@@ -79,7 +80,7 @@ fun ListEventScreen(
                 Text(
                     text = "All Events",
                     style = MaterialTheme.typography.displayMedium,
-                    color = PinkButtonStroke
+                    color = DarkGreyText
                 )
                 SortButton(
                     currentSortOption = sortOption,

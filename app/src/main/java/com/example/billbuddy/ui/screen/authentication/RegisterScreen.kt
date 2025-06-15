@@ -246,7 +246,8 @@ fun RegisterScreen(
                 fontSize = 18,
                 elevation = 10.dp,
                 cornerRadius = 25.dp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                borderColor = PinkButtonStroke
             )
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -260,7 +261,8 @@ fun RegisterScreen(
                 fontSize = 18,
                 elevation = 10.dp,
                 cornerRadius = 25.dp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                borderColor = PinkButtonStroke
             )
 
             Spacer(modifier = Modifier.weight(1f))

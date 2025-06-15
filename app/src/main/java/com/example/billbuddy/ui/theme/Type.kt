@@ -32,9 +32,9 @@ val Typography = Typography(
     displayLarge = TextStyle(
         fontFamily = JomhuriaFontFamily,
         fontWeight = FontWeight.Bold,
-        fontSize = 30.sp,
-        lineHeight = 96.sp,
-        letterSpacing = 0.5.sp,
+        fontSize = 35.sp,
+        lineHeight = 100.sp,
+        letterSpacing = 2.sp,
         color = PinkButtonStroke
     ),
     displayMedium = TextStyle(
