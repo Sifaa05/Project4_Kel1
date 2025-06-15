@@ -1,6 +1,5 @@
 package com.example.billbuddy.ui.screen
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -16,6 +15,7 @@ import com.example.billbuddy.ui.theme.DarkGreyText
 import com.example.billbuddy.ui.theme.PinkButtonStroke
 import com.example.billbuddy.ui.viewModel.MainViewModel
 import com.example.billbuddy.ui.viewModel.SortOption
+import com.example.billbuddy.util.sortEvents
 
 @Composable
 fun ListEventScreen(
@@ -28,26 +28,13 @@ fun ListEventScreen(
     val sortOption by viewModel.sortOption.collectAsState()
 
     LaunchedEffect(Unit) {
-        Log.d("ListEventScreen", "Call getAllEvents()")
         viewModel.getAllEvents()
         isLoading.value = false
     }
 
-    LaunchedEffect(events) {
-        Log.d("ListEventScreen", "Number of events accepted: ${events.size}")
-        events.forEach { event ->
-            Log.d("ListEventScreen", "Event: ${event.eventName}, ID: ${event.eventId}")
-        }
-    }
-
     val sortedEvents by remember(sortOption, events) {
         derivedStateOf {
-            when (sortOption) {
-                SortOption.NAME_ASC -> events.sortedBy { it.eventName.lowercase() }
-                SortOption.NAME_DESC -> events.sortedByDescending { it.eventName.lowercase() }
-                SortOption.DATE_ASC -> events.sortedBy { it.timestamp.toDate().time }
-                SortOption.DATE_DESC -> events.sortedByDescending { it.timestamp.toDate().time }
-            }
+            sortEvents(events, sortOption)
         }
     }
 
@@ -68,7 +55,7 @@ fun ListEventScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            HomeHeader(navController = navController, viewModel = viewModel,)
+            HomeHeader(navController = navController, viewModel = viewModel)
             Spacer(modifier = Modifier.height(16.dp))
             AppBranding(isHorizontal = true)
             Spacer(modifier = Modifier.height(16.dp))

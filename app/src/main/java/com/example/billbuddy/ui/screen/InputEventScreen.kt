@@ -30,16 +30,15 @@ import com.example.billbuddy.repository.UserRepository
 import com.example.billbuddy.data.Item
 import com.example.billbuddy.data.Participant
 import com.example.billbuddy.navigation.NavRoutes
-import com.example.billbuddy.ui.components.AppBranding
 import com.example.billbuddy.ui.components.AppFilledButton
 import com.example.billbuddy.ui.components.AppIconButton
 import com.example.billbuddy.ui.components.CommonNavigationBar
 import com.example.billbuddy.ui.components.HomeHeader
 import com.example.billbuddy.ui.theme.*
 import com.example.billbuddy.ui.viewModel.MainViewModel
+import com.example.billbuddy.util.addOrUpdateItem
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import java.util.UUID
 
 @Composable
 fun InputEventScreen(
@@ -59,9 +58,11 @@ fun InputEventScreen(
     var tax by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(true) }
 
-    val items = remember {
-        mutableStateListOf<Item>()
-    }
+    val items = remember { mutableStateListOf<Item>() }
+    var isEditing by remember { mutableStateOf(false) }
+    var editingItemId by remember { mutableStateOf<String?>(null) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    var snackbarMessage by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
         userRepository.getUserProfile(
@@ -79,7 +80,6 @@ fun InputEventScreen(
         )
     }
 
-    // Proses data yang dikirim dari ScanScreen
     LaunchedEffect(scannedBillDataJson) {
         scannedBillDataJson?.let {
             if (it.isNotEmpty()) {
@@ -96,11 +96,6 @@ fun InputEventScreen(
             }
         }
     }
-
-    var isEditing by remember { mutableStateOf(false) }
-    var editingItemId by remember { mutableStateOf<String?>(null) }
-    val snackbarHostState = remember { SnackbarHostState() }
-    var snackbarMessage by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(snackbarMessage) {
         snackbarMessage?.let { message ->
@@ -128,26 +123,20 @@ fun InputEventScreen(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Header
             HomeHeader(
                 navController = navController,
                 viewModel = viewModel,
                 showBackButton = true
             )
-
             Spacer(modifier = Modifier.height(16.dp))
-
-            // Judul
             Text(
                 text = "Input Bill",
                 style = MaterialTheme.typography.displayLarge,
                 color = PinkButtonStroke,
                 fontFamily = KhulaExtrabold
             )
-
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Konten utama
             if (isLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier
@@ -155,7 +144,6 @@ fun InputEventScreen(
                         .align(Alignment.CenterHorizontally)
                 )
             } else {
-                // Informasi Creator
                 Text(
                     text = "Creator Name: $creatorName",
                     style = MaterialTheme.typography.labelSmall,
@@ -174,8 +162,6 @@ fun InputEventScreen(
                         .fillMaxWidth()
                         .padding(vertical = 8.dp)
                 )
-
-                // Text Field Event Name
                 OutlinedTextField(
                     value = eventName,
                     onValueChange = { eventName = it },
@@ -195,8 +181,6 @@ fun InputEventScreen(
                         unfocusedLabelColor = DarkGreyText
                     )
                 )
-
-                // Text Field Item Name
                 OutlinedTextField(
                     value = itemName,
                     onValueChange = { itemName = it },
@@ -216,8 +200,6 @@ fun InputEventScreen(
                         unfocusedLabelColor = DarkGreyText
                     )
                 )
-
-                // Quantity
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -261,8 +243,6 @@ fun InputEventScreen(
                         )
                     }
                 }
-
-                // Text Field Unit Price
                 OutlinedTextField(
                     value = unitPrice,
                     onValueChange = { unitPrice = it },
@@ -283,8 +263,6 @@ fun InputEventScreen(
                         unfocusedLabelColor = DarkGreyText
                     )
                 )
-
-                // Text Field Service Fee
                 OutlinedTextField(
                     value = serviceFee,
                     onValueChange = { serviceFee = it },
@@ -305,8 +283,6 @@ fun InputEventScreen(
                         unfocusedLabelColor = DarkGreyText
                     )
                 )
-
-                // Text Field Tax
                 OutlinedTextField(
                     value = tax,
                     onValueChange = { tax = it },
@@ -327,8 +303,6 @@ fun InputEventScreen(
                         unfocusedLabelColor = DarkGreyText
                     )
                 )
-
-                // Tombol Add/Cancel Edit
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -362,41 +336,24 @@ fun InputEventScreen(
                     }
                     AppFilledButton(
                         onClick = {
-                            if (itemName.isNotEmpty() && quantity > 0 && unitPrice.isNotEmpty()) {
-                                val unitPriceValue = unitPrice.toLongOrNull() ?: 0
-                                val totalPriceValue = unitPriceValue * quantity
-                                if (isEditing && editingItemId != null) {
-                                    val index = items.indexOfFirst { it.itemId == editingItemId }
-                                    if (index != -1) {
-                                        items[index] = Item(
-                                            itemId = editingItemId!!,
-                                            name = itemName,
-                                            quantity = quantity,
-                                            unitPrice = unitPriceValue,
-                                            totalPrice = totalPriceValue
-                                        )
-                                        snackbarMessage = "Item ${itemName} updated"
-                                    }
-                                    isEditing = false
-                                    editingItemId = null
-                                } else {
-                                    items.add(
-                                        Item(
-                                            itemId = UUID.randomUUID().toString(),
-                                            name = itemName,
-                                            quantity = quantity,
-                                            unitPrice = unitPriceValue,
-                                            totalPrice = totalPriceValue
-                                        )
-                                    )
-                                    snackbarMessage = "Item ${itemName} added"
-                                }
+                            val result = addOrUpdateItem(
+                                items = items,
+                                itemName = itemName,
+                                quantity = quantity,
+                                unitPrice = unitPrice,
+                                isEditing = isEditing,
+                                editingItemId = editingItemId
+                            )
+                            if (result.success) {
+                                items.clear()
+                                items.addAll(result.updatedItems)
+                                isEditing = false
+                                editingItemId = null
                                 itemName = ""
                                 quantity = 1
                                 unitPrice = ""
-                            } else {
-                                snackbarMessage = "Please fill in all item fields"
                             }
+                            snackbarMessage = result.message
                         },
                         text = "",
                         containerColor = PinkButton,
@@ -413,8 +370,6 @@ fun InputEventScreen(
                         borderColor = PinkButtonStroke
                     )
                 }
-
-                // Daftar Item
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -524,29 +479,27 @@ fun InputEventScreen(
                         }
                     }
                 }
-
                 Spacer(modifier = Modifier.height(16.dp))
-
-                // Tombol Make Bill
                 AppFilledButton(
                     onClick = {
                         if (creatorName.isNotEmpty() && creatorId.isNotEmpty() && eventName.isNotEmpty()) {
-                            if (itemName.isNotEmpty() && quantity > 0 && unitPrice.isNotEmpty() && !isEditing) {
-                                val unitPriceValue = unitPrice.toLongOrNull() ?: 0
-                                val totalPriceValue = unitPriceValue * quantity
-                                items.add(
-                                    Item(
-                                        itemId = UUID.randomUUID().toString(),
-                                        name = itemName,
-                                        quantity = quantity,
-                                        unitPrice = unitPriceValue,
-                                        totalPrice = totalPriceValue
-                                    )
+                            if (!isEditing) {
+                                val result = addOrUpdateItem(
+                                    items = items,
+                                    itemName = itemName,
+                                    quantity = quantity,
+                                    unitPrice = unitPrice,
+                                    isEditing = isEditing,
+                                    editingItemId = editingItemId
                                 )
-                                snackbarMessage = "Item ${itemName} added"
-                                itemName = ""
-                                quantity = 1
-                                unitPrice = ""
+                                if (result.success) {
+                                    items.clear()
+                                    items.addAll(result.updatedItems)
+                                    itemName = ""
+                                    quantity = 1
+                                    unitPrice = ""
+                                }
+                                snackbarMessage = result.message
                             }
                             if (items.isNotEmpty()) {
                                 repository.createSplitEvent(
