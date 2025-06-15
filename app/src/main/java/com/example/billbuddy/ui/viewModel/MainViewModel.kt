@@ -241,7 +241,7 @@ class MainViewModel : ViewModel() {
         )
     }
 
-    fun uploadProfilePhoto(uri: Uri) {
+    fun uploadProfilePhoto(uri: Uri, function: () -> Unit) {
         userRepository.uploadProfilePhoto(
             uri = uri,
             onSuccess = { photoUrl ->
