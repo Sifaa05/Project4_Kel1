@@ -74,6 +74,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.auth)
+    implementation(libs.firebase.storage.ktx)
 
     // ML Kit Text Recognition
     implementation(libs.play.services.mlkit.text.recognition.common)
@@ -95,4 +96,7 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    implementation("io.coil-kt:coil-compose:2.7.0")
+    implementation(libs.coil.compose)
 }

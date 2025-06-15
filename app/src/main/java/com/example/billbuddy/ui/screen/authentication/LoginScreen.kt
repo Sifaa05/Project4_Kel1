@@ -34,6 +34,7 @@ import com.example.billbuddy.ui.theme.KhulaRegular
 import com.example.billbuddy.ui.theme.PinkBackground
 import com.example.billbuddy.ui.theme.PinkButtonStroke
 import com.example.billbuddy.ui.theme.TextFieldBackground
+import com.example.billbuddy.repository.UserRepository
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -164,6 +165,7 @@ fun LoginScreen(
                             .addOnCompleteListener { task ->
                                 if (task.isSuccessful) {
                                     Toast.makeText(context, "Login Berhasil", Toast.LENGTH_SHORT).show()
+                                    UserRepository().saveUserToFirestore()
                                     onLoginClick(email, password)
                                 } else {
                                     Toast.makeText(context, "Login gagal: ${task.exception?.message}", Toast.LENGTH_SHORT).show()

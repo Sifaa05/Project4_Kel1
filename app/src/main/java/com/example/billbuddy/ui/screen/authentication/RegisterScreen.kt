@@ -34,6 +34,7 @@ import com.example.billbuddy.ui.theme.KhulaRegular
 import com.example.billbuddy.ui.theme.PinkBackground
 import com.example.billbuddy.ui.theme.PinkButtonStroke
 import com.example.billbuddy.ui.theme.TextFieldBackground
+import com.example.billbuddy.repository.UserRepository
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -225,6 +226,7 @@ fun RegisterScreen(
                                 .addOnCompleteListener { task ->
                                     if (task.isSuccessful) {
                                         Toast.makeText(context, "Registrasi berhasil", Toast.LENGTH_SHORT).show()
+                                        UserRepository().saveUserToFirestore()
                                         onCreateAccountClick(email, password)
                                     } else {
                                         Toast.makeText(context, "Registrasi gagal: ${task.exception?.message}", Toast.LENGTH_SHORT).show()

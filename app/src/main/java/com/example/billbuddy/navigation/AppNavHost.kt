@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.example.billbuddy.repository.SplitBillRepository
+import com.example.billbuddy.repository.UserRepository
 import com.example.billbuddy.ui.screen.AddBuddyScreen
 import com.example.billbuddy.ui.screen.AssignItemsScreen
 import com.example.billbuddy.ui.screen.authentication.AuthenticationScreen
@@ -37,6 +38,7 @@ fun AppNavHost(
     auth: FirebaseAuth,
     authViewModel: AuthViewModel,
     repository: SplitBillRepository,
+    userRepository: UserRepository,
     mainViewModel: MainViewModel,
     sharedPreferences: SharedPreferences,
     startDestination: String,
@@ -130,7 +132,11 @@ fun AppNavHost(
             ListEventScreen(navController = navController, viewModel = mainViewModel)
         }
         composable(NavRoutes.Profile.route) {
-            ProfileScreen(navController = navController, authViewModel = authViewModel)
+            ProfileScreen(
+                navController = navController,
+                authViewModel = authViewModel,
+                mainViewModel = mainViewModel
+            )
         }
         composable(NavRoutes.Search.route) {
             SearchScreen(navController = navController, viewModel = mainViewModel)

@@ -13,6 +13,7 @@ data class EventData(
     val serviceFee: Long,
     val status: String,
     val timestamp: Timestamp,
+    val monthYear: String,
     val shareLink: String?,
     val items: List<Item>,
     val participants: List<Participant>

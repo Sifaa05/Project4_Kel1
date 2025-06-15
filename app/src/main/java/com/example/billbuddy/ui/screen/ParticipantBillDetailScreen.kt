@@ -1,5 +1,10 @@
 package com.example.billbuddy.ui.screen
 
+import coil.compose.AsyncImage
+import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -7,6 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Money
@@ -20,10 +26,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import com.example.billbuddy.ui.viewModel.MainViewModel
 import com.example.billbuddy.ui.components.AppIconButton
 import com.example.billbuddy.ui.components.CommonNavigationBar
+import androidx.compose.ui.layout.ContentScale
+
 
 @Composable
 fun ParticipantBillDetailScreen(
@@ -32,7 +41,7 @@ fun ParticipantBillDetailScreen(
     navController: NavController,
     viewModel: MainViewModel
 ) {
-    // Ambil data dari ViewModel
+    val context = LocalContext.current
     val eventData by viewModel.eventData.observeAsState()
 
     // Ambil detail event dari database
@@ -45,6 +54,13 @@ fun ParticipantBillDetailScreen(
     val buttonColor = Color(0xFFFFB6C1) // Warna tombol pink
     val textColor = Color(0xFF4A4A4A) // Warna teks abu-abu tua
     val accentColor = Color(0xFFFF6F61) // Warna aksen untuk divider dan ikon
+
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            viewModel.uploadPaymentProof(eventId, participantId, it)
+            Toast.makeText(context, "Uploading payment proof...", Toast.LENGTH_SHORT).show()
+        }
+    }
 
     Scaffold(
         bottomBar = {
@@ -324,6 +340,40 @@ fun ParticipantBillDetailScreen(
                                 fontWeight = FontWeight.ExtraBold,
                                 color = textColor
                             )
+                        }
+
+                        // Tombol untuk mengunggah bukti pembayaran
+                        if (!p.paid && p.userId != null) {
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Button(
+                                onClick = { launcher.launch("image/*") },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(50.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
+                                shape = RoundedCornerShape(25.dp)
+                            ) {
+                                Text("Upload Payment Proof", color = textColor)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Icon(
+                                    imageVector = Icons.Default.CameraAlt,
+                                    contentDescription = "Upload Photo",
+                                    tint = textColor
+                                )
+                            }
+
+                            // Tampilkan foto bukti pembayaran jika ada
+                            p.paymentProofUrl?.let { url ->
+                                Spacer(modifier = Modifier.height(16.dp))
+                                AsyncImage(
+                                    model = url,
+                                    contentDescription = "Payment Proof",
+                                    contentScale = ContentScale.Fit,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(200.dp)
+                                )
+                            }
                         }
                     }
                 } ?: Text(text = "Participant not found")
