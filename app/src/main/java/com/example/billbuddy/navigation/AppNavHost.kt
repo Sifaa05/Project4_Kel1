@@ -15,6 +15,7 @@ import com.example.billbuddy.ui.screen.AssignItemsScreen
 import com.example.billbuddy.ui.screen.authentication.AuthenticationScreen
 import com.example.billbuddy.ui.screen.authentication.LoginScreen
 import com.example.billbuddy.ui.screen.authentication.RegisterScreen
+import com.example.billbuddy.ui.screen.authentication.VerificationScreen
 import com.example.billbuddy.ui.screen.EventDetailScreen
 import com.example.billbuddy.ui.screen.HomeScreen
 import com.example.billbuddy.ui.screen.InputEventScreen
@@ -106,21 +107,22 @@ fun AppNavHost(
         composable(NavRoutes.Register.route) {
             RegisterScreen(
                 onCreateAccountClick = { email, password ->
-                    auth.createUserWithEmailAndPassword(email, password)
-                        .addOnCompleteListener { task ->
-                            if (task.isSuccessful) {
-                                authViewModel.checkAuthState(auth.currentUser, true)
-                                navController.navigate(NavRoutes.Home.route) {
+                    navController.navigate(NavRoutes.Verification.route) {
                                     popUpTo(NavRoutes.Register.route) { inclusive = true }
-                                }
-                            }
-                        }
+                    }
                 },
                 onBackClick = {
                     navController.navigate(NavRoutes.Authentication.route) {
                         popUpTo(NavRoutes.Register.route) { inclusive = true }
                     }
                 }
+            )
+        }
+        composable(NavRoutes.Verification.route) {
+            VerificationScreen(
+                navController = navController,
+                onBackClick = { navController.popBackStack() },
+                email = auth.currentUser?.email ?: "email@email.com"
             )
         }
 
