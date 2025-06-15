@@ -36,9 +36,11 @@ sealed class NavRoutes(val route: String) {
     }
     object Authentication : NavRoutes("authentication_screen")
 
-    object Login: NavRoutes("login_screen")
+    object Login : NavRoutes("login_screen")
 
     object Register : NavRoutes("register_screen")
 
     object ForgotPassword : NavRoutes("forgot_password_screen")
+
+    object Verification : NavRoutes("verification_screen")
 }

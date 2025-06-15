@@ -17,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import com.example.billbuddy.R
@@ -27,18 +26,16 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Mail
-import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.layout.ContentScale
 import com.example.billbuddy.repository.UserRepository
+import com.example.billbuddy.ui.theme.Font
+import com.example.billbuddy.ui.theme.FontType
 import com.google.firebase.auth.FirebaseAuth
 
-val khulaFontBold = FontFamily(Font(R.font.khula_extrabold))
-val khulaFont = FontFamily(Font(R.font.khula_regular))
-val kadwaFont = FontFamily(Font(R.font.kadwa_regular))
 
 @Composable
 fun RegisterScreen(
@@ -46,7 +43,6 @@ fun RegisterScreen(
     onBackClick: () -> Unit
 ) {
     val context = LocalContext.current
-    var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
@@ -72,7 +68,7 @@ fun RegisterScreen(
 
             Text(
                 text = "Register",
-                fontFamily = khulaFontBold,
+                fontFamily = Font.getFont(FontType.KHULA_EXTRABOLD),
                 fontSize = 32.sp,
                 color = Color(0xFF000000).copy(alpha = 0.8f)
             )
@@ -81,41 +77,12 @@ fun RegisterScreen(
 
             Text(
                 text = "Fill your information below.",
-                fontFamily = khulaFont,
+                fontFamily = Font.getFont(FontType.KHULA_REGULAR),
                 fontSize = 16.sp,
                 color = Color(0xFF000000).copy(alpha = 0.58f),
             )
 
             Spacer(modifier = Modifier.height(30.dp))
-
-            OutlinedTextField(
-                value = name,
-                onValueChange = {name = it},
-                label = { Text("Enter your Name*", fontSize = 12.sp) },
-                leadingIcon = { Icon(Icons.Default.AccountCircle, contentDescription = "Account Icon") },
-                modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .height(60.dp)
-                    .shadow(elevation = 10.dp, shape = RoundedCornerShape(40.dp)),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color(0xFFE2C2C2),
-                    unfocusedContainerColor = Color(0xFFE2C2C2),
-                    focusedIndicatorColor = Color(0xFFE2C2C2),
-                    unfocusedIndicatorColor = Color(0xFFE2C2C2),
-                    cursorColor = Color.Black,
-                    focusedLabelColor = Color(0xFF000000).copy(alpha = 0.58f),
-                    unfocusedLabelColor = Color(0xFF000000).copy(alpha = 0.58f)
-                ),
-                shape = RoundedCornerShape(40.dp),
-                textStyle = LocalTextStyle.current.copy(
-                    fontFamily = kadwaFont,
-                    color = Color(0xFF000000).copy(alpha = 0.58f),
-                    fontSize = 12.sp
-                ),
-                singleLine = true
-            )
-
-            Spacer(modifier = Modifier.height(10.dp))
 
             OutlinedTextField(
                 value = email,
@@ -137,7 +104,7 @@ fun RegisterScreen(
                 ),
                 shape = RoundedCornerShape(40.dp),
                 textStyle = LocalTextStyle.current.copy(
-                    fontFamily = kadwaFont,
+                    fontFamily = Font.getFont(FontType.KADWA_REGULAR),
                     color = Color(0xFF000000).copy(alpha = 0.58f),
                     fontSize = 12.sp
                 ),
@@ -175,7 +142,7 @@ fun RegisterScreen(
                 ),
                 shape = RoundedCornerShape(40.dp),
                 textStyle = LocalTextStyle.current.copy(
-                    fontFamily = kadwaFont,
+                    fontFamily = Font.getFont(FontType.KADWA_REGULAR),
                     color = Color(0xFF000000).copy(alpha = 0.58f),
                     fontSize = 12.sp
                 ),
@@ -213,7 +180,7 @@ fun RegisterScreen(
                 ),
                 shape = RoundedCornerShape(40.dp),
                 textStyle = LocalTextStyle.current.copy(
-                    fontFamily = kadwaFont,
+                    fontFamily = Font.getFont(FontType.KADWA_REGULAR),
                     color = Color(0xFF000000).copy(alpha = 0.58f),
                     fontSize = 12.sp
                 ),
@@ -229,9 +196,16 @@ fun RegisterScreen(
                             auth.createUserWithEmailAndPassword(email, password)
                                 .addOnCompleteListener { task ->
                                     if (task.isSuccessful) {
-                                        Toast.makeText(context, "Registrasi berhasil", Toast.LENGTH_SHORT).show()
-                                        UserRepository().saveUserToFirestore()
-                                        onCreateAccountClick(email, password)
+                                        val user = auth.currentUser
+                                        user?.sendEmailVerification()?.addOnCompleteListener { verificationTask ->
+                                            if (verificationTask.isSuccessful) {
+                                                Toast.makeText(context, "Registrasi berhasil", Toast.LENGTH_SHORT).show()
+                                                UserRepository().saveUserToFirestore()
+                                                onCreateAccountClick(email, password)
+                                            } else {
+                                                Toast.makeText(context, "Gagal mengirim email verifikasi", Toast.LENGTH_SHORT).show()
+                                            }
+                                        }
                                     } else {
                                         Toast.makeText(context, "Registrasi gagal: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                                     }
@@ -253,7 +227,7 @@ fun RegisterScreen(
             ) {
                 Text(
                     text = "Create Account",
-                    fontFamily = kadwaFont,
+                    fontFamily = Font.getFont(FontType.KADWA_REGULAR),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF171717).copy(alpha = 0.55f)
@@ -274,7 +248,7 @@ fun RegisterScreen(
             ) {
                 Text(
                     text = "Back",
-                    fontFamily = kadwaFont,
+                    fontFamily = Font.getFont(FontType.KADWA_REGULAR),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF171717).copy(alpha = 0.55f)

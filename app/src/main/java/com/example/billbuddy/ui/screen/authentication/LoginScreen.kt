@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import com.example.billbuddy.R
@@ -34,11 +33,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import com.example.billbuddy.repository.UserRepository
+import com.example.billbuddy.ui.theme.Font
+import com.example.billbuddy.ui.theme.FontType
 import com.google.firebase.auth.FirebaseAuth
 
-val KhulaFontBold = FontFamily(Font(R.font.khula_extrabold))
-val KhulaFont = FontFamily(Font(R.font.khula_regular))
-val KadwaFont = FontFamily(Font(R.font.kadwa_regular))
 
 @Composable
 fun LoginScreen(
@@ -70,7 +68,7 @@ fun LoginScreen(
 
             Text(
                 text = "Login",
-                fontFamily = KhulaFontBold,
+                fontFamily = Font.getFont(FontType.KHULA_EXTRABOLD),
                 fontSize = 32.sp,
                 color = Color(0xFF000000).copy(alpha = 0.8f)
             )
@@ -79,7 +77,7 @@ fun LoginScreen(
 
             Text(
                 text = "Hi! Welcome back, you’ve been missed",
-                fontFamily = KhulaFont,
+                fontFamily = Font.getFont(FontType.KHULA_REGULAR),
                 fontSize = 16.sp,
                 color = Color(0xFF000000).copy(alpha = 0.58f),
             )
@@ -106,7 +104,7 @@ fun LoginScreen(
                 ),
                 shape = RoundedCornerShape(40.dp),
                 textStyle = LocalTextStyle.current.copy(
-                    fontFamily = KadwaFont,
+                    fontFamily = Font.getFont(FontType.KADWA_REGULAR),
                     color = Color(0xFF000000).copy(alpha = 0.58f),
                     fontSize = 12.sp
                 ),
@@ -144,7 +142,7 @@ fun LoginScreen(
                 ),
                 shape = RoundedCornerShape(40.dp),
                 textStyle = LocalTextStyle.current.copy(
-                    fontFamily = KadwaFont,
+                    fontFamily = Font.getFont(FontType.KADWA_REGULAR),
                     color = Color(0xFF000000).copy(alpha = 0.58f),
                     fontSize = 12.sp
                 ),
@@ -159,7 +157,7 @@ fun LoginScreen(
             ) {
                 Text(
                     text = "Forgot Password?",
-                    fontFamily = KadwaFont,
+                    fontFamily = Font.getFont(FontType.KADWA_REGULAR),
                     fontSize = 14.sp,
                     color = Color(0xFF000000).copy(alpha = 0.6f)
                 )
@@ -194,7 +192,7 @@ fun LoginScreen(
             ) {
                 Text(
                     text = "Login",
-                    fontFamily = KadwaFont,
+                    fontFamily = Font.getFont(FontType.KADWA_REGULAR),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF171717).copy(alpha = 0.55f)
@@ -215,7 +213,7 @@ fun LoginScreen(
             ) {
                 Text(
                     text = "Back",
-                    fontFamily = KadwaFont,
+                    fontFamily = Font.getFont(FontType.KADWA_REGULAR),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF171717).copy(alpha = 0.55f)
