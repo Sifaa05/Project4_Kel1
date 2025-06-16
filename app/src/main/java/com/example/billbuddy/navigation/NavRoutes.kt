@@ -7,6 +7,7 @@ sealed class NavRoutes(val route: String) {
     object Splash : NavRoutes("splash_screen")
     object Home : NavRoutes("home_screen")
     object ListEvent : NavRoutes("list_event_screen")
+    object EditProfile : NavRoutes("edit_profile")
     object Profile : NavRoutes("profile_screen")
     object Search : NavRoutes("search_screen")
     object Notification : NavRoutes("notification")
@@ -37,11 +38,13 @@ sealed class NavRoutes(val route: String) {
     }
     object Authentication : NavRoutes("authentication_screen")
 
-    object Login: NavRoutes("login_screen")
+    object Login : NavRoutes("login_screen")
 
     object Register : NavRoutes("register_screen")
 
     object ForgotPassword : NavRoutes("forgot_password_screen")
+
+    object Verification : NavRoutes("verification_screen")
 
     object SharedBill : NavRoutes("sharedBill/{eventId}") {
         fun createRoute(eventId: String) = "sharedBill/$eventId"

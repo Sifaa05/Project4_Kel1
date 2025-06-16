@@ -19,10 +19,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import com.example.billbuddy.R
 import com.example.billbuddy.ui.components.AppFilledButton
 import com.example.billbuddy.ui.components.AppSmallTextButton
@@ -34,7 +34,6 @@ import com.example.billbuddy.ui.theme.KhulaRegular
 import com.example.billbuddy.ui.theme.PinkBackground
 import com.example.billbuddy.ui.theme.PinkButtonStroke
 import com.example.billbuddy.ui.theme.TextFieldBackground
-import com.example.billbuddy.repository.UserRepository
 import com.google.firebase.auth.FirebaseAuth
 
 @Composable
@@ -47,6 +46,7 @@ fun LoginScreen(
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisibility by remember { mutableStateOf(false) }
+    var isLoading by remember { mutableStateOf(false) }
     val auth = FirebaseAuth.getInstance()
 
     Box(
@@ -160,19 +160,26 @@ fun LoginScreen(
 
             AppFilledButton(
                 onClick = {
-                    if (email.isNotEmpty() && password.isNotEmpty()) {
+                    if (email.isEmpty() || password.isEmpty()) {
+                        Toast.makeText(context, "Email and password should be fill", Toast.LENGTH_SHORT).show()
+                    } else {
+                        isLoading = true
                         auth.signInWithEmailAndPassword(email, password)
                             .addOnCompleteListener { task ->
+                                isLoading = false
                                 if (task.isSuccessful) {
-                                    Toast.makeText(context, "Login Berhasil", Toast.LENGTH_SHORT).show()
-                                    UserRepository().saveUserToFirestore()
-                                    onLoginClick(email, password)
+                                    val user = auth.currentUser
+                                    if (user?.isEmailVerified == true) {
+                                        Toast.makeText(context, "Login Succesed", Toast.LENGTH_SHORT).show()
+                                        onLoginClick(email, password)
+                                    } else {
+                                        Toast.makeText(context, "Email belum diversification. Silakan cek email Anda.", Toast.LENGTH_LONG).show()
+                                        auth.signOut() // Sign out user if email is not verified
+                                    }
                                 } else {
                                     Toast.makeText(context, "Login gagal: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                                 }
                             }
-                    } else {
-                        Toast.makeText(context, "Email dan password harus diisi", Toast.LENGTH_SHORT).show()
                     }
                 },
                 text = "Login",
@@ -184,7 +191,16 @@ fun LoginScreen(
                 cornerRadius = 25.dp,
                 fontWeight = FontWeight.Bold,
                 borderColor = PinkButtonStroke
+                //enabled = !isLoading // Disable button during loading
             )
+
+            if (isLoading) {
+                Spacer(modifier = Modifier.height(16.dp))
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = PinkButtonStroke
+                )
+            }
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -199,6 +215,7 @@ fun LoginScreen(
                 cornerRadius = 25.dp,
                 fontWeight = FontWeight.Bold,
                 borderColor = PinkButtonStroke
+                //enabled = !isLoading
             )
 
             Spacer(modifier = Modifier.weight(1f))

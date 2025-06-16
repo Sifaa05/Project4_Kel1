@@ -10,14 +10,12 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -39,9 +37,7 @@ fun ProfileScreen(
 ) {
     val context = LocalContext.current
     val userProfile by mainViewModel.userProfile.observeAsState()
-    var showEditDialog by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) }
-    var username by remember { mutableStateOf("") }
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
@@ -113,19 +109,17 @@ fun ProfileScreen(
             }
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = userProfile?.name ?: "Anonymous",
+                text = userProfile?.name ?: "Stranger",
                 style = MaterialTheme.typography.displaySmall,
                 fontWeight = FontWeight.Bold,
                 color = DarkGreyText
             )
-            if (!userProfile?.username.isNullOrBlank()) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "@${userProfile?.username}",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = DarkGreyText
-                )
-            }
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = userProfile?.username?.let { "@$it" } ?: "@NoUsername",
+                style = MaterialTheme.typography.bodyLarge,
+                color = DarkGreyText
+            )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = userProfile?.email ?: "No email",
@@ -135,8 +129,7 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(24.dp))
             AppFilledButton(
                 onClick = {
-                    username = userProfile?.username ?: ""
-                    showEditDialog = true
+                    navController.navigate(NavRoutes.EditProfile.route)
                 },
                 text = "Edit Profile",
                 textColor = White,
@@ -149,16 +142,6 @@ fun ProfileScreen(
                 fontSize = 18,
                 fontFamily = KadwaFontFamily
             )
-            if (showEditDialog) {
-                EditUsernameDialog(
-                    initialUsername = username,
-                    onSave = {
-                        mainViewModel.updateUsername(it)
-                        showEditDialog = false
-                    },
-                    onCancel = { showEditDialog = false }
-                )
-            }
             if (showLogoutDialog) {
                 LogoutConfirmationDialog(
                     onConfirm = {
@@ -174,66 +157,6 @@ fun ProfileScreen(
             }
         }
     }
-}
-
-@Composable
-fun EditUsernameDialog(
-    initialUsername: String,
-    onSave: (String) -> Unit,
-    onCancel: () -> Unit
-) {
-    var newName by remember { mutableStateOf(initialUsername) }
-
-    AlertDialog(
-        onDismissRequest = onCancel,
-        title = {
-            Text(
-                text = "Edit Username",
-                style = MaterialTheme.typography.displayMedium,
-                color = DarkGreyText
-            )
-        },
-        text = {
-            OutlinedTextField(
-                value = newName,
-                onValueChange = { newName = it },
-                label = { Text("Username", color = DarkGreyText) },
-                modifier = Modifier.fillMaxWidth(),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = White,
-                    unfocusedContainerColor = White,
-                    focusedIndicatorColor = PinkButtonStroke,
-                    unfocusedIndicatorColor = PinkButtonStroke,
-                    cursorColor = PinkButton,
-                    focusedLabelColor = DarkGreyText,
-                    unfocusedLabelColor = DarkGreyText
-                ),
-                shape = RoundedCornerShape(8.dp),
-                textStyle = MaterialTheme.typography.bodyLarge.copy(
-                    fontFamily = KadwaFontFamily,
-                    color = DarkGreyText
-                )
-            )
-        },
-        confirmButton = {
-            AppTextButton(
-                onClick = {
-                    if (newName.isNotBlank()) onSave(newName)
-                },
-                text = "Save",
-                textColor = PinkButtonStroke
-            )
-        },
-        dismissButton = {
-            AppTextButton(
-                onClick = onCancel,
-                text = "Cancel",
-                textColor = DarkGreyText
-            )
-        },
-        containerColor = White,
-        shape = RoundedCornerShape(16.dp)
-    )
 }
 
 @Composable

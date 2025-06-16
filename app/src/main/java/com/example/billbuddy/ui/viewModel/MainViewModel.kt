@@ -216,17 +216,53 @@ class MainViewModel : ViewModel() {
         )
     }
 
-    fun updateUsername(username: String) {
-        userRepository.updateUsername(
-            username = username,
+    fun updateName(
+        name: String,
+        onSuccess: () -> Unit = {}
+    ) {
+        userRepository.updateName(
+            name = name,
             onSuccess = {
                 getUserProfile()
+                onSuccess()
             },
             onFailure = { e ->
                 _error.value = e.message
             }
         )
     }
+
+    fun updateUsername(
+        username: String,
+        onSuccess: () -> Unit = {}
+    ) {
+        userRepository.updateUsername(
+            username = username,
+            onSuccess = {
+                getUserProfile()
+                onSuccess()
+            },
+            onFailure = { e ->
+                _error.value = e.message
+            }
+        )
+    }
+
+//    fun uploadProfilePhoto(
+//        uri: Uri,
+//        onSuccess: () -> Unit = {}
+//    ) {
+//        userRepository.uploadProfilePhoto(
+//            uri = uri,
+//            onSuccess = { photoUrl ->
+//                getUserProfile()
+//                onSuccess()
+//            },
+//            onFailure = { e ->
+//                _error.value = e.message
+//            }
+//        )
+//    }
 
     fun uploadProfilePhoto(uri: Uri, function: () -> Unit) {
         userRepository.uploadProfilePhoto(

@@ -19,12 +19,13 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
+import com.example.billbuddy.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.billbuddy.R
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import com.example.billbuddy.ui.components.AppFilledButton
 import com.example.billbuddy.ui.theme.BlackText
 import com.example.billbuddy.ui.theme.ButtonText
@@ -36,6 +37,7 @@ import com.example.billbuddy.ui.theme.PinkButtonStroke
 import com.example.billbuddy.ui.theme.TextFieldBackground
 import com.example.billbuddy.repository.UserRepository
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.UserProfileChangeRequest
 
 @Composable
 fun RegisterScreen(
@@ -50,6 +52,7 @@ fun RegisterScreen(
     var passwordVisibility by remember { mutableStateOf(false) }
     var confirmPasswordVisibility by remember { mutableStateOf(false) }
     val auth = FirebaseAuth.getInstance()
+    val userRepository = UserRepository()
 
     Box(
         modifier = Modifier
@@ -220,23 +223,46 @@ fun RegisterScreen(
 
             AppFilledButton(
                 onClick = {
-                    if (email.isNotEmpty() && password.isNotEmpty() && confirmPassword.isNotEmpty()) {
-                        if (password == confirmPassword) {
-                            auth.createUserWithEmailAndPassword(email, password)
-                                .addOnCompleteListener { task ->
-                                    if (task.isSuccessful) {
-                                        Toast.makeText(context, "Registrasi berhasil", Toast.LENGTH_SHORT).show()
-                                        UserRepository().saveUserToFirestore()
-                                        onCreateAccountClick(email, password)
-                                    } else {
-                                        Toast.makeText(context, "Registrasi gagal: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
-                                    }
-                                }
-                        } else {
-                            Toast.makeText(context, "Password dan konfirmasi password tidak cocok", Toast.LENGTH_SHORT).show()
-                        }
-                    } else {
+                    if (name.isEmpty() || email.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
                         Toast.makeText(context, "Semua field harus diisi", Toast.LENGTH_SHORT).show()
+                    } else if (password != confirmPassword) {
+                        Toast.makeText(context, "Password dan konfirmasi password tidak cocok", Toast.LENGTH_SHORT).show()
+                    } else {
+                        auth.createUserWithEmailAndPassword(email, password)
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    val user = auth.currentUser
+                                    // Update displayName in Firebase Authentication
+                                    val profileUpdates = UserProfileChangeRequest.Builder()
+                                        .setDisplayName(name)
+                                        .build()
+                                    user?.updateProfile(profileUpdates)?.addOnCompleteListener { profileTask ->
+                                        if (profileTask.isSuccessful) {
+                                            user.sendEmailVerification()?.addOnCompleteListener { verificationTask ->
+                                                if (verificationTask.isSuccessful) {
+                                                    // Save user data including name to Firestore
+                                                    userRepository.saveUserToFirestore(
+                                                        name = name,
+                                                        onSuccess = {
+                                                            Toast.makeText(context, "Registrasi berhasil", Toast.LENGTH_SHORT).show()
+                                                            onCreateAccountClick(email, password)
+                                                        },
+                                                        onFailure = { exception ->
+                                                            Toast.makeText(context, "Gagal menyimpan data: ${exception.message}", Toast.LENGTH_SHORT).show()
+                                                        }
+                                                    )
+                                                } else {
+                                                    Toast.makeText(context, "Gagal mengirim email verifikasi", Toast.LENGTH_SHORT).show()
+                                                }
+                                            }
+                                        } else {
+                                            Toast.makeText(context, "Gagal memperbarui nama: ${profileTask.exception?.message}", Toast.LENGTH_SHORT).show()
+                                        }
+                                    }
+                                } else {
+                                    Toast.makeText(context, "Registrasi gagal: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                                }
+                            }
                     }
                 },
                 text = "Create Account",
