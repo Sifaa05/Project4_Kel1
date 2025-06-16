@@ -26,6 +26,7 @@ import com.example.billbuddy.ui.theme.DarkGreyText
 import com.example.billbuddy.ui.theme.PinkBackground
 import com.example.billbuddy.ui.theme.White
 import kotlinx.coroutines.launch
+import com.google.firebase.auth.FirebaseAuth
 
 //@OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -33,16 +34,21 @@ fun HomeScreen(
     navController: NavController,
     viewModel: MainViewModel
 ) {
-    // State untuk Bottom Sheet
+    // State for Bottom Sheet
     val showBottomSheet = remember { mutableStateOf(false) }
 
     // Ambil daftar event aktif dari ViewModel
     val activeEvents by viewModel.activeEvents.observeAsState(initial = emptyList())
+    val monthlyTotals by viewModel.monthlyTotals.observeAsState(initial = emptyMap()) // Observe monthly totals
     val error by viewModel.error.observeAsState()
 
     // Panggil saat layar dimuat
     LaunchedEffect(Unit) {
         viewModel.getActiveEvents()
+        // Fetch monthly totals when the screen is launched
+        FirebaseAuth.getInstance().currentUser?.uid?.let { userId ->
+            viewModel.getMonthlyTotals()
+        }
     }
 
     Scaffold(
@@ -79,7 +85,12 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Judul Bagian
+            // Monthly Spending Chart
+            MonthlyBarChart(monthlyTotals = monthlyTotals)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Section Title
             Text(
                 text = "Active Events",
                 style = MaterialTheme.typography.displayMedium,

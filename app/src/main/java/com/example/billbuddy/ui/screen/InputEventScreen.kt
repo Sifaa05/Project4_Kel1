@@ -435,8 +435,8 @@ fun InputEventScreen(
                                             quantity = item.quantity
                                             unitPrice = item.unitPrice.toString()
                                         },
-                                        text = "",
-                                        containerColor = PinkButton,
+                                        text = "?",
+                                        containerColor = TextFieldBackground,
                                         textColor = White,
                                         icon = Icons.Default.Edit,
                                         iconTint = White,
@@ -462,7 +462,7 @@ fun InputEventScreen(
                                             }
                                             snackbarMessage = "Item ${item.name} deleted"
                                         },
-                                        text = "",
+                                        text = "-",
                                         containerColor = PinkTua,
                                         textColor = White,
                                         icon = Icons.Default.Delete,
