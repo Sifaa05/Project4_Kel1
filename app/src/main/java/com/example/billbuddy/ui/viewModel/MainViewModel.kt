@@ -12,9 +12,11 @@ import com.example.billbuddy.data.EventData
 import com.example.billbuddy.data.Item
 import com.example.billbuddy.data.Participant
 import com.example.billbuddy.data.User
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 //import com.example.billbuddy.model.UserProfile
 enum class SortOption {
@@ -312,6 +314,45 @@ class MainViewModel : ViewModel() {
                 userId = currentUser.uid,
                 onSuccess = { totals ->
                     _monthlyTotals.value = totals
+                },
+                onFailure = { e ->
+                    _error.value = e.message
+                }
+            )
+        } else {
+            _error.value = "User not logged in"
+        }
+    }
+
+    private val _weeklyTotals = MutableLiveData<Map<String, Long>>()
+    val weeklyTotals: LiveData<Map<String, Long>> = _weeklyTotals
+
+    // Fungsi untuk mendapatkan total mingguan
+    fun getWeeklyTotals() {
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        if (currentUser != null) {
+            // Hitung start dan end date untuk minggu ini
+            val calendar = Calendar.getInstance()
+            calendar.set(Calendar.DAY_OF_WEEK, calendar.firstDayOfWeek) // Set to start of the current week
+            calendar.set(Calendar.HOUR_OF_DAY, 0)
+            calendar.set(Calendar.MINUTE, 0)
+            calendar.set(Calendar.SECOND, 0)
+            calendar.set(Calendar.MILLISECOND, 0)
+            val startDate = calendar.timeInMillis
+
+            calendar.add(Calendar.DAY_OF_YEAR, 6) // Move to the end of the current week
+            calendar.set(Calendar.HOUR_OF_DAY, 23)
+            calendar.set(Calendar.MINUTE, 59)
+            calendar.set(Calendar.SECOND, 59)
+            calendar.set(Calendar.MILLISECOND, 999)
+            val endDate = calendar.timeInMillis
+
+            repository.getWeeklyTotals( // Ganti 'repository' dengan instance repository Anda
+                userId = currentUser.uid,
+                startDate = startDate,
+                endDate = endDate,
+                onSuccess = { totals ->
+                    _weeklyTotals.value = totals
                 },
                 onFailure = { e ->
                     _error.value = e.message

@@ -39,7 +39,7 @@ fun HomeScreen(
 
     // Ambil daftar event aktif dari ViewModel
     val activeEvents by viewModel.activeEvents.observeAsState(initial = emptyList())
-    val monthlyTotals by viewModel.monthlyTotals.observeAsState(initial = emptyMap()) // Observe monthly totals
+    val weeklyTotals by viewModel.weeklyTotals.observeAsState(initial = emptyMap()) // Observe monthly totals
     val error by viewModel.error.observeAsState()
 
     // Panggil saat layar dimuat
@@ -86,7 +86,7 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // Monthly Spending Chart
-            MonthlyBarChart(monthlyTotals = monthlyTotals)
+            WeeklyBarChart(weeklyTotals = weeklyTotals)
 
             Spacer(modifier = Modifier.height(16.dp))
 

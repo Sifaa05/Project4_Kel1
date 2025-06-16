@@ -851,6 +851,40 @@ class SplitBillRepository {
             }
     }
 
+    fun getWeeklyTotals(
+        userId: String,
+        startDate: Long, // Start of the week in milliseconds
+        endDate: Long,   // End of the week in milliseconds
+        onSuccess: (Map<String, Long>) -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        db.collection("split_events")
+            .whereEqualTo("creator_id", userId)
+            .whereGreaterThanOrEqualTo("timestamp", Timestamp(Date(startDate))) // Filter by start date
+            .whereLessThanOrEqualTo("timestamp", Timestamp(Date(endDate)))     // Filter by end date
+            .get()
+            .addOnSuccessListener { snapshot ->
+                val totals = snapshot.documents.groupBy { document ->
+                    // Group by day of the week (e.g., "Mon", "Tue") or full date (e.g., "01-Jan")
+                    // For daily totals, we need the exact date. Let's use "dd-MMM" format.
+                    val date = document.getTimestamp("timestamp")?.toDate()
+                    if (date != null) {
+                        val dateFormat = SimpleDateFormat("dd-MMM", Locale.getDefault())
+                        dateFormat.format(date)
+                    } else {
+                        "Unknown Date"
+                    }
+                }
+                    .mapValues { entry ->
+                        entry.value.sumOf { it.getLong("total_amount") ?: 0L }
+                    }
+                onSuccess(totals)
+            }
+            .addOnFailureListener { e ->
+                onFailure(e)
+            }
+    }
+
     fun getMonthlyTotals(
         userId: String,
         onSuccess: (Map<String, Long>) -> Unit,
