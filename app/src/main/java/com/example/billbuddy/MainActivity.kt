@@ -1,6 +1,7 @@
 package com.example.billbuddy
 
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -8,7 +9,9 @@ import androidx.activity.viewModels
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.billbuddy.repository.SplitBillRepository
 import com.example.billbuddy.navigation.AppNavHost
@@ -27,6 +30,7 @@ class MainActivity : ComponentActivity() {
     private val splitBillRepository: SplitBillRepository by lazy { SplitBillRepository() }
     private val userRepository: UserRepository by lazy { UserRepository() }
     private val mainViewModel: MainViewModel by viewModels()
+    private lateinit var navController: NavHostController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,8 +52,32 @@ class MainActivity : ComponentActivity() {
                         mainViewModel = mainViewModel,
                         userRepository = userRepository,
                         sharedPreferences = sharedPreferences,
-                        modifier = Modifier
+                        modifier = Modifier,
+                        onNavControllerAvailable = { controller ->
+                            navController = controller
+                            handleDeepLink(intent)
+                        }
                     )
+                }
+            }
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleDeepLink(intent)
+    }
+
+    private fun handleDeepLink(intent: Intent?) {
+        if (::navController.isInitialized) { // Pastikan navController sudah diinisialisasi
+            intent?.data?.let { uri ->
+                val eventId =
+                    uri.lastPathSegment // Ambil eventId dari URL (misalnya, /sharedbill/eventId)
+                if (eventId != null) {
+                    navController.navigate("sharedbill/$eventId") {
+                        popUpTo(navController.graph.startDestinationId) { inclusive = false }
+                        launchSingleTop = true
+                    }
                 }
             }
         }
@@ -64,9 +92,14 @@ fun AppNavigation(
     mainViewModel: MainViewModel,
     userRepository: UserRepository,
     sharedPreferences: android.content.SharedPreferences,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onNavControllerAvailable: (NavHostController) -> Unit = {}
 ) {
     val navController = rememberNavController()
+
+    LaunchedEffect(navController) {
+        onNavControllerAvailable(navController)
+    }
 
     // Reset navigasi ke splash_screen setiap kali aplikasi dibuka
     LaunchedEffect(Unit) {

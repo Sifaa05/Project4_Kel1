@@ -68,7 +68,7 @@ fun ListEventScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Header
-            HomeHeader(navController = navController)
+            HomeHeader(navController = navController, viewModel = viewModel)
 
             Spacer(modifier = Modifier.height(16.dp))
 

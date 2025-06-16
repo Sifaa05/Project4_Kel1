@@ -12,6 +12,8 @@ import com.example.billbuddy.data.EventData
 import com.example.billbuddy.data.Item
 import com.example.billbuddy.data.Participant
 import com.example.billbuddy.data.User
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 //import com.example.billbuddy.model.UserProfile

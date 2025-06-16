@@ -34,6 +34,10 @@ sealed class NavRoutes(val route: String) {
         fun createRoute(eventId: String, participantId: String) =
             "participant_bill_detail_screen/$eventId/$participantId"
     }
+    object SharedBill : NavRoutes("sharedbill/{eventId}") {
+        fun createRoute(eventId: String) = "sharedbill/$eventId"
+    }
+
     object Authentication : NavRoutes("authentication_screen")
 
     object Login : NavRoutes("login_screen")
@@ -43,4 +47,6 @@ sealed class NavRoutes(val route: String) {
     object ForgotPassword : NavRoutes("forgot_password_screen")
 
     object Verification : NavRoutes("verification_screen")
+
+    object Notification : NavRoutes("notification_screen")
 }
