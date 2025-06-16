@@ -22,6 +22,7 @@ import com.example.billbuddy.ui.components.*
 import com.example.billbuddy.ui.theme.Pink40
 import com.example.billbuddy.ui.components.AppFloatingActionButton
 import com.example.billbuddy.ui.components.CommonNavigationBar
+import com.google.firebase.auth.FirebaseAuth
 
 //@OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,16 +30,21 @@ fun HomeScreen(
     navController: NavController,
     viewModel: MainViewModel
 ) {
-    // State untuk Bottom Sheet
+    // State for Bottom Sheet
     val showBottomSheet = remember { mutableStateOf(false) }
 
-    // Ambil daftar event aktif dari ViewModel
+    // Get active events list from ViewModel
     val activeEvents by viewModel.activeEvents.observeAsState(initial = emptyList())
+    val monthlyTotals by viewModel.monthlyTotals.observeAsState(initial = emptyMap()) // Observe monthly totals
     val error by viewModel.error.observeAsState()
 
-    // Panggil saat layar dimuat
+    // Call when screen loads
     LaunchedEffect(Unit) {
         viewModel.getActiveEvents()
+        // Fetch monthly totals when the screen is launched
+        FirebaseAuth.getInstance().currentUser?.uid?.let { userId ->
+            viewModel.getMonthlyTotals()
+        }
     }
 
     Scaffold(
@@ -52,7 +58,7 @@ fun HomeScreen(
         bottomBar = {
             CommonNavigationBar(
                 navController = navController,
-                selectedScreen = "Home"
+                selectedScreen = "Home" // "Home" is already in English
             )
         },
         modifier = Modifier.fillMaxSize()
@@ -65,19 +71,24 @@ fun HomeScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Header
+            // Header (Assuming HomeHeader content is internal or doesn't need translation here)
             HomeHeader(navController = navController)
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Branding
-            AppBranding() // Tetap vertikal dan di tengah
+            // Branding (Assuming AppBranding content is internal or doesn't need translation here)
+            AppBranding()
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Judul Bagian
+            // Monthly Spending Chart
+            MonthlyBarChart(monthlyTotals = monthlyTotals)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Section Title
             Text(
-                text = "Active Events",
+                text = "Active Events", // English text
                 style = MaterialTheme.typography.titleLarge,
                 color = Pink40,
                 fontWeight = FontWeight.ExtraBold,
@@ -86,7 +97,7 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Daftar Event Aktif
+            // List of Active Events
             EventList(
                 events = activeEvents,
                 error = error,
@@ -99,8 +110,8 @@ fun HomeScreen(
         }
     }
 
-    // Bottom Sheet untuk Input Method
-    InputMethodBottomSheet(
+    // Bottom Sheet for Input Method
+    InputMethodBottomSheet( // Assuming InputMethodBottomSheet handles its own internal text translation
         isVisible = showBottomSheet.value,
         onDismiss = { showBottomSheet.value = false },
         navController = navController
