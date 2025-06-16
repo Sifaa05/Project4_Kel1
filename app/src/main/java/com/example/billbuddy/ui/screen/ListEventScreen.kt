@@ -13,6 +13,7 @@ import com.example.billbuddy.navigation.NavRoutes
 import com.example.billbuddy.ui.components.*
 import com.example.billbuddy.ui.theme.DarkGreyText
 import com.example.billbuddy.ui.theme.PinkButtonStroke
+import com.example.billbuddy.ui.theme.PinkButtonStroke
 import com.example.billbuddy.ui.viewModel.MainViewModel
 import com.example.billbuddy.ui.viewModel.SortOption
 import com.example.billbuddy.util.sortEvents

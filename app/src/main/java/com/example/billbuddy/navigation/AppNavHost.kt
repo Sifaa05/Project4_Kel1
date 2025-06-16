@@ -18,6 +18,7 @@ import com.example.billbuddy.ui.screen.authentication.ForgotPasswordScreen
 import com.example.billbuddy.ui.screen.authentication.LoginScreen
 import com.example.billbuddy.ui.screen.authentication.RegisterScreen
 import com.example.billbuddy.ui.screen.authentication.VerificationScreen
+import com.example.billbuddy.ui.screen.authentication.ForgotPasswordScreen
 import com.example.billbuddy.ui.screen.EventDetailScreen
 import com.example.billbuddy.ui.screen.HomeScreen
 import com.example.billbuddy.ui.screen.InputEventScreen
@@ -28,11 +29,13 @@ import com.example.billbuddy.ui.screen.OnboardingSatuScreen
 import com.example.billbuddy.ui.screen.OnboardingTigaScreen
 import com.example.billbuddy.ui.screen.ParticipantBillDetailScreen
 import com.example.billbuddy.ui.screen.ParticipantScreen
+import com.example.billbuddy.ui.screen.SharedBillScreen
 import com.example.billbuddy.ui.screen.ProfileScreen
 import com.example.billbuddy.ui.screen.ScanScreen
 import com.example.billbuddy.ui.screen.SearchScreen
 import com.example.billbuddy.ui.screen.SharedBillScreen
 import com.example.billbuddy.ui.screen.SplashScreen
+import com.example.billbuddy.ui.screen.NotificationScreen
 import com.example.billbuddy.ui.viewModel.AuthViewModel
 import com.example.billbuddy.ui.viewModel.MainViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -108,26 +111,31 @@ fun AppNavHost(
                 }
             )
         }
+        composable(NavRoutes.ForgotPassword.route) {
+            ForgotPasswordScreen(
+                onResetPasswordClick = { email -> },
+                onBackClick = {
+                    navController.navigate(NavRoutes.Login.route) {
+                        popUpTo(NavRoutes.ForgotPassword.route) { inclusive = true }
+                    }
+                },
+                onNavigateBack = {
+                    navController.navigate(NavRoutes.Login.route) {
+                        popUpTo(NavRoutes.ForgotPassword.route) { inclusive = true }
+                    }
+                }
+            )
+        }
         composable(NavRoutes.Register.route) {
             RegisterScreen(
                 onCreateAccountClick = { email, password ->
                     navController.navigate(NavRoutes.Verification.route) {
-                                    popUpTo(NavRoutes.Register.route) { inclusive = true }
+                        popUpTo(NavRoutes.Register.route) { inclusive = true }
                     }
                 },
                 onBackClick = {
                     navController.navigate(NavRoutes.Authentication.route) {
                         popUpTo(NavRoutes.Register.route) { inclusive = true }
-                    }
-                }
-            )
-        }
-        composable(NavRoutes.ForgotPassword.route) {
-            ForgotPasswordScreen(
-                onResetPasswordClick = { /* TODO: Implement reset password logic */ },
-                onBackClick = {
-                    navController.navigate(NavRoutes.Login.route) {
-                        popUpTo(NavRoutes.ForgotPassword.route) { inclusive = true }
                     }
                 }
             )
@@ -163,21 +171,8 @@ fun AppNavHost(
         composable(NavRoutes.Search.route) {
             SearchScreen(navController = navController, viewModel = mainViewModel)
         }
-
         composable(NavRoutes.Notification.route) {
             NotificationScreen(navController = navController, viewModel = mainViewModel)
-        }
-
-        composable(
-            route = NavRoutes.SharedBill.route,
-            arguments = listOf(navArgument("eventId") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val eventId = backStackEntry.arguments?.getString("eventId") ?: ""
-            SharedBillScreen(
-                eventId = eventId,
-                viewModel = mainViewModel,
-                navController = navController
-            )
         }
 
         // Event-Related Routes
@@ -193,7 +188,7 @@ fun AppNavHost(
             InputEventScreen(
                 navController = navController,
                 repository = repository,
-                viewModel = mainViewModel, // Tambahkan mainViewModel
+                viewModel = mainViewModel,
                 scannedBillDataJson = backStackEntry.arguments?.getString("scannedBillDataJson")
             )
         }
@@ -260,6 +255,17 @@ fun AppNavHost(
                 participantId = participantId,
                 navController = navController,
                 viewModel = mainViewModel
+            )
+        }
+        composable(
+            route = NavRoutes.SharedBill.route,
+            arguments = listOf(navArgument("eventId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val eventId = backStackEntry.arguments?.getString("eventId") ?: ""
+            SharedBillScreen(
+                eventId = eventId,
+                viewModel = mainViewModel,
+                navController = navController
             )
         }
 

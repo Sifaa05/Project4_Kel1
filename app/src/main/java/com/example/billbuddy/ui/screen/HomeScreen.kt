@@ -18,6 +18,7 @@ import androidx.navigation.NavController
 import com.example.billbuddy.navigation.NavRoutes
 import com.example.billbuddy.ui.viewModel.MainViewModel
 import com.example.billbuddy.ui.components.*
+import com.example.billbuddy.ui.theme.PinkButtonStroke
 import com.example.billbuddy.ui.components.AppFloatingActionButton
 import com.example.billbuddy.ui.components.CommonNavigationBar
 import com.example.billbuddy.ui.components.CommonEventCard

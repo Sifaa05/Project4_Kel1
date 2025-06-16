@@ -24,6 +24,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.font.FontWeight
 import androidx.navigation.NavController
 import com.example.billbuddy.repository.SplitBillRepository
 import com.example.billbuddy.repository.UserRepository
@@ -39,6 +40,12 @@ import com.example.billbuddy.ui.viewModel.MainViewModel
 import com.example.billbuddy.util.addOrUpdateItem
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.util.UUID
+import com.example.billbuddy.ui.theme.PinkBackground
+import com.example.billbuddy.ui.theme.PinkButton
+import com.example.billbuddy.ui.theme.DarkGreyText
+import com.example.billbuddy.ui.theme.White
+import com.example.billbuddy.ui.theme.PinkButtonStroke
 
 @Composable
 fun InputEventScreen(

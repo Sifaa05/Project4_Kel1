@@ -16,11 +16,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.billbuddy.data.EventData
-import com.example.billbuddy.data.Participant
 import com.example.billbuddy.ui.components.AppBranding
-import com.example.billbuddy.ui.components.CommonNavigationBar
-import com.example.billbuddy.ui.components.HomeHeader
 import com.example.billbuddy.ui.theme.*
 import com.example.billbuddy.ui.viewModel.MainViewModel
 
@@ -51,227 +47,226 @@ fun SharedBillScreen(
 //        modifier = Modifier.fillMaxSize()
 //    )
     //{ padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-                //.padding(padding)
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Header
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+            //.padding(padding)
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Header
 //            HomeHeader(
 //                navController = navController,
 //                showBackButton = true
 //            )
 
-            Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
-            // Branding
-            AppBranding(isHorizontal = true)
+        // Branding
+        AppBranding(isHorizontal = true)
 
-            Spacer(modifier = Modifier.height(10.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
-            // Judul
-            Text(
-                text = "Shared Bill",
-                style = MaterialTheme.typography.displayLarge,
-                color = PinkButtonStroke
+        // Judul
+        Text(
+            text = "Shared Bill",
+            style = MaterialTheme.typography.displayLarge,
+            color = PinkButtonStroke
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Konten utama
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .align(Alignment.CenterHorizontally)
             )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Konten utama
-            if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .align(Alignment.CenterHorizontally)
-                )
-            } else if (error != null) {
+        } else if (error != null) {
+            Text(
+                text = "Error: $error",
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(16.dp)
+            )
+        } else {
+            eventData?.let { event ->
+                // Jumlah peserta
                 Text(
-                    text = "Error: $error",
+                    text = "Participants (${event.participants.size}):",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(16.dp)
+                    color = DarkGreyText,
+                    fontFamily = KadwaFontFamily,
+                    modifier = Modifier.align(Alignment.Start)
                 )
-            } else {
-                eventData?.let { event ->
-                    // Jumlah peserta
-                    Text(
-                        text = "Participants (${event.participants.size}):",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = DarkGreyText,
-                        fontFamily = KadwaFontFamily,
-                        modifier = Modifier.align(Alignment.Start)
-                    )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-                    // Hitung jumlah participant yang memilih setiap item
-                    val itemSelectionCount = mutableMapOf<String, Int>()
-                    event.items.forEach { item ->
-                        val count = event.participants.count { participant ->
-                            participant.itemsAssigned?.contains(item.itemId) == true
-                        }
-                        itemSelectionCount[item.itemId] = if (count > 0) count else 1
+                // Hitung jumlah participant yang memilih setiap item
+                val itemSelectionCount = mutableMapOf<String, Int>()
+                event.items.forEach { item ->
+                    val count = event.participants.count { participant ->
+                        participant.itemsAssigned?.contains(item.itemId) == true
                     }
+                    itemSelectionCount[item.itemId] = if (count > 0) count else 1
+                }
 
-                    // Hitung jumlah total participant
-                    val participantCount = event.participants.size
+                // Hitung jumlah total participant
+                val participantCount = event.participants.size
 
-                    LazyColumn(
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        items(event.participants) { participant ->
-                            val bill = calculateParticipantBill(
-                                participant = participant,
-                                event = event,
-                                itemSelectionCount = itemSelectionCount,
-                                participantCount = participantCount
-                            )
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(event.participants) { participant ->
+                        val bill = calculateParticipantBill(
+                            participant = participant,
+                            event = event,
+                            itemSelectionCount = itemSelectionCount,
+                            participantCount = participantCount
+                        )
 
-                            Card(
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp)
+                                .shadow(elevation = 10.dp, shape = RoundedCornerShape(8.dp)),
+                            shape = RoundedCornerShape(8.dp),
+                            colors = CardDefaults.cardColors(containerColor = CardBackground)
+                        ) {
+                            Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(vertical = 8.dp)
-                                    .shadow(elevation = 10.dp, shape = RoundedCornerShape(8.dp)),
-                                shape = RoundedCornerShape(8.dp),
-                                colors = CardDefaults.cardColors(containerColor = CardBackground)
+                                    .padding(16.dp)
                             ) {
-                                Column(
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    if (participant.isCreator) {
+                                        Icon(
+                                            imageVector = Icons.Default.Star,
+                                            contentDescription = "Creator",
+                                            tint = PinkButtonStroke,
+                                            modifier = Modifier.size(20.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(4.dp))
+                                    }
+                                    Text(
+                                        text = "${participant.name}",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = DarkGreyText,
+                                        fontFamily = KadwaFontFamily
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                // Rincian
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        text = "Subtotal",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = DarkGreyText,
+                                        fontFamily = RobotoFontFamily
+                                    )
+                                    Text(
+                                        text = "Rp ${bill.subtotal}",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = DarkGreyText,
+                                        fontFamily = RobotoFontFamily
+                                    )
+                                }
+                                Divider(
+                                    color = DarkGreyText.copy(alpha = 0.2f),
+                                    thickness = 1.dp,
+                                    modifier = Modifier.padding(vertical = 4.dp)
+                                )
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        text = "Service Fee",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = DarkGreyText,
+                                        fontFamily = RobotoFontFamily
+                                    )
+                                    Text(
+                                        text = "Rp ${bill.serviceFee}",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = DarkGreyText,
+                                        fontFamily = RobotoFontFamily
+                                    )
+                                }
+                                Divider(
+                                    color = DarkGreyText.copy(alpha = 0.2f),
+                                    thickness = 1.dp,
+                                    modifier = Modifier.padding(vertical = 4.dp)
+                                )
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Text(
+                                        text = "Tax",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = DarkGreyText,
+                                        fontFamily = RobotoFontFamily
+                                    )
+                                    Text(
+                                        text = "Rp ${bill.tax}",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = DarkGreyText,
+                                        fontFamily = RobotoFontFamily
+                                    )
+                                }
+                                Divider(
+                                    color = DarkGreyText.copy(alpha = 0.2f),
+                                    thickness = 1.dp,
+                                    modifier = Modifier.padding(vertical = 4.dp)
+                                )
+
+                                Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(16.dp)
+                                        .padding(vertical = 4.dp)
+                                        .background(PinkBackground.copy(alpha = 0.1f), RoundedCornerShape(8.dp))
+                                        .padding(8.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        if (participant.isCreator) {
-                                            Icon(
-                                                imageVector = Icons.Default.Star,
-                                                contentDescription = "Creator",
-                                                tint = PinkButtonStroke,
-                                                modifier = Modifier.size(20.dp)
-                                            )
-                                            Spacer(modifier = Modifier.width(4.dp))
-                                        }
-                                        Text(
-                                            text = "${participant.name}",
-                                            style = MaterialTheme.typography.bodyLarge,
-                                            fontWeight = FontWeight.Bold,
-                                            color = DarkGreyText,
-                                            fontFamily = KadwaFontFamily
-                                        )
-                                    }
-
-                                    Spacer(modifier = Modifier.height(8.dp))
-
-                                    // Rincian
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Text(
-                                            text = "Subtotal",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = DarkGreyText,
-                                            fontFamily = RobotoFontFamily
-                                        )
-                                        Text(
-                                            text = "Rp ${bill.subtotal}",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = DarkGreyText,
-                                            fontFamily = RobotoFontFamily
-                                        )
-                                    }
-                                    Divider(
-                                        color = DarkGreyText.copy(alpha = 0.2f),
-                                        thickness = 1.dp,
-                                        modifier = Modifier.padding(vertical = 4.dp)
+                                    Text(
+                                        text = "Total",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = PinkButtonStroke,
+                                        fontFamily = KhulaExtrabold
                                     )
-
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Text(
-                                            text = "Service Fee",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = DarkGreyText,
-                                            fontFamily = RobotoFontFamily
-                                        )
-                                        Text(
-                                            text = "Rp ${bill.serviceFee}",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = DarkGreyText,
-                                            fontFamily = RobotoFontFamily
-                                        )
-                                    }
-                                    Divider(
-                                        color = DarkGreyText.copy(alpha = 0.2f),
-                                        thickness = 1.dp,
-                                        modifier = Modifier.padding(vertical = 4.dp)
+                                    Text(
+                                        text = "Rp ${bill.total}",
+                                        style = MaterialTheme.typography.bodyLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = PinkButtonStroke,
+                                        fontFamily = KhulaExtrabold
                                     )
-
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Text(
-                                            text = "Tax",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = DarkGreyText,
-                                            fontFamily = RobotoFontFamily
-                                        )
-                                        Text(
-                                            text = "Rp ${bill.tax}",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = DarkGreyText,
-                                            fontFamily = RobotoFontFamily
-                                        )
-                                    }
-                                    Divider(
-                                        color = DarkGreyText.copy(alpha = 0.2f),
-                                        thickness = 1.dp,
-                                        modifier = Modifier.padding(vertical = 4.dp)
-                                    )
-
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(vertical = 4.dp)
-                                            .background(PinkBackground.copy(alpha = 0.1f), RoundedCornerShape(8.dp))
-                                            .padding(8.dp),
-                                        horizontalArrangement = Arrangement.SpaceBetween
-                                    ) {
-                                        Text(
-                                            text = "Total",
-                                            style = MaterialTheme.typography.bodyLarge,
-                                            fontWeight = FontWeight.Bold,
-                                            color = PinkButtonStroke,
-                                            fontFamily = KhulaExtrabold
-                                        )
-                                        Text(
-                                            text = "Rp ${bill.total}",
-                                            style = MaterialTheme.typography.bodyLarge,
-                                            fontWeight = FontWeight.Bold,
-                                            color = PinkButtonStroke,
-                                            fontFamily = KhulaExtrabold
-                                        )
-                                    }
                                 }
                             }
                         }
                     }
-                } ?: Text(
-                    text = "No participants found",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = DarkGreyText,
-                    modifier = Modifier.padding(16.dp)
-                )
-            }
+                }
+            } ?: Text(
+                text = "No participants found",
+                style = MaterialTheme.typography.bodyLarge,
+                color = DarkGreyText,
+                modifier = Modifier.padding(16.dp)
+            )
         }
-    //}
+    }
 }

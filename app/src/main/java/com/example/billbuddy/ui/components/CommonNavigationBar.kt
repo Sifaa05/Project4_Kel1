@@ -15,6 +15,7 @@ import com.example.billbuddy.navigation.NavRoutes
 import com.example.billbuddy.ui.theme.PinkBackground
 import com.example.billbuddy.ui.theme.White
 import com.example.billbuddy.ui.theme.WhiteTitle
+import com.example.billbuddy.ui.theme.PinkButtonStroke
 
 @Composable
 fun CommonNavigationBar(

@@ -29,6 +29,9 @@ import com.example.billbuddy.ui.components.HomeHeader
 import com.example.billbuddy.ui.theme.*
 import com.example.billbuddy.ui.viewModel.MainViewModel
 import com.example.billbuddy.util.Tuple4
+import com.example.billbuddy.ui.theme.PinkButton
+import com.example.billbuddy.ui.theme.PinkButtonStroke
+import com.example.billbuddy.ui.theme.White
 
 @Composable
 fun AssignItemsScreen(

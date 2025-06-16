@@ -2,7 +2,7 @@ package com.example.billbuddy.navigation
 
 sealed class NavRoutes(val route: String) {
     object OnboardingSatu : NavRoutes("onboarding_satu_screen")
-    object OnboardingDua : NavRoutes("onboarding_dua_screen") // Tambahkan rute ini
+    object OnboardingDua : NavRoutes("onboarding_dua_screen")
     object OnboardingTiga : NavRoutes("onboarding_tiga_screen")
     object Splash : NavRoutes("splash_screen")
     object Home : NavRoutes("home_screen")
@@ -10,7 +10,7 @@ sealed class NavRoutes(val route: String) {
     object EditProfile : NavRoutes("edit_profile")
     object Profile : NavRoutes("profile_screen")
     object Search : NavRoutes("search_screen")
-    object Notification : NavRoutes("notification")
+    object Notification : NavRoutes("notification_screen")
     object InputEvent : NavRoutes("input_event?scannedBillDataJson={scannedBillDataJson}") {
         fun createRoute(scannedBillDataJson: String): String {
             return "input_event?scannedBillDataJson=$scannedBillDataJson"
@@ -36,17 +36,12 @@ sealed class NavRoutes(val route: String) {
         fun createRoute(eventId: String, participantId: String) =
             "participant_bill_detail_screen/$eventId/$participantId"
     }
-    object Authentication : NavRoutes("authentication_screen")
-
-    object Login : NavRoutes("login_screen")
-
-    object Register : NavRoutes("register_screen")
-
-    object ForgotPassword : NavRoutes("forgot_password_screen")
-
-    object Verification : NavRoutes("verification_screen")
-
-    object SharedBill : NavRoutes("sharedBill/{eventId}") {
-        fun createRoute(eventId: String) = "sharedBill/$eventId"
+    object SharedBill : NavRoutes("sharedbill/{eventId}") {
+        fun createRoute(eventId: String) = "sharedbill/$eventId"
     }
+    object Authentication : NavRoutes("authentication_screen")
+    object Login : NavRoutes("login_screen")
+    object Register : NavRoutes("register_screen")
+    object ForgotPassword : NavRoutes("forgot_password_screen")
+    object Verification : NavRoutes("verification_screen")
 }

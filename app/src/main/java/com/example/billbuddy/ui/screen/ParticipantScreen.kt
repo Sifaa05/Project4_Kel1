@@ -1,5 +1,10 @@
 package com.example.billbuddy.ui.screen
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,8 +19,11 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -27,6 +35,13 @@ import com.example.billbuddy.navigation.NavRoutes
 import com.example.billbuddy.ui.components.*
 import com.example.billbuddy.ui.theme.*
 import com.example.billbuddy.ui.viewModel.MainViewModel
+import com.google.firebase.dynamiclinks.DynamicLink
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks
+import com.google.firebase.dynamiclinks.ShortDynamicLink
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 data class ParticipantBill(
     val subtotal: Long,
@@ -41,18 +56,105 @@ fun ParticipantScreen(
     viewModel: MainViewModel,
     navController: NavController
 ) {
+    Log.d("ParticipantScreen", "Event ID received by Composable (from nav): $eventId")
+
     // Ambil data dari ViewModel
     val eventData by viewModel.eventData.observeAsState()
     val error by viewModel.error.observeAsState()
     var isLoading by remember { mutableStateOf(true) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+    val clipboardManager = remember { context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager }
+
+
 
     // Ambil detail event dari database
     LaunchedEffect(eventId) {
+        Log.d("ParticipantScreen", "LaunchedEffect triggered for Event ID: $eventId")
         viewModel.getEventDetails(eventId)
         isLoading = false
+        isLoading = false
+        // === DEBUGGING: Log eventData setelah dimuat ===
+        eventData?.let {
+            Log.d("ParticipantScreen", "EventData loaded: Event ID from data = ${it.eventId}, Name = ${it.eventName}")
+        } ?: Log.d("ParticipantScreen", "EventData is null after loading.")
     }
 
+
+    suspend fun generateAndCopyDynamicLink(eventId: String, snackbarHostState: SnackbarHostState) {
+        Log.d("DynamicLink", "Attempting to generate link for Event ID: $eventId")
+        try {
+            if (eventId.isEmpty()) {
+                snackbarHostState.showSnackbar("Event ID is empty, cannot generate link.")
+                Log.e("DynamicLink", "Attempted to generate link with empty Event ID.")
+                return
+            }
+
+            val baseLink = Uri.parse("https://billbuddy.page.link/sharedbill/$eventId")
+            Log.d("DynamicLink", "Base Link constructed: $baseLink")
+            val dynamicLink = FirebaseDynamicLinks.getInstance().createDynamicLink()
+                .setLink(baseLink)
+                .setDomainUriPrefix("https://billbuddy.page.link")
+                .setAndroidParameters(
+                    DynamicLink.AndroidParameters.Builder("com.example.billbuddy")
+                        .setMinimumVersion(1)
+                        .build()
+                )
+                .setIosParameters(
+                    DynamicLink.IosParameters.Builder("com.example.billbuddy")
+                        .setMinimumVersion("1.0")
+                        .build()
+                )
+                .setSocialMetaTagParameters(
+                    DynamicLink.SocialMetaTagParameters.Builder()
+                        .setTitle("BillBuddy Shared Bill")
+                        .setDescription("Join the bill sharing event")
+                        .build()
+                )
+
+            // Coba generate short link
+            val shortLinkResult = try {
+                Log.d("DynamicLink", "Attempting to build short dynamic link...")
+                dynamicLink.buildShortDynamicLink(ShortDynamicLink.Suffix.SHORT).await()
+            } catch (e: Exception) {
+                Log.e("DynamicLink", "Short link generation failed: ${e.message}", e)
+                snackbarHostState.showSnackbar("Short link generation failed: ${e.message}. Trying long link.")
+                null
+            }
+
+            val linkToCopy = if (shortLinkResult?.shortLink != null) {
+                shortLinkResult.shortLink
+            } else if (shortLinkResult?.previewLink != null) {
+                shortLinkResult.previewLink
+            } else {
+                Log.d("DynamicLink", "Falling back to long dynamic link.")
+                dynamicLink.buildDynamicLink().uri // Fallback ke long link
+            }
+
+            if (linkToCopy != null) {
+                Log.i("DynamicLink", "Final link to copy: $linkToCopy")
+                clipboardManager.setPrimaryClip(ClipData.newPlainText("Bill Link", linkToCopy.toString()))
+                snackbarHostState.showSnackbar(
+                    if (shortLinkResult?.shortLink != null) "Short link copied to clipboard!"
+                    else "Long link copied to clipboard (short link failed)"
+                )
+            } else {
+                snackbarHostState.showSnackbar("Failed to generate any valid link")
+                Log.e("DynamicLink", "No valid link could be generated.")
+            }
+        } catch (e: Exception) {
+                Log.e("DynamicLink", "Error generating Dynamic Link: ${e.message}, StackTrace: ${e.stackTraceToString()}", e)
+            val errorMessage = when (e) {
+                is com.google.firebase.FirebaseException -> "Firebase error: ${e.message}"
+                else -> "Failed to generate link: ${e.message}"
+            }
+            snackbarHostState.showSnackbar(errorMessage)
+        }
+    }
+
+
     Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
         bottomBar = {
             CommonNavigationBar(
                 navController = navController,
@@ -103,14 +205,26 @@ fun ParticipantScreen(
                 )
             } else {
                 eventData?.let { event ->
+                    Log.d("ParticipantScreen", "Displaying participants for Event ID: ${event.eventId}")
+
                     // Jumlah peserta
                     Text(
                         text = "Participants (${event.participants.size}):",
                         style = MaterialTheme.typography.bodyLarge,
                         color = DarkGreyText,
-                        fontFamily = KadwaFontFamily,
+                        fontFamily = KhulaRegular,
                         modifier = Modifier.align(Alignment.Start)
                     )
+//            } else {
+//                eventData?.let { event ->
+//                    // Jumlah peserta
+//                    Text(
+//                        text = "Participants (${event.participants.size}):",
+//                        style = MaterialTheme.typography.bodyLarge,
+//                        color = DarkGreyText,
+//                        fontFamily = KadwaFontFamily,
+//                        modifier = Modifier.align(Alignment.Start)
+//                    )
 
                     Spacer(modifier = Modifier.height(8.dp))
 
@@ -343,8 +457,16 @@ fun ParticipantScreen(
                                 Spacer(modifier = Modifier.width(8.dp))
                                 AppFilledButton(
                                     onClick = {
-                                        navController.navigate(NavRoutes.SharedBill.createRoute(eventId))
-                                    }, // Rute kosong
+                                        CoroutineScope(Dispatchers.Main).launch {
+                                            val idToUseForLink = eventData?.eventId ?: eventId
+                                            if (idToUseForLink.isNotEmpty()) {
+                                                generateAndCopyDynamicLink(idToUseForLink, snackbarHostState)
+                                            } else {
+                                                snackbarHostState.showSnackbar("Event ID not available to generate link.")
+                                                Log.e("ParticipantScreen", "Cannot generate link: Event ID is empty or null.")
+                                            }
+                                        }
+                                    },
                                     text = "Generate Link",
                                     containerColor = TextFieldBackground,
                                     textColor = White,

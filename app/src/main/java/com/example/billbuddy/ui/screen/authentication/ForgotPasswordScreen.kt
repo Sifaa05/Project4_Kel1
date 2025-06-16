@@ -1,5 +1,7 @@
 package com.example.billbuddy.ui.screen.authentication
 
+import android.graphics.fonts.Font
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -12,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -20,19 +23,22 @@ import com.example.billbuddy.R
 import com.example.billbuddy.ui.components.AppFilledButton
 import com.example.billbuddy.ui.theme.BlackText
 import com.example.billbuddy.ui.theme.ButtonText
-import com.example.billbuddy.ui.theme.KadwaFontFamily
-import com.example.billbuddy.ui.theme.KhulaExtrabold
-import com.example.billbuddy.ui.theme.KhulaRegular
 import com.example.billbuddy.ui.theme.PinkBackground
 import com.example.billbuddy.ui.theme.PinkButtonStroke
 import com.example.billbuddy.ui.theme.TextFieldBackground
+import com.example.billbuddy.ui.theme.KhulaExtrabold
+import com.example.billbuddy.ui.theme.KhulaRegular
+import com.google.firebase.auth.FirebaseAuth
 
 @Composable
 fun ForgotPasswordScreen(
     onResetPasswordClick: (String) -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onNavigateBack: () -> Unit
 ) {
+    val context = LocalContext.current
     var email by remember { mutableStateOf("") }
+    val auth = FirebaseAuth.getInstance()
 
     Box(
         modifier = Modifier
@@ -87,7 +93,7 @@ fun ForgotPasswordScreen(
                 ),
                 shape = RoundedCornerShape(40.dp),
                 textStyle = LocalTextStyle.current.copy(
-                    fontFamily = KadwaFontFamily,
+                    fontFamily = KhulaRegular,
                     color = BlackText.copy(alpha = 0.58f),
                     fontSize = 12.sp
                 ),
@@ -97,7 +103,21 @@ fun ForgotPasswordScreen(
             Spacer(modifier = Modifier.height(80.dp))
 
             AppFilledButton(
-                onClick = { onResetPasswordClick(email) },
+                onClick = {
+                    if (email.isNotEmpty()) {
+                        auth.sendPasswordResetEmail(email)
+                            .addOnCompleteListener { task ->
+                                if (task.isSuccessful) {
+                                    Toast.makeText(context, "Reset email sent! Check your inbox", Toast.LENGTH_SHORT).show()
+                                    onNavigateBack()
+                                } else {
+                                    Toast.makeText(context, "Failed to send reset email: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                    } else {
+                        Toast.makeText(context, "Please enter your email", Toast.LENGTH_SHORT).show()
+                    }
+                },
                 text = "Reset Password",
                 textColor = ButtonText.copy(alpha = 0.55f),
                 modifier = Modifier.fillMaxWidth(0.6f),
@@ -144,6 +164,7 @@ fun ForgotPasswordScreen(
 fun ForgotPasswordScreenPreview() {
     ForgotPasswordScreen(
         onResetPasswordClick = {},
-        onBackClick = {}
+        onBackClick = {},
+        onNavigateBack = {}
     )
 }

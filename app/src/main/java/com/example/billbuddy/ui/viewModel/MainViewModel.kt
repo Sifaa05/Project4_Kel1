@@ -248,6 +248,18 @@ class MainViewModel : ViewModel() {
         )
     }
 
+//    fun updateUsername(username: String) {
+//        userRepository.updateUsername(
+//            username = username,
+//            onSuccess = {
+//                getUserProfile()
+//            },
+//            onFailure = { e ->
+//                _error.value = e.message
+//            }
+//        )
+//    }
+
 //    fun uploadProfilePhoto(
 //        uri: Uri,
 //        onSuccess: () -> Unit = {}
